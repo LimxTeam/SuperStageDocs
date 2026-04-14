@@ -71,41 +71,47 @@ SceneBase (根组件)
 
 默认参数定义了灯具的物理特性，在蓝图中设置一次后不随 DMX 变化。
 
-### 4.1 FLightDefaultValue — 灯光默认值
+### 4.1 FLightingComponentDefaultValue — 灯光统一默认值
 
 | 参数 | 说明 | 默认值 | 单位 |
 |------|------|--------|------|
 | **MaxLightIntensity** | 光源最大亮度百分比 | 100.0 | % |
 | **LensIntensity** | 镜头强度乘数 | 1.0 | — |
 | **MaxLightDistance** | 光照最大距离 | 2345.0 | cm |
-| **LightSpotDefaultValue** | 聚光灯参数（见下表） | — | — |
-| **BeamDefaultValue** | 光束参数（见下表） | — | — |
+| **DimmerCurveExponent** | 亮度响应曲线指数（1.0=线性, 2.0=平方推荐, 3.0=立方） | 2.0 | — |
+| **LightSpotDefaults** | 聚光灯参数（见下表） | — | — |
+| **BeamDefaults** | 光束参数（见下表） | — | — |
 
-### 4.2 FLightSpotDefaultValue — 聚光灯参数
+### 4.2 FLightLightSpotDefaultValue — 聚光灯参数
 
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
+| **bDisableLights** | 是否禁用光源 | false |
+| **bDisableLightFunction** | 是否禁用光照函数（禁用后频闪通过 Tick 直接控制光源强度） | false |
 | **LightSpotIntensity** | 聚光灯亮度乘数 | 1.0 |
-| **VolumetricScattering** | 体积散射强度 | 1.0 |
+| **ZoomRange** | Spot 角度范围 | (1.0, 10.0) |
+| **Angle** | Spot 角度 | 1.0 |
+| **VolumetricScattering** | 体积散射强度 | 0.0 |
 | **bLightShadow** | 是否启用阴影 | false |
-| **bAffectTransmission** | 是否影响透射 | false |
+| **bAffectTransmission** | 是否影响透射 | true |
 | **SpecularScale** | 高光强度缩放 | 1.0 |
 | **SourceRadius** | 光源半径（影响软阴影） | 0.0 |
 | **bLightingChannel0** | 光照通道 0 | true |
 | **bLightingChannel1** | 光照通道 1 | false |
 | **bLightingChannel2** | 光照通道 2 | false |
 
-### 4.3 FBeamDefaultValue — 光束参数
+### 4.3 FBeamComponentDefaultValue — 光束参数
 
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
-| **BeamIntensity** | 光束亮度乘数 | 1.0 |
-| **AtmosphericDensity** | 大气散射密度 | 1.0 |
-| **BeamFogIntensity** | 光束雾气强度 | 1.0 |
-| **AtmosBeamFogSpeed** | 大气/雾气流动速度 | 0.0 |
-| **LensRadius** | 镜头光晕半径 | 1.0 |
-| **BeamQuality** | 光束渲染质量 | 1.0 |
+| **bDisableBeam** | 是否禁用光束（禁用后仅保留光源和光斑） | false |
 | **bBeamBlock** | 是否启用光束遮挡检测 | false |
+| **BeamIntensity** | 光束亮度乘数 | 1.0 |
+| **AtmosphericDensity** | 大气散射密度 | 0.03 |
+| **BeamFogIntensity** | 光束雾气强度 | 20.0 |
+| **AtmosBeamFogSpeed** | 大气/雾气流动速度 | 10.0 |
+| **LensRadius** | 镜头光晕半径 | 10.0 |
+| **BeamQuality** | 光束渲染质量 | 75.0 |
 
 ### 4.4 默认参数调参建议
 
@@ -150,6 +156,12 @@ SceneBase (根组件)
 | **InfiniteRotationalSpeed** | 无极旋转速度乘数 | 1.0 | 0.01 ~ 10 |
 | **LiftSpeed** | 升降速度（FInterpTo 参数） | 1.0 | 0 ~ 10 |
 | **LiftRange** | 升降范围 | 500.0 | cm |
+
+### 4.6 光束视角衰减 (BeamAttenuationMode)
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| **BeamAttenuationMode** | 光束视角衰减模式。开启后摄像机正对光束时正常显示，非正对时光束亮度随摄像机角度衰减 | false |
 
 ---
 
@@ -207,8 +219,8 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 | **Color** | Color | RGB 颜色值 | 白色(1,1,1) | bColor |
 | **ColorWheel** | ColorWheel | 颜色盘位置 | 0.0 | bColorWheel |
 | **ColorTemperature** | ColorTemperature | 色温控制 | 0.0 | bColorTemperature |
-| **Cool** | Cool | 冷光通道 | 0.0 | bCool |
-| **Warm** | Warm | 暖光通道 | 0.0 | bWarm |
+| **Cool** | Cool | 冷光通道 | 0.0 | bCoolWarmMix |
+| **Warm** | Warm | 暖光通道 | 0.0 | bCoolWarmMix |
 
 ### 5.3 图案/棱镜控制参数
 
@@ -216,10 +228,10 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 |------|-------------|------|--------|------|------|
 | **Gobo1** | Gobo1 | 图案轮 1 位置 | 0.0 | 0~1 | bGobo1 |
 | **Gobo2** | Gobo2 | 图案轮 2 位置 | 0.0 | 0~1 | bGobo2 |
-| **Gobo_Rot** | GoboRot | 图案旋转 | 0.0 | 0~1 | bGoboRot |
+| **Gobo_Rot** | GoboRot | 图案旋转 | 0.0 | 0~1 | bGobo_Rot |
 | **Prism1** | Prism1 | 棱镜 1 | 0.0 | 0~1 | bPrism1 |
 | **Prism2** | Prism2 | 棱镜 2 | 0.0 | 0~1 | bPrism2 |
-| **Prism_Rot** | PrismRot | 棱镜旋转 | 0.0 | 0~1 | bPrismRot |
+| **Prism_Rot** | PrismRot | 棱镜旋转 | 0.0 | 0~1 | bPrism_Rot |
 
 ### 5.4 切割控制参数
 
@@ -241,7 +253,7 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 |------|-------------|------|--------|------|
 | **EffectDimmer** | EffectDimmer | 效果亮度 | 0.0 | bEffect |
 | **EffectStrobe** | EffectStrobe | 效果频闪 | 0.0 | bEffect |
-| **EffectValue** | Effect | 效果 LUT 索引 | 0.0 | bEffect |
+| **EffectValue** | EffectValue | 效果 LUT 索引 | 0.0 | bEffect |
 | **EffectColor** | EffectColor | 效果 RGB 颜色 | 白色 | bEffect |
 
 ### 5.6 继承的运动控制参数（来自 SuperLightBase）
@@ -250,7 +262,7 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 |------|------|--------|------|
 | **Pan** | 水平旋转位置 | 0.5 | bPan |
 | **Tilt** | 垂直旋转位置 | 0.5 | bTilt |
-| **PTSpeed** | Pan/Tilt 运动速度 | 5.0 | bPTSpeed |
+| **PTSpeed** | Pan/Tilt 运动速度 | 1.0 | bPTSpeed |
 | **PanRot** | Pan 无极旋转 | 0.5 | bPanRot |
 | **TiltRot** | Tilt 无极旋转 | 0.5 | bTiltRot |
 | **InPosZ** | Z 轴升降位置 | 0.0 | bInPosZ |
@@ -263,6 +275,8 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 
 ### 6.1 完整开关列表
 
+#### SuperStageLight 自有开关
+
 | 开关 | 功能 | 默认值 |
 |------|------|--------|
 | **bDimmer** | 亮度控制 | false |
@@ -274,27 +288,32 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 | **bColor** | RGB 颜色控制 | false |
 | **bColorWheel** | 颜色盘控制 | false |
 | **bColorTemperature** | 色温控制 | false |
-| **bCool** | 冷光通道 | false |
-| **bWarm** | 暖光通道 | false |
+| **bCoolWarmMix** | 冷暖光双通道混色（同时控制 Cool 和 Warm 两个参数） | false |
 | **bGobo1** | 图案轮 1 | false |
 | **bGobo2** | 图案轮 2 | false |
-| **bGoboRot** | 图案旋转 | false |
+| **bGobo_Rot** | 图案旋转 | false |
 | **bPrism1** | 棱镜 1 | false |
 | **bPrism2** | 棱镜 2 | false |
-| **bPrismRot** | 棱镜旋转 | false |
-| **bCutting** | 切割叶片 | false |
-| **bCuttingRot** | 切割旋转 | false |
-| **bEffect** | 效果控制 | false |
-| **bEffectDimmer** | 效果亮度 | false |
-| **bEffectStrobe** | 效果频闪 | false |
-| **bEffectColor** | 效果颜色 | false |
+| **bPrism3** | 棱镜 3 | false |
+| **bPrism_Rot** | 棱镜旋转 | false |
+| **bYRotation** | 灯头自旋 | false |
+| **bCuttingChannel** | 切割控制（包含所有切割叶片 A1-B4 和 ShaperRot） | false |
+| **bEffect** | 效果控制（包含 EffectDimmer / EffectStrobe / EffectValue / EffectColor） | false |
+
+#### 继承自 SuperLightBase 的开关
+
+| 开关 | 功能 | 默认值 |
+|------|------|--------|
+| **bChannelEdit** | 通道编辑总开关（控制细节面板中所有通道开关的可见性） | false |
 | **bPan** | Pan 水平旋转 | false |
 | **bTilt** | Tilt 垂直旋转 | false |
 | **bPTSpeed** | PT 速度 | false |
 | **bPanRot** | Pan 无极旋转 | false |
 | **bTiltRot** | Tilt 无极旋转 | false |
-| **bInPosZ** | Z 轴升降 | false |
-| **bLampAngle** | 灯具角度 | false |
+| **bYPolarRotation** | 无极旋转模式 | false |
+| **bInPosZ** | Z 轴升降（插值模式） | false |
+| **bPositionZ** | Z 轴升降（位置模式） | false |
+| **bLampAngle** | 灯具角度手动控制 | false |
 
 > **设计原则**：只启用灯具实际拥有的通道功能，关闭不需要的开关可以避免不必要的 DMX 读取和计算开销。
 
@@ -384,8 +403,8 @@ CMY 颜色通过 `SetLightingColor(cmyPass)` 叠加到颜色盘上，材质中�
 ```
 Color = Lerp(WarmColor, CoolColor, DMX值)
 ```
-- DMX = 0 → 暖色温（默认 3200K）
-- DMX = 1 → 冷色温（默认 6500K）
+- DMX = 0 → 暖色温（默认 1700K）
+- DMX = 1 → 冷色温（默认 12000K）
 
 | 函数 | 说明 | 矩阵版本 |
 |------|------|----------|
@@ -872,7 +891,7 @@ Event SuperDMXTick(DeltaTime)
 
 ### Q: 切割不生效？
 1. 确认主光源组件是 `USuperCuttingComponent` 类型
-2. 确认 `bCutting` 开关已启用
+2. 确认 `bCuttingChannel` 开关已启用
 3. A 参数从 0 增加到 0.4 表示切割量增大，B 参数从 1.0 减少到 0.6 表示切割量增大
 
 ### Q: 棱镜没有效果？
