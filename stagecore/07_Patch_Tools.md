@@ -3,7 +3,7 @@
 > **所属模块**: SuperStageEditor (SSuperPatchTool / SSuperDMXPatchPreview)  
 > **适用对象**: 灯光编程师、舞美设计师  
 > **前置阅读**: [03 - DMX 灯具基础](/docs/stage-core/dmx-actor-base)  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 

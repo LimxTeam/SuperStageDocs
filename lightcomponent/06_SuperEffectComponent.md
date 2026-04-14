@@ -80,11 +80,11 @@ SuperEffectComponent (继承自 USceneComponent)
 
 | 参数 | 说明 | 范围 | 默认值 |
 |------|------|------|--------|
-| **MaxLightIntensity** | 组件级亮度分控，与 Actor 级 Dimmer 乘法叠加 | 0.0 ~ 1.0 | 1.0 |
+| **MaxLightIntensity** | 组件最大亮度百分比（设计时配置，100 = 全亮） | ≥ 1 | 100.0 |
 
 最终亮度公式：
 ```
-最终亮度 = Actor级Dimmer × MaxLightIntensity × 频闪倍率
+最终亮度 = Actor级Dimmer × (MaxLightIntensity / 100) × ComponentDimmer × 频闪倍率
 ```
 
 > **自动初始化**：组件默认参数由 `OnRegister()` 自动初始化。组件注册时会自动调用 `SetEffectMaterial()` 创建材质实例并设置默认值，无需在 Actor 中手动调用。
@@ -237,3 +237,21 @@ SuperStageLight
 
 ### Q: 效果动画的速度、宽度等参数具体效果是什么？
 **A**: 这些参数的具体视觉效果取决于所使用的效果材质（MI_Effect_Inst）中的着色器逻辑。常见的效果包括流水灯、追逐灯、呼吸灯、渐变等。可以通过材质编辑器查看和修改具体的效果实现。
+
+---
+
+## 七、API 快速参考
+
+以下为 `USuperEffectComponent` 的全部公开函数签名：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetComponentDimmer(const float NewDimmer)` | 组件级亮度分控（0.0 ~ 1.0） |
+| `void SetEffectMaterial()` | 创建动态材质实例（OnRegister 自动调用） |
+| `void SetEffectIntensity(const float NewIntensity)` | 设置亮度 |
+| `void SetEffectStrobe(const float NewStrobe = 0.0f)` | 设置频闪速度 |
+| `void SetEffectStrobeMode(const float NewStrobeMode = 1.0f)` | 设置频闪模式（0 ~ 7） |
+| `void SetRandomSeed(const float NewSeed)` | 设置随机种子 |
+| `void SetEffectColor(const FLinearColor NewColor = FLinearColor(1,1,1))` | 设置颜色 |
+| `void SetEffectControl(const float NewEffect = 0, const float NewSpeed = 1, const float NewWidth = 0.5) const` | 效果图案控制（效果/速度/宽度） |
+| `void SetEffectsControl(float NewIntensity = 1, float NewStrobe = 0, FLinearColor NewColor = ..., float NewDirection = 0, float NewEffect = 0, float NewSpeed = 1, float NewWidth = 0.5) const` | 综合一站式控制 |

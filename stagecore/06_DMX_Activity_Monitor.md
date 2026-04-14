@@ -3,7 +3,7 @@
 > **所属模块**: SuperStageEditor (SDmxActivityMonitor)  
 > **适用对象**: 灯光编程师、技术人员  
 > **前置阅读**: [01 - DMX 网络配置](/docs/stage-core/dmx-network)  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 

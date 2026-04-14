@@ -58,7 +58,15 @@ DMX Zoom 通道值（0~1）会被映射到这个范围内：
 > - 宽角 Wash 灯：ZoomRange = (10, 50)  
 > - Profile 灯：ZoomRange = (5, 35)
 
-### 3.2 光照函数开关
+### 3.2 光源禁用开关
+
+| 参数 | 说明 | 类型 | 默认值 |
+|------|------|------|--------|
+| **bDisableLights** | 是否禁用 SpotLight 光源（禁用后仅保留镜片和光斑材质效果，不产生真实光照） | 布尔 | false（启用） |
+
+> **使用场景**：当灯具仅需要镜片发光和光束视觉效果而不需要真实光照时（例如纯光束灯），可以开启此选项以节省渲染开销。
+
+### 3.3 光照函数开关
 
 | 参数 | 说明 | 类型 | 默认值 |
 |------|------|------|--------|
@@ -69,7 +77,7 @@ DMX Zoom 通道值（0~1）会被映射到这个范围内：
 | **关闭**（默认） | SpotLight 使用光照函数材质，支持 Gobo 图案投射。频闪通过材质参数控制 |
 | **开启** | SpotLight 不使用光照函数材质，频闪通过 Tick 直接控制光源强度。适合不需要图案投射的简单灯具 |
 
-### 3.3 继承的默认参数
+### 3.4 继承的默认参数
 
 以下参数继承自基类 SuperLightingComponent：
 
@@ -77,7 +85,7 @@ DMX Zoom 通道值（0~1）会被映射到这个范围内：
 |------|------|--------|
 | **Angle** | 光斑角度参考值 | 1.0 |
 | **DimmerCurveExponent** | 亮度响应曲线指数 | 2.0 |
-| **MaxLightIntensity** | 组件级亮度分控 | 1.0 |
+| **MaxLightIntensity** | 组件最大亮度百分比（100 = 全亮） | 100.0 |
 | **StaticMeshLens** | 镜片模型 | — |
 | **LensTransform** | 镜片变换 | 无偏移 |
 
@@ -95,7 +103,7 @@ DMX Zoom 通道值（0~1）会被映射到这个范围内：
 | **最大亮度** | 光源最大亮度系数 | 100.0 | — |
 | **体积散射强度** | SpotLight 的体积雾散射强度 | — | — |
 | **是否投射阴影** | SpotLight 是否开启阴影投射 | — | — |
-| **光斑亮度** | 光斑材质的亮度乘数 | 100.0 | — |
+| **光斑亮度 (LightSpotIntensity)** | 光斑材质的亮度乘数 | 1.0 | — |
 | **镜片亮度** | 镜片材质的亮度乘数 | 1.0 | — |
 
 ---
@@ -285,3 +293,26 @@ SpotLight 的角度和衰减半径更新带有**去抖处理**：
 
 ### Q: 什么时候应该开启 bDisableLightFunction？
 **A**: 当灯具不需要投射 Gobo 图案时（如简单的 Wash 灯或补光灯），开启此选项可以略微提升性能。开启后频闪由 Tick 直接控制光源强度。
+
+---
+
+## 八、API 快速参考
+
+以下为 `USuperSpotComponent` 的公开函数签名（含继承自基类的 override）：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `virtual void SetLightingMaterial() override` | 创建动态材质并绑定为 SpotLight 光照函数 |
+| `virtual void SetLightingDefaultValue() override` | 推送默认参数到 SpotLight |
+| `virtual void SetLightingIntensity(const float NewLightIntensity = 1.0f) override` | 同时更新 SpotLight 强度和材质亮度 |
+| `virtual void SetLightingColor(const FLinearColor NewColor = FLinearColor(1,1,1)) override` | 同时设置 SpotLight 颜色和材质颜色 |
+| `virtual void SetLightingZoom(const float NewZoom = 0.0f) override` | 变焦映射（DMX → 分段插值 → SpotLight 锥角） |
+| `virtual void UpdateBeamBlockDistance(const float NewMaxLightDistance) override` | 更新光束遮挡距离 |
+| `virtual void SetLightingFrost(const float NewFrost = 0.0f) override` | 雾化（扩大锥角 + 减小内锥角比例） |
+| `virtual void SetLightingIris(const float NewIris = 1.0f) override` | 光圈（缩小锥角） |
+| `virtual void SetLightingRotate(const float NewRotate = 0, const float NewInfiniteRotation = 0) override` | 图案旋转 |
+| `virtual void SetColorTexture(UTexture2D*, int32, float, float) override` | 颜色轮 1 |
+| `virtual void SetColorTexture2(UTexture2D*, int32, float, float) override` | 颜色轮 2 |
+| `virtual void SetColorTexture3(UTexture2D*, int32, float, float) override` | 颜色轮 3 |
+| `virtual void SetLightingVisibility(const bool bNewVisibility = false) override` | SpotLight 可见性 |
+| `virtual void InitializeLightFunction()` | 初始化光照函数、阴影、通道配置 |

@@ -164,3 +164,13 @@ DMX 输入值会被自动钳制到 [0, 1] 范围：
 
 ### Q: 多个升降组件可以串联使用吗？
 **A**: 理论上可以，但不推荐。将多个升降组件串联会导致位移叠加，控制逻辑变得复杂。建议一个灯具使用一个升降组件。
+
+---
+
+## 七、API 快速参考
+
+以下为 `USuperLiftComponent` 的全部公开函数签名：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetLiftZ(float InPosZ = 0.0f, float LiftRange = 100.0f, float LiftSpeed = 1.0f)` | 设置升降位置（InPosZ 归一化 0~1，LiftRange 最大位移 cm，LiftSpeed 插值速度） |

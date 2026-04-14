@@ -95,7 +95,14 @@
 | **Position Offset** | FVector | 灯具相对于样条线切线坐标系的位置偏移（厘米） | (0, 0, 0) |
 | **Follow Spline Rotation** | bool | 灯具是否自动旋转以跟随样条线的切线方向 | 开启 |
 
-#### Follow Spline Rotation
+### 4.4 大纲文件夹（Organization 分类）
+
+| 参数 | 类型 | 说明 | 默认值 |
+|------|------|------|--------|
+| **Create Folder** | bool | 创建后是否将所有生成的 Actor 放入 World Outliner 文件夹 | 开启 |
+| **Folder Name** | FString | 文件夹名称（留空则自动以灯具类型命名）；自动检测命名冲突 | 空（自动生成） |
+
+### 4.5 Follow Spline Rotation
 
 | 状态 | 说明 |
 |------|------|

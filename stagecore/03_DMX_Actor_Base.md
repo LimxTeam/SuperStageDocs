@@ -3,7 +3,7 @@
 > **所属模块**: SuperStage 运行时 (ASuperDmxActorBase)  
 > **适用对象**: 灯光设计师、蓝图开发者  
 > **前置阅读**: [02 - 灯具库](/docs/stage-core/fixture-library)  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 
@@ -103,7 +103,15 @@ ASuperDmxActorBase
 - 在导出 MA 宏文件时使用
 - 在 Patch 工具中自动分配（避免冲突）
 
-### 3.2 Fixture Library（灯具库）
+### 3.2 控制模式 (ControlMode)
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| **ControlMode** | `DMX` = 由 DMX 信号驱动，`Property` = 由细节面板属性直接控制（无需控台） | DMX |
+
+> **Property 模式**：切换为 Property 后，控制参数（Dimmer/Color/Pan/Tilt 等）可直接在细节面板中拖动调节，无需连接控台或发送 DMX 信号。适用于独立调试和 Sequencer 关键帧动画。
+
+### 3.3 Fixture Library（灯具库）
 
 | 参数 | 说明 |
 |------|------|
@@ -123,9 +131,9 @@ SuperStage 可以在场景视口中每台灯具旁边显示 DMX 地址信息标�
 
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
-| **Show Address Label** | 是否在场景中显示地址标签 | 开启 |
-| **Include Fixture ID In Label** | 标签中是否包含 Fixture ID | 开启 |
-| **Address Label Offset** | 标签相对灯具的偏移位置（局部坐标） | (0, 0, 0) |
+| **Show Address Label** | 是否在场景中显示地址标签 | 关闭 |
+| **Include Fixture ID In Label** | 标签中是否包含 Fixture ID | 关闭 |
+| **Address Label Offset** | 标签相对灯具的偏移位置（局部坐标） | (30, 0, 0) |
 
 ### 4.2 标签格式
 
@@ -214,7 +222,13 @@ SuperStage 可以在场景视口中每台灯具旁边显示 DMX 地址信息标�
 
 这是读取 RGB 颜色的快捷方式，等同于分别读取 R、G、B 三个属性的归一化值。
 
-### 6.5 矩阵读取
+### 6.5 读取原始 DMX 值
+
+在蓝图中调用 **Get Super DMX Attribute Raw Value** 节点：
+- **输入**：DMX Attribute
+- **输出**：int32 原始 DMX 值（0-255）
+
+### 6.6 矩阵读取
 
 对于矩阵灯（多个模块实例），可以一次性读取所有实例的同名属性：
 
@@ -225,6 +239,24 @@ SuperStage 可以在场景视口中每台灯具旁边显示 DMX 地址信息标�
 
 **Get Matrix Attribute Raw 16** 节点：
 - 与上述相同，但用于 16 位精度属性
+
+### 6.7 地址解析与位深查询
+
+| 函数 | 说明 | 输出 |
+|------|------|------|
+| **ResolveAttributeAddressesByIndex** | 解析属性在 Universe 中的绝对通道地址 | Coarse/Fine/Ultra 绝对地址 |
+| **GetAttributeBitDepthByIndex** | 返回属性的有效位深（0/8/16/24） | int32 |
+| **FindAttributeDef** | 查找属性定义（用于访问子属性系统） | FSuperDMXAttributeDef* |
+
+### 6.8 蓝图矩阵宏（C++ 蓝图类专用）
+
+以下宏用于简化矩阵灯具蓝图 C++ 代码中的遍历逻辑：
+
+| 宏 | 说明 |
+|-----|------|
+| **GET_SUPER_DMX_MATRIX_VALUE** | 遍历矩阵属性值（自动区分8/16位），提供 LightIndex 和 DefaultValue |
+| **GET_SUPER_DMX_MATRIX_VALUE_WITH_SUBATTR** | 遍历矩阵属性值，额外提供 AttrDef / SubAttr 子属性信息 |
+| **GET_SUPER_DMX_MATRIX_RGB** | 遍历矩阵 RGB 三通道，提供 FLinearColor OutColor |
 
 ---
 

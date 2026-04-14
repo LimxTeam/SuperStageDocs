@@ -3,7 +3,7 @@
 > **所属模块**: SuperStage 运行时 (ASuperLightBase)  
 > **适用对象**: 灯光设计师、蓝图开发者  
 > **前置阅读**: [03 - DMX 灯具基础](/docs/stage-core/dmx-actor-base)  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 
@@ -132,12 +132,15 @@ SuperLightBase 提供一系列布尔开关，用于启用/禁用特定 DMX 控�
 
 | 开关 | 说明 | 默认值 |
 |------|------|--------|
-| **bPan** | 启用 Pan（水平旋转）控制 | 开 |
-| **bTilt** | 启用 Tilt（垂直旋转）控制 | 开 |
+| **bChannelEdit** | 通道编辑总开关（控制以下开关在细节面板中的可见性） | 关 |
+| **bPan** | 启用 Pan（水平旋转）控制 | 关 |
+| **bTilt** | 启用 Tilt（垂直旋转）控制 | 关 |
 | **bPTSpeed** | 启用 Pan/Tilt 速度控制通道 | 关 |
 | **bPanRot** | 启用 Pan 无极旋转模式 | 关 |
 | **bTiltRot** | 启用 Tilt 无极旋转模式 | 关 |
-| **bInPosZ** | 启用 Z 轴升降位移控制 | 关 |
+| **bYPolarRotation** | 无极旋转模式开关（控制 InfiniteRotationalSpeed 可见性） | 关 |
+| **bInPosZ** | 启用 Z 轴升降控制（插值模式） | 关 |
+| **bPositionZ** | 启用 Z 轴升降控制（位置模式，控制 LiftRange 可见性） | 关 |
 | **bLampAngle** | 启用灯具光束角度控制 | 关 |
 
 ### 5.2 开关使用说明
@@ -195,7 +198,7 @@ SuperLightBase 提供一系列布尔开关，用于启用/禁用特定 DMX 控�
 
 | 参数 | 属性名 | 说明 | 默认值 | 范围 |
 |------|--------|------|--------|------|
-| **PT Speed** | `PTSpeed` | Pan/Tilt 移动插值速度 | 5.0 | 0.1 - 20.0 |
+| **PT Speed** | `PTSpeed` | Pan/Tilt 移动插值速度 | 1.0 | 0.1 - 20.0 |
 
 **调参建议**：
 - 值越大，灯具响应越快（更接近"跳转"）
@@ -312,7 +315,7 @@ Z 位移 = DMX值(0~1) × LiftRange
 | Tilt 初始角度 | `TiltAngle` | B.DefaultParameter | 0 | -360~360 | Tilt 轴初始偏移 |
 | Pan 范围 | `PanRange` | B.DefaultParameter | (-270, +270) | 自定义 | 水平旋转角度范围 |
 | Tilt 范围 | `TiltRange` | B.DefaultParameter | (-135, +135) | 自定义 | 垂直旋转角度范围 |
-| PT 速度 | `PTSpeed` | B.DefaultParameter | 5.0 | 0~20 | Pan/Tilt 插值速度 |
+| PT 速度 | `PTSpeed` | B.DefaultParameter | 1.0 | 0~20 | Pan/Tilt 插值速度 |
 | 无极旋转速度 | `InfiniteRotationalSpeed` | B.DefaultParameter | 1.0 | 0~10 | 无极旋转速度倍率 |
 | 升降范围 | `LiftRange` | B.DefaultParameter | 500.0 | 0~任意 | Z 轴升降最大距离(cm) |
 | 升降速度 | `LiftSpeed` | B.DefaultParameter | 1.0 | 0~10 | 升降插值速度 |

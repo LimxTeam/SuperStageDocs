@@ -81,14 +81,16 @@ SuperLightingComponent (场景组件)
 
 | 参数 | 说明 | 范围 | 默认值 |
 |------|------|------|--------|
-| **MaxLightIntensity** | 组件级亮度分控，与 Actor 级 Dimmer 乘法叠加 | 0.0 ~ 1.0 | 1.0 |
+| **MaxLightIntensity** | 组件最大亮度百分比（设计时配置，100 = 全亮） | ≥ 1 | 100.0 |
+
+此外，每个组件还提供了运行时亮度分控接口 `SetComponentDimmer(float NewDimmer)`，取值范围 0.0 ~ 1.0。
 
 最终亮度公式：
 ```
-最终亮度 = Actor级Dimmer × MaxLightIntensity × 频闪倍率
+最终亮度 = Actor级Dimmer × (MaxLightIntensity / 100) × ComponentDimmer × 频闪倍率
 ```
 
-> **使用场景**：当一个灯具同时拥有主光源（SuperBeamComponent）和辅光源（SuperSpotComponent）时，可以将辅光源的 MaxLightIntensity 设为 0.5，使辅光亮度始终为主光的一半。
+> **使用场景**：当一个灯具同时拥有主光源（SuperBeamComponent）和辅光源（SuperSpotComponent）时，可以将辅光源的 MaxLightIntensity 设为 50，使辅光最大亮度始终为主光的一半。
 
 > **自动初始化**：所有默认参数由组件 `OnRegister()` 自动初始化。组件注册时会自动调用 `SetLightingMaterial()` 创建材质，再调用 `SetLightingDefaultValue()` 设置默认参数，无需在 Actor 中手动调用。
 
@@ -156,11 +158,17 @@ SuperLightingComponent (场景组件)
 
 ### 4.5 图案纹理 (Texture)
 
-| 操作 | 说明 |
-|------|------|
-| **设置纹理** | 将 Gobo 图案纹理应用到镜片和光斑材质 |
+| 操作 | 说明 | 参数 |
+|------|------|------|
+| **设置纹理** | 将 Gobo 图案纹理应用到镜片和光斑材质 | UTexture2D* 纹理指针（nullptr = 清除图案） |
+
+```cpp
+virtual void SetLightingTexture(UTexture2D* NewBeamTexture);
+```
 
 纹理会同时更新到镜片材质和光斑材质的 `LightTexture` 参数，使镜片上显示的图案与投射出的光斑图案一致。
+
+> **注意**：基类仅接受纹理指针一个参数。子类 SuperBeamComponent 提供了增强版 `SetBeamTexture()`，支持 Gobo 数量、索引、旋转速度、抖动速度等额外参数。
 
 ### 4.6 图案旋转 (Rotate)
 
@@ -171,7 +179,48 @@ SuperLightingComponent (场景组件)
 
 > **提示**：旋转角度和无极旋转可以同时使用。旋转角度设定初始朝向，无极旋转提供持续转动效果。
 
-### 4.7 可见性控制
+### 4.7 变焦 (Zoom)
+
+```cpp
+virtual void SetLightingZoom(const float NewZoom = 0.0f);
+```
+
+| 参数 | 说明 | 范围 |
+|------|------|------|
+| **NewZoom** | 归一化变焦值 | 0.0（最窄）~ 1.0（最宽） |
+
+> **基类说明**：基类提供空实现，由子类 SuperSpotComponent 实现实际的 SpotLight 锥角映射和光束缩放。
+
+### 4.8 光圈 (Iris)
+
+```cpp
+virtual void SetLightingIris(const float NewIris = 1.0f);
+```
+
+| 参数 | 说明 | 范围 |
+|------|------|------|
+| **NewIris** | 光圈开合度（只能缩小） | 0.0（全关）~ 1.0（全开） |
+
+> **基类说明**：基类提供空实现，由子类 SuperSpotComponent 实现实际的光圈控制。
+
+### 4.9 颜色轮 (Color Wheel)
+
+```cpp
+virtual void SetColorTexture (UTexture2D* NewColorTexture, const int32 NewNumColors, const float ColorIndex, const float ColorSpeed) {}
+virtual void SetColorTexture2(UTexture2D* NewColorTexture, const int32 NewNumColors, const float ColorIndex, const float ColorSpeed) {}
+virtual void SetColorTexture3(UTexture2D* NewColorTexture, const int32 NewNumColors, const float ColorIndex, const float ColorSpeed) {}
+```
+
+基类声明了 **3 组颜色轮**虚函数（空实现），由子类 SuperSpotComponent / SuperBeamComponent 重写为实际材质参数推送。
+
+| 参数 | 说明 |
+|------|------|
+| **NewColorTexture** | 颜色轮贴图（包含所有颜色格的图集） |
+| **NewNumColors** | 颜色轮上的颜色格数量（int32） |
+| **ColorIndex** | 当前选中的颜色位置（float） |
+| **ColorSpeed** | 颜色轮旋转速度（float） |
+
+### 4.10 可见性控制
 
 | 操作 | 说明 |
 |------|------|
@@ -225,3 +274,32 @@ SuperLightingComponent (场景组件)
 | **SuperRectComponent** | 真实 RectLight 面光源 + 遮光板 |
 
 > **提示**：如果你的灯具只需要「镜片发光效果」而不需要真实的光照投射，可以直接使用 SuperLightingComponent 作为灯光组件，这样可以节省渲染开销。
+
+---
+
+## 八、API 快速参考
+
+以下为 `USuperLightingComponent` 全部公开函数签名（子类可 `override`）：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetComponentDimmer(const float NewDimmer)` | 组件级亮度分控（0.0 ~ 1.0） |
+| `virtual void SetLightingMaterial()` | 创建/绑定动态材质实例（OnRegister 自动调用） |
+| `virtual void SetLightingDefaultValue()` | 推送默认参数到材质（OnRegister 自动调用） |
+| `virtual void SetLightingIntensity(const float NewLightIntensity = 1.0f)` | 设置亮度（0.0 ~ 1.0） |
+| `virtual void SetLightingStrobe(const float NewStrobe = 0.0f)` | 设置频闪速度 |
+| `virtual void SetLightingStrobeMode(const float NewStrobeMode = 1.0f)` | 设置频闪模式（0 ~ 7） |
+| `virtual void SetRandomSeed(const float NewSeed)` | 设置随机种子 |
+| `virtual void SetLightingColor(const FLinearColor NewColor = FLinearColor(1,1,1))` | 设置颜色 |
+| `virtual void SetLightingZoom(const float NewZoom = 0.0f)` | 设置变焦（基类空实现） |
+| `virtual void SetLightingFrost(const float NewFrost = 0.0f)` | 设置雾化 |
+| `virtual void SetLightingIris(const float NewIris = 1.0f)` | 设置光圈（基类空实现） |
+| `virtual void SetLightingTexture(UTexture2D* NewBeamTexture)` | 设置纹理（仅纹理指针，1个参数） |
+| `virtual void SetColorTexture(UTexture2D*, int32, float, float)` | 颜色轮 1（基类空实现） |
+| `virtual void SetColorTexture2(UTexture2D*, int32, float, float)` | 颜色轮 2（基类空实现） |
+| `virtual void SetColorTexture3(UTexture2D*, int32, float, float)` | 颜色轮 3（基类空实现） |
+| `virtual void SetLightingRotate(const float NewRotate = 0, const float NewInfiniteRotation = 0)` | 图案旋转 |
+| `virtual void SetLightingVisibility(const bool bNewVisibility = false)` | 灯光可见性 |
+| `virtual void SetLightingLensVisibility(const bool bLensVisibility = true)` | 镜片可见性 |
+| `float GetRayDetectionDistance(const float NewMaxLightDistance) const` | 碰撞检测距离计算 |
+| `virtual void UpdateBeamBlockDistance(const float NewMaxLightDistance)` | 更新光束遮挡距离（内部） |

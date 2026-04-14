@@ -169,6 +169,13 @@ Honeycomb Offset 为连续值（非开关），设为 0.5 时效果：
 | **Array Rotation** | FRotator | 整个阵列绕源灯具位置的旋转（Pitch/Yaw/Roll） | (0, 0, 0) |
 | **Item Rotation** | FRotator | 每个灯具的额外旋转偏移（Pitch/Yaw/Roll） | (0, 0, 0) |
 
+### 5.1 大纲文件夹（Organization 分类）
+
+| 参数 | 类型 | 说明 | 默认值 |
+|------|------|------|--------|
+| **Create Folder** | bool | 创建后是否将所有生成的 Actor 放入 World Outliner 文件夹 | 开启 |
+| **Folder Name** | FString | 文件夹名称（留空则自动以源灯具类型命名）；自动检测命名冲突 | 空（自动生成） |
+
 ---
 
 ## 6. 状态信息
@@ -215,7 +222,7 @@ Honeycomb Offset 为连续值（非开关），设为 0.5 时效果：
 
 ### 唯一命名
 
-每个生成的灯具 Actor 会自动获得**唯一名称**，格式为 `{灯具类型}_{序号}`（如 `SuperStageLight_001`、`SuperStageLight_002`），确保不会与场景中已有的 Actor 名称冲突。
+工具会扫描当前世界中同类 Actor 的已有编号，从**最大编号 + 1** 开始递增命名（如场景已有 `SuperStageLight_003`，则从 `SuperStageLight_004` 开始），确保多次使用阵列工具不会产生重名。
 
 ---
 

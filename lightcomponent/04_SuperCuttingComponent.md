@@ -196,3 +196,16 @@ SuperCuttingComponent 完整继承了 SuperBeamComponent 的所有功能：
 
 ### Q: 切割参数的精度不够？
 **A**: 在灯具库中将切割通道配置为 16bit（精细+粗糙双通道），可以获得更精确的叶片控制。
+
+---
+
+## 七、API 快速参考
+
+以下为 `USuperCuttingComponent` 的公开函数签名：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetCuttingValue(float UpperLeftY, float LowerLeftY, float TopRightY, float BottomRightY, float TopLeftX, float BottomLeftX, float TopRightX, float BottomRightX) const` | 设置8点切割参数 |
+| `virtual void SetLightingRotate(const float NewRotate, const float NewInfiniteRotation = 0.f) override` | 切割形状旋转（三套材质同步） |
+
+> **继承**：全部继承自 SuperBeamComponent 的 API（亮度、颜色、变焦、雾化、光圈、Gobo、棱镜、对焦、频闪、可见性等），参见 [03 - 体积光束组件 API 参考](03_SuperBeamComponent.md#七api-快速参考)。

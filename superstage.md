@@ -57,14 +57,14 @@ YourProject/
 **核心特性：**
 
 - **CUE 系统**：支持 Fade / Delay / Snap / Override
-- **Preset 系统**：颜色、位置、光束、效果四类预设
+- **Preset 系统**：亮度、位置、图案、颜色、光束、聚焦、控制、切割八类预设
 - **Effect 引擎**：正弦、锯齿、随机、步进等波形
 - **Timeline**：多 CUE 多轨道可视化编排
 - **Timecode**：SMPTE LTC / Art-Net Timecode / Internal
 
 ### SuperLaser
 
-Beyond 激光控制系统，通过 TCP 直连 Pangolin Beyond 软件，实现 UE5 内激光点云实时渲染。
+Beyond 激光控制系统，通过 UDP 多播接收 Pangolin Beyond 软件的点云数据，实现 UE5 内激光点云实时渲染。
 
 **核心特性：**
 
@@ -94,13 +94,39 @@ NDI 视频流集成系统，支持在 3D 场景中嵌入实时视频流。
 
 ### SuperShader
 
-灯光着色器系统，将 DMX 通道数据转化为物理正确的光学渲染效果。
+专业舞台灯光着色器系统，提供光束材质、频闪算法、棱镜渲染等光学效果。
 
 **核心特性：**
 
-- 13 种属性分类（亮度、位置、颜色、图案、光束…）
-- 8/16/24-bit 精度支持
-- GDTF / MA 灯库导入
+- 光束材质：光柱、雾气、丁达尔效果
+- 频闪算法：6 种波形（Linear/Pulse/RampUp/RampDown/Sine/Random）
+- 棱镜预设系统：`USuperPrismPreset` 数据资产 + 2D 画布可视化编辑器
+- 自发光材质：LED 屏幕、灯带效果
+- 物理光照：与 UE Lumen 深度集成
+
+### SuperDMX
+
+DMX 通讯引擎模块，提供 Art-Net / sACN (E1.31) 双协议的收发、缓存与查询服务。
+
+**核心特性：**
+
+- 双协议支持：Art-Net 4 + sACN/E1.31
+- 100+ Universe @ 60fps 吞吐
+- 独立收发线程 + 线程安全缓冲
+- Sequencer DMX 录制与回放轨道
+- sACN 自动多播组管理
+
+### SuperAI
+
+编辑器内置 AI 智能助手，通过自然语言对话驱动 37 个专用工具完成场景搭建、属性配置、材质编辑、蓝图操作等。
+
+**核心特性：**
+
+- 37 个自描述工具（场景管理/属性/材质/蓝图/资产/视口）
+- 流式 SSE 输出 + 工具调用可视化
+- 多 LLM 预设切换（OpenAI / DeepSeek / 通义千问）
+- 内置 MCP (Model Context Protocol) HTTP 服务器，端口 13090
+- 多会话管理与持久化
 
 ### SuperCAD
 
@@ -120,10 +146,11 @@ NDI 视频流集成系统，支持在 3D 场景中嵌入实时视频流。
 | Art-Net | UDP 6454 | 双向 | 灯光控制信号 |
 | sACN | UDP 5568 | 双向 | 流式 ACN |
 | SuperData | TCP 5966 | 双向 | 跨平台数据同步 |
-| Beyond | TCP 16062 | 发送 | 激光点云 |
+| Beyond | UDP 5568 | 接收 | 激光点云 |
 | NDI | 动态 | 接收 | 视频流 |
 | OSC | UDP 可配 | 双向 | 开放声音控制 |
-| LimxDroneStudio | UDP 17000 | 接收 | 无人机编队 |
+| LimxDroneStudio | UDP 14555 | 接收 | 无人机编队 |
+| MCP | HTTP 13090 | 双向 | SuperAI MCP 服务器 |
 
 ## 设计哲学
 

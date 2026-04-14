@@ -1,8 +1,8 @@
 # SuperStage DMX 系统 — 用户手册总览
 
-> **版本**: SuperStage 26Q1  
+> **版本**: SuperStage 26Q2  
 > **适用对象**: 舞美设计师、灯光编程师、虚拟制作技术人员  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 
@@ -16,8 +16,8 @@ SuperStage 是一款运行在 Unreal Engine 5 中的**专业舞美可视化插�
 
 | 能力 | 说明 |
 |------|------|
-| **DMX 实时接收** | Art-Net 协议，UDP 6454，毫秒级响应 |
-| **DMX 实时输出** | Sequencer 回放时反向输出 Art-Net 到真实灯具 |
+| **DMX 实时接收** | Art-Net（UDP 6454）/ sACN E1.31（UDP 5568），毫秒级响应 |
+| **DMX 实时输出** | Sequencer 回放时反向输出 Art-Net / sACN 到真实灯具 |
 | **全品类灯具** | 电脑灯 / 染色灯 / 矩阵灯 / 切割灯 / LED灯带 / 激光 / 特效机 / 升降矩阵 / 舞台机械 / 摄像机 / 投影仪 / NDI屏幕 |
 | **专业颜色系统** | RGB / RGBW / HSV / ColorWheel / CMY / CTO / CoolWarm / ColorMix（任意通道混色） |
 | **图案与棱镜** | 最多3个Gobo轮 + 3个棱镜轮，静态/无极旋转 |
@@ -25,7 +25,7 @@ SuperStage 是一款运行在 Unreal Engine 5 中的**专业舞美可视化插�
 | **矩阵控制** | 像素级独立颜色/亮度/频闪，支持任意规模矩阵 |
 | **Sequencer 集成** | 录制 DMX → Sequencer 轨道，可回放/导出 |
 | **MA 控台导出** | 一键生成 MA2/MA3 可导入的灯具配置文件 |
-| **多平台协议** | Art-Net 输入/输出 + Pangolin Beyond（激光）+ NDI（视频） |
+| **多平台协议** | Art-Net / sACN 输入输出 + Pangolin Beyond（激光）+ NDI（视频） |
 
 ---
 
@@ -41,6 +41,7 @@ DMX512 是舞台灯光行业的标准控制协议。你需要了解以下几个�
 | **Fixture（灯具）** | 一台灯。一台灯通常占用多个连续通道（例如一台电脑灯可能占用 30 个通道） |
 | **Fixture ID** | 灯具的唯一编号，用于与 MA 控台对应 |
 | **Art-Net** | 一种通过以太网传输 DMX 信号的协议。SuperStage 默认使用此协议，端口 6454 |
+| **sACN (E1.31)** | ANSI E1.31 标准的流式 DMX 协议，使用组播/单播 UDP 5568 端口 |
 
 ### DMX 通道精度
 
@@ -134,16 +135,26 @@ AActor (UE5 引擎基类)
         ├── ASuperLaserProActor ··········· 激光（点数据精确模式）       → 文档 11
         │                                  └ 激光点坐标 → 线条渲染 + 碰撞检测
         │
-        ├── ASuperProjector ··············· 投影仪
-        │                                  └ 视频/图像投射
-        │
-        ├── ASuperNDIScreen ··············· NDI 屏幕
-        │                                  └ NDI 视频流接收 → 材质纹理更新
+        ├── ASuperMediaBase ··············· 媒体播放基类（NDI / 静态纹理双模式）
+        │     │                            ├ SourceMode（NDI / StaticTexture）
+        │     │                            └ OnActiveTextureChanged（纹理更新回调）
+        │     │
+        │     ├── ASuperProjector ········· 投影仪                              → 文档 05(stageassets)
+        │     │                            └ 视频/图像投射（SpotLight 真实光照）
+        │     │
+        │     └── ASuperScreen ··········· 屏幕（原 SuperNDIScreen）
+        │                                  └ NDI / 静态纹理 → 材质 + 梯形校正
         │
         ├── ASuperScaffold ················ 脚手架（参数化生成）
-        ├── ASuperCurvedScaffold ·········· 弧形脚手架（参数化生成）
-        ├── ASuperTruss ··················· 桁架（参数化生成）
-        └── ASuperDrape ··················· 幕布（程序化褶皱生成）
+        ├── ASuperCurvedScaffold ·········· 弧形脚手架（样条驱动）
+        ├── ASuperTruss ··················· 桁架龙门架（参数化生成）
+        ├── ASuperCircularTruss ·········· 圆形桁架（极坐标分段）
+        ├── ASuperCurvedTruss ············ 弧形桁架（样条驱动）
+        ├── ASuperTrussGrid ·············· 桁架网格（双层水平网格）
+        ├── ASuperTrussTower ············· 桁架塔（垂直立柱）
+        ├── ASuperStageFloor ············· 舞台地板（参数化台面）
+        ├── ASuperDrape ··················· 幕布（程序化褶皱生成）
+        └── ASuperCrowd ··················· 程序化人群（泊松采样）
 ```
 
 ### 3.2 各层级职责说明
@@ -225,23 +236,23 @@ SuperStage 的 DMX 系统由以下几个部分组成，它们协同工作：
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           外部设备层                                     │
-│   MA2/MA3 控台 │ grandMA3 onPC │ 其他 Art-Net 控台 │ Pangolin Beyond   │
+│   MA2/MA3 控台 │ grandMA3 onPC │ 其他控台 │ Pangolin Beyond               │
 └───────┬──────────────────┬──────────────────────────┬───────────────────┘
-        │ Art-Net           │ Art-Net                  │ Beyond Laser Data
-        │ UDP 6454          │ UDP 6454                 │ (TCP/共享内存)
+        │ Art-Net / sACN    │ Art-Net / sACN           │ Beyond Laser Data
+        │ UDP 6454 / 5568   │ UDP 6454 / 5568          │ (TCP/共享内存)
         ▼                   ▼                          ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                      SuperDMX 引擎子系统                                 │
 │                                                                          │
-│  ┌──────────┐    ┌──────────────┐    ┌───────────────────┐              │
-│  │ UDP 接收  │───▶│ Art-Net 解析  │───▶│  Universe 缓冲区   │             │
-│  │  (输入)   │    │  OpCode 判断  │    │  (512ch × N 个域)  │             │
-│  └──────────┘    └──────────────┘    └─────────┬─────────┘              │
-│                                                  │                       │
-│  ┌──────────┐    ┌──────────────┐               │ GetDMXValue()         │
-│  │ UDP 发送  │◀───│ Art-Net 构建  │◀──────────────┘ SendDMXBuffer()      │
-│  │  (输出)   │    │  数据帧封装   │    (Sequencer 回放 / SuperConsolePro) │
-│  └──────────┘    └──────────────┘                                       │
+│  ┌──────────┐    ┌───────────────────┐    ┌───────────────────┐        │
+│  │ UDP 接收  │───▶│ Art-Net / sACN 解析│───▶│  Universe 缓冲区   │       │
+│  │  (输入)   │    │  协议自动识别      │    │  (512ch × N 个域)  │       │
+│  └──────────┘    └───────────────────┘    └─────────┬─────────┘        │
+│                                                      │                   │
+│  ┌──────────┐    ┌───────────────────┐               │ GetDMXValue()     │
+│  │ UDP 发送  │◀───│ Art-Net / sACN 构建│◀──────────────┘ SendDMXBuffer()  │
+│  │  (输出)   │    │  数据帧封装        │  (Sequencer 回放 / SuperConsolePro)│
+│  └──────────┘    └───────────────────┘                                   │
 └────────────────────────┬────────────────────────────────────────────────┘
                          │ 每帧 Tick → 读取 DMX 通道值
                          ▼
@@ -294,8 +305,8 @@ SuperStage 的 DMX 系统由以下几个部分组成，它们协同工作：
 
 ```
 ① 控台发出 DMX 信号
-   ↓ Art-Net UDP 数据包 (端口 6454)
-② SuperDMX 子系统接收 → 解析 Art-Net OpCode → 提取 Universe 编号 + 512 通道值
+   ↓ Art-Net UDP 数据包 (端口 6454) 或 sACN UDP 数据包 (端口 5568)
+② SuperDMX 子系统接收 → 解析 Art-Net / sACN 协议 → 提取 Universe 编号 + 512 通道值
    ↓ 存入 Universe 缓冲区（线程安全，游戏线程随时可读）
 ③ 灯具 Actor Tick
    ↓ 根据自身 Universe + StartAddress 从缓冲区读取通道值
@@ -356,7 +367,7 @@ SuperStage DMX 系统包含以下功能模块，每个模块都有独立的详�
 
 | 文档 | 模块 | 说明 |
 |------|------|------|
-| [01 - DMX 网络配置](01_DMX_Network_Configuration.md) | DMX 配置面板 | Art-Net 协议设置、IP 地址、端口、输入/输出开关、Universe 起始偏移 |
+| [01 - DMX 网络配置](01_DMX_Network_Configuration.md) | DMX 配置面板 | Art-Net / sACN 协议设置、IP 地址、端口、输入/输出开关、Universe 起始偏移 |
 | [02 - 灯具库](02_Fixture_Library.md) | Fixture Library | 创建和编辑灯具的通道定义表（属性名→通道偏移→精度→子属性） |
 | [06 - DMX 活动监视器](06_DMX_Activity_Monitor.md) | Activity Monitor | 实时查看每个 Universe 每个通道的当前值 |
 | [07 - Patch 工具](07_Patch_Tools.md) | Patch Tool & Preview | 批量分配 DMX 地址，预览和编辑所有灯具的 Patch 信息 |
@@ -373,8 +384,8 @@ SuperStage DMX 系统包含以下功能模块，每个模块都有独立的详�
 
 ### 第 2 步：设置网络
 
-- **协议**：选择 Art-Net（默认）
-- **输入**：勾选「启用」，端口保持 6454
+- **协议**：选择 Art-Net（默认）或 sACN (E1.31)
+- **输入**：勾选「启用」，Art-Net 端口 6454 / sACN 端口 5568
 - **本地 IP**：选择与控台同一网段的网卡 IP（如果只有一个网卡，留空即可）
 - 点击「应用」
 
@@ -420,7 +431,7 @@ SuperStage DMX 系统包含以下功能模块，每个模块都有独立的详�
 | **GPU** | NVIDIA GTX 1660 / AMD RX 5600 | NVIDIA RTX 3070 / AMD RX 6800 以上 |
 | **内存** | 16 GB | 32 GB 以上 |
 | **网络** | 百兆以太网 | 千兆以太网（多 Universe 场景必需） |
-| **引擎** | Unreal Engine 5.6 | Unreal Engine 5.7 |
+| **引擎** | Unreal Engine 5.7 | Unreal Engine 5.8 |
 
 ### 推荐网络拓扑
 
@@ -428,7 +439,7 @@ SuperStage DMX 系统包含以下功能模块，每个模块都有独立的详�
 ┌──────────────────┐                    ┌──────────────────┐
 │   MA2/MA3 控台    │                    │  UE5 + SuperStage │
 │   IP: 2.x.x.x    │◀──── 千兆交换机 ──▶│  IP: 2.x.x.x     │
-│   Art-Net 输出    │         │          │  Art-Net 输入     │
+│ Art-Net/sACN 输出 │         │          │ Art-Net/sACN 输入 │
 └──────────────────┘         │          └──────────────────┘
                               │
                      ┌────────┴────────┐
@@ -442,6 +453,7 @@ SuperStage DMX 系统包含以下功能模块，每个模块都有独立的详�
 | 端口 | 协议 | 方向 | 说明 |
 |------|------|------|------|
 | **6454** | Art-Net | 输入/输出 | DMX 信号收发（UDP） |
+| **5568** | sACN (E1.31) | 输入/输出 | DMX 信号收发（UDP 组播/单播） |
 
 ### Universe 编号对齐
 
@@ -472,7 +484,7 @@ SuperStage 提供「起始 Universe」偏移设置，用于与不同控台的编
 | 优化项 | 方法 | 效果 |
 |--------|------|------|
 | **减少光束渲染** | 降低 `BeamQuality`（默认 75，可降至 50） | GPU 负载 ↓ 20-30% |
-| **关闭阴影** | `LightSpotDefaultValue.bLightShadow = false` | GPU 负载 ↓ 15-25% |
+| **关闭阴影** | `FLightLightSpotDefaultValue.bLightShadow = false` | GPU 负载 ↓ 15-25% |
 | **降低体积雾** | `VolumetricScattering = 0` | GPU 负载 ↓ 10-15% |
 | **减少光照距离** | 降低 `MaxLightDistance`（默认 2345cm） | GPU 负载 ↓ |
 | **Spot 辅光按需** | 仅在需要真实光照交互时启用 SpotLight | 大幅降低光照计算 |
@@ -488,7 +500,7 @@ SuperStage 提供「起始 Universe」偏移设置，用于与不同控台的编
 
 1. **检查 DMX 输入开关** — DMX 配置面板 → 输入 → 确认「启用」已勾选
 2. **检查网络连通** — 确认 UE 主机与控台在同一网段（ping 测试）
-3. **检查端口** — 确认 UDP 6454 端口未被防火墙阻止
+3. **检查端口** — 确认 UDP 6454（Art-Net）或 5568（sACN）端口未被防火墙阻止
 4. **检查活动监视器** — 打开 DMX 活动监视器，确认是否收到信号
 5. **检查 Universe 对齐** — 确认灯具的 Universe 编号与控台一致（注意起始 Universe 偏移设置）
 6. **检查地址匹配** — 确认灯具的 StartAddress 与控台中该灯的地址一致
@@ -499,7 +511,7 @@ SuperStage 提供「起始 Universe」偏移设置，用于与不同控台的编
 使用「Patch 工具」可以自动计算不冲突的地址分配。参见 [07 - Patch 工具](07_Patch_Tools.md)。
 
 ### Q3: 如何让 UE 中的灯光效果输出到真实灯具？
-在 DMX 配置面板中启用「输出」，设置远程 IP 为灯具/节点的地址。Sequencer 回放时会自动通过 Art-Net 输出 DMX 信号。
+在 DMX 配置面板中启用「输出」，设置远程 IP 为灯具/节点的地址。Sequencer 回放时会自动通过 Art-Net / sACN 输出 DMX 信号。
 
 ### Q4: SuperStage 支持多少个 Universe？
 理论上支持 32,767 个 Universe（Art-Net 规范上限）。实际性能取决于硬件和场景复杂度，通常 256 个 Universe 以内无压力。

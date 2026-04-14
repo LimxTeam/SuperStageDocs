@@ -97,7 +97,7 @@ bUseUAxis = false（沿Y轴分段）:
 
 | 参数 | 说明 | 范围 | 默认值 |
 |------|------|------|--------|
-| **MaxLightIntensity** | 组件级亮度分控 | 0.0 ~ 1.0 | 1.0 |
+| **MaxLightIntensity** | 组件最大亮度百分比（设计时配置，100 = 全亮） | ≥ 1 | 100.0 |
 
 > **自动初始化**：组件默认参数由 `OnRegister()` 自动初始化。组件注册时会自动调用 `SetMatrixMaterial()` 创建材质实例并设置默认值，无需在 Actor 中手动调用。
 
@@ -306,3 +306,22 @@ bUseUAxis = false（沿Y轴分段）:
 
 ### Q: 为什么像素颜色是黑色但光源仍有微弱亮度？
 **A**: 黑色像素的亮度计算为 0（颜色亮度 = 0），所以光源亮度应该也是 0。如果仍有微弱亮度，可能是 DMX 数据中颜色值不完全为零，或者存在浮点精度问题。
+
+---
+
+## 八、API 快速参考
+
+以下为 `USuperMatrixComponent` 的全部公开函数签名：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetMatrixMaterial()` | 创建动态材质并初始化分段（OnRegister 自动调用） |
+| `void SetSegmentColor(int32 Index = 0, FLinearColor RGB = FLinearColor::White)` | 设置单个分段颜色 |
+| `void SetMatrixStrobe(float NewStrobe = 255.0f)` | 设置频闪速度 |
+| `void SetMatrixStrobeMode(float NewStrobeMode = 1.0f)` | 设置频闪模式（0 ~ 7） |
+| `void SetMatrixIntensity(float NewIntensity)` | 设置整体亮度 |
+| `void SetRandomSeed(float NewSeed)` | 设置随机种子 |
+| `void SetComponentDimmer(float NewDimmer)` | 组件级亮度分控（0.0 ~ 1.0） |
+| `void RebuildSegmentLights()` | 重建分段光源（修改 SegCount/SegmentLightType 后调用） |
+| `void DestroyAllSegmentLights()` | 销毁全部分段光源 |
+| `void UpdateLightParameters()` | 更新全部分段光源的半径/锥角等参数 |

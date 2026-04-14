@@ -3,7 +3,7 @@
 > **所属模块**: SuperDMX Sequencer / SuperStageEditor Recording  
 > **适用对象**: 灯光编程师、虚拟制作技术人员  
 > **前置阅读**: [01 - DMX 网络配置](/docs/stage-core/dmx-network)  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 
@@ -17,7 +17,7 @@ SuperStage 支持将外部 DMX 输入信号**录制**为 UE Sequencer 动画，�
 |------|------|
 | **DMX 录制** | 将控台发送的实时 DMX 信号逐帧录制到 Sequencer 轨道 |
 | **DMX 回放** | 播放 Sequencer 中录制的 DMX 动画，驱动虚拟灯具 |
-| **DMX 输出** | 回放时将 DMX 数据通过 Art-Net 发送到外部真实灯具 |
+| **DMX 输出** | 回放时将 DMX 数据通过 Art-Net / sACN 发送到外部真实灯具 |
 
 ### 典型工作流
 
@@ -150,7 +150,7 @@ DMX Template 评估 (每帧)
   ↓
 调用 SendDMXBuffer 发送
   ↓
-虚拟灯具响应 + Art-Net 输出到网络
+虚拟灯具响应 + Art-Net / sACN 输出到网络
 ```
 
 ### 4.3 缓冲合并策略
@@ -165,7 +165,7 @@ DMX Template 评估 (每帧)
 
 ### 4.4 输出到外部设备
 
-如果 DMX 配置面板中**输出已启用**，回放时的 DMX 数据会同时通过 Art-Net 发送到网络，驱动真实灯具。
+如果 DMX 配置面板中**输出已启用**，回放时的 DMX 数据会同时通过 Art-Net / sACN 发送到网络，驱动真实灯具。
 
 确保：
 - DMX 配置面板中输出已启用
@@ -289,7 +289,7 @@ DMX Template 评估 (每帧)
 Sequencer 回放使用**合并策略**：只覆盖曲线中有数据的通道，其他通道保持不变。如果你需要完全隔离，使用不同的 Universe。
 
 ### Q: 可以将 Sequencer 中的 DMX 数据导出吗？
-当前版本不支持直接将 Sequencer DMX 数据导出为 Art-Net 文件。但你可以通过回放 + 启用输出的方式，将数据实时输出到外部录制设备。
+当前版本不支持直接将 Sequencer DMX 数据导出为文件。但你可以通过回放 + 启用输出的方式，将数据实时通过 Art-Net / sACN 输出到外部录制设备。
 
 ---
 

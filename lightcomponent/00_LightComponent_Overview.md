@@ -172,15 +172,16 @@ SuperStageLight / LaserActor
 所有光源组件的最终亮度由以下因素共同决定：
 
 ```
-最终亮度 = Actor级Dimmer × 组件级亮度分控(MaxLightIntensity) × 频闪倍率(Strobe)
+最终亮度 = Actor级Dimmer × (MaxLightIntensity / 100) × ComponentDimmer × 频闪倍率(Strobe)
 ```
 
 | 参数 | 说明 | 范围 | 默认值 |
 |------|------|------|--------|
 | **Actor 级 Dimmer** | 灯具整体亮度，由 DMX Dimmer 通道控制 | 0.0 ~ 1.0 | 1.0 |
-| **MaxLightIntensity** | 组件级亮度分控，用于多模组灯具中独立控制某个组件的亮度 | 0.0 ~ 1.0 | 1.0 |
+| **MaxLightIntensity** | 组件最大亮度百分比（设计时配置） | ≥ 1 | 100.0 |
+| **ComponentDimmer** | 组件级运行时亮度分控（由 `SetComponentDimmer` 设置） | 0.0 ~ 1.0 | 1.0 |
 
-> **使用场景**：当一个灯具 Actor 同时拥有主光源和辅光源时，可以通过 MaxLightIntensity 独立降低辅光源的亮度，而不影响主光源。
+> **使用场景**：当一个灯具 Actor 同时拥有主光源和辅光源时，可以通过 MaxLightIntensity 设置辅光源的最大亮度百分比，或通过 ComponentDimmer 在运行时独立降低辅光源的亮度。
 
 > **初始化说明**：组件默认参数由 `OnRegister()` 自动初始化，组件注册时会自动调用 `SetLightingMaterial()` 创建材质实例，再调用 `SetLightingDefaultValue()` 设置默认值。无需在 Actor 中手动调用初始化函数。
 

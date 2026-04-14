@@ -51,15 +51,17 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 以下参数在灯具初始化时设置，决定光束的视觉品质：
 
-| 参数 | 说明 | 范围 | 推荐值 |
+| 参数 | 说明 | 范围 | 默认值 |
 |------|------|------|--------|
-| **最大亮度** | 光束材质的最大亮度基准（与灯具最大亮度挂钩） | > 0 | 与灯具一致 |
-| **大气密度 (AtmosphericDensity)** | 光束中模拟大气粒子的密度，值越高光束越「浓」 | > 0 | 根据灯具类型 |
-| **镜片半径 (LensRadius)** | 光束在镜片处的初始半径大小 | > 0 | 10.0 |
-| **光束品质 (BeamQuality)** | 控制光束体积效果的采样精度（0~100），值越高光束越细腻但开销越大 | 0 ~ 100 | 50 |
-| **烟雾影响 (FogInfluence)** | 烟雾/Haze 对光束的影响程度，0 = 无烟雾纹理，高值 = 明显的烟雾流动 | ≥ 0 | 适中 |
-| **烟雾速度 (FogSpeed)** | 光束中烟雾纹理的流动速度 | ≥ 0 | 适中 |
-| **光束亮度 (BeamIntensity)** | 光束材质的亮度乘数，独立于 SpotLight 亮度 | > 0 | 1.0 |
+| **最大亮度** | 光束材质的最大亮度基准（与灯具最大亮度挂钩） | ≥ 1 | 100.0 |
+| **光束亮度 (BeamIntensity)** | 光束材质的亮度乘数，独立于 SpotLight 亮度 | ≥ 0 | 1.0 |
+| **大气密度 (AtmosphericDensity)** | 光束中模拟大气粒子的密度，值越高光束越「浓」 | 0 ~ 1 | 0.03 |
+| **镜片半径 (LensRadius)** | 光束在镜片处的初始半径大小 | 1 ~ 100 | 10.0 |
+| **光束品质 (BeamQuality)** | 控制光束体积效果的采样精度，值越高光束越细腻但开销越大 | 0 ~ 100 | 75.0 |
+| **烟雾强度 (BeamFogIntensity)** | 烟雾/Haze 对光束的影响程度，0 = 无烟雾纹理，高值 = 明显的烟雾流动（写入材质时 ×0.02） | 0 ~ 100 | 20.0 |
+| **烟雾速度 (AtmosBeamFogSpeed)** | 光束中烟雾纹理的流动速度（写入材质时 ×0.02） | 0 ~ 100 | 10.0 |
+| **光束遮挡 (bBeamBlock)** | 启用光束碰撞遮挡检测，根据 Zoom 角度动态更新衰减半径防止光照穿透 | 开/关 | 关闭 |
+| **禁用光束 (bDisableBeam)** | 隐藏体积光束网格，仅保留光源和光斑 | 开/关 | 关闭 |
 
 > **示例**：
 > - 高功率 Beam 灯：大气密度高、镜片半径小、光束亮度高 → 细而亮的光柱
@@ -94,7 +96,25 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 当亮度为 0 时，光束材质的 Brightness 参数归零，光束在视觉上完全消失。
 
-### 4.2 颜色 (Color)
+### 4.2 频闪 (Strobe)
+
+光束组件重写了基类的频闪接口，使频闪同时影响 **SpotLight、镜片、光斑和光束**四套材质：
+
+```cpp
+virtual void SetLightingStrobe(const float NewStrobe = 0.0f) override;
+virtual void SetLightingStrobeMode(const float NewStrobeMode = 1.0f) override;
+virtual void SetRandomSeed(const float NewSeed) override;
+```
+
+| 参数 | 说明 | 范围 |
+|------|------|------|
+| **频闪速度 (NewStrobe)** | 控制闪烁的快慢，值越大闪烁越快 | 0.0（不闪）~ 任意正值 |
+| **频闪模式 (NewStrobeMode)** | 控制闪烁的波形（0=关闭, 1=常亮, 2~7=动态波形） | 0 ~ 7 |
+| **随机种子 (NewSeed)** | 仅用于随机模式（模式 7），使每台灯具闪烁不同步 | 任意浮点值 |
+
+> **与基类的区别**：基类只更新镜片+光斑材质，光束组件的 override 额外更新光束材质的 Brightness 参数，确保光束与其他视觉元素同步频闪。
+
+### 4.3 颜色 (Color)
 
 | 操作 | 说明 |
 |------|------|
@@ -104,7 +124,7 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 > **视觉效果**：红色光束会呈现红色的体积光柱效果，蓝色光束呈现蓝色光柱，与真实舞台效果一致。
 
-### 4.3 变焦 (Zoom)
+### 4.4 变焦 (Zoom)
 
 | 参数 | 说明 | 范围 |
 |------|------|------|
@@ -120,7 +140,7 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 > **视觉效果**：Zoom 值小时光束细而集中，Zoom 值大时光束宽而散开。
 
-### 4.4 雾化 (Frost)
+### 4.5 雾化 (Frost)
 
 | 参数 | 说明 | 范围 |
 |------|------|------|
@@ -132,7 +152,7 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 > **注意**：Frost 对光束的影响是在当前 Zoom 值基础上**叠加**的，不会改变基础 Zoom 值。
 
-### 4.5 光圈 (Iris)
+### 4.6 光圈 (Iris)
 
 | 参数 | 说明 | 范围 |
 |------|------|------|
@@ -149,7 +169,7 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 > **视觉效果**：Iris 缩小时，光束从根部到末端都会变细，模拟真实光圈收束的效果。
 
-### 4.6 Gobo 图案 (Beam Texture)
+### 4.7 Gobo 图案 (Beam Texture)
 
 | 参数 | 说明 |
 |------|------|
@@ -161,25 +181,26 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 > **核心特性**：Gobo 图案会**同时**应用到光束、光斑和镜片三套材质，确保从任何角度看到的效果都一致。
 
-### 4.7 颜色轮 (Color Wheel)
+### 4.8 颜色轮 (Color Wheel)
 
 与聚光灯组件相同，支持最多 **3 组颜色轮**。每组参数（纹理、数量、索引、速度）会同步应用到光束、光斑和镜片三套材质。
 
-### 4.8 棱镜 (Prism)
+### 4.9 棱镜 (Prism)
+
+棱镜系统基于 **棱镜预设数据资产**（`USuperPrismPreset`）驱动。每个棱镜预设定义了多个分裂面的位置、偏移和缩放，通过位置查找纹理（48×1 RGBA16F）在材质中实现棱镜效果。
 
 | 参数 | 说明 | 范围 |
 |------|------|------|
-| **棱镜面数 (PrismFacets)** | 棱镜的面数（如 3面、8面、16面等），0 = 关闭棱镜 | ≥ 0 |
-| **棱镜半径 (PrismRadius)** | 棱镜效果的分裂半径 | 默认 0.3 |
-| **棱镜缩放 (PrismScale)** | 每个棱镜分裂的缩放比例 | 默认 0.15 |
+| **棱镜预设 (PrismPreset)** | 棱镜预设数据资产，`nullptr` = 关闭棱镜 | 数据资产引用 |
+| **棱镜层索引 (PrismLayerIndex)** | 棱镜预设中的层索引（多层棱镜支持） | ≥ 0 |
 | **棱镜旋转角度 (PrismRotation)** | 棱镜的静态旋转角度 | 任意 |
 | **棱镜旋转速度 (PrismRotationSpeed)** | 棱镜的持续旋转速度 | 任意 |
 
 棱镜效果会同步应用到光束、光斑和镜片三套材质。
 
-> **特殊操作**：当 PrismFacets 设为负值（如 -1）时，仅更新旋转参数而不改变棱镜面数和大小——用于「仅旋转棱镜」的控制通道。
+> **预设编辑器**：可在 UE 编辑器中双击 `USuperPrismPreset` 资产打开可视化编辑器，通过拖拽方式编辑棱镜分裂面的位置和缩放，或使用内置模板（圆形、线形、三角形、方形）快速生成。
 
-### 4.9 对焦 (Focus)
+### 4.10 对焦 (Focus)
 
 | 参数 | 说明 | 范围 |
 |------|------|------|
@@ -189,14 +210,36 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 > **使用场景**：当 Gobo 图案需要呈现模糊的背景效果时，增大 Focus 值。
 
-### 4.10 图案旋转 (Rotate)
+### 4.11 图案旋转 (Rotate)
 
 | 参数 | 说明 |
 |------|------|
 | **旋转角度** | 同时旋转光束、光斑和镜片上的图案 |
 | **无极旋转** | 光束、光斑和镜片上的图案持续旋转 |
 
-### 4.11 可见性控制
+### 4.12 大气密度运行时控制 (Atmospheric Density)
+
+```cpp
+void SetBeamAtmosphericDensity(const float Density) const;
+```
+
+| 参数 | 说明 | 范围 |
+|------|------|------|
+| **Density** | 光束大气密度，值越高光束越「浓」 | 0 ~ 1 |
+
+> **使用场景**：由灯具 Actor 的 Tick 调用，根据视角距离动态衰减大气密度，避免远处光束过亮。默认值由 `BeamDefaults.AtmosphericDensity`（0.03）在初始化时设置。
+
+### 4.13 光束禁用 (Beam Disabled)
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| **bDisableBeam** | 是否禁用光束体积效果（仅禁用光束网格，不影响 SpotLight 光照） | false（启用） |
+
+运行时可通过 `SetBeamDisabled(bool)` 动态开关光束体积效果。
+
+> **使用场景**：当灯具仅需 SpotLight 光照而不需要可见光束时，可在运行时禁用光束以节省渲染开销。
+
+### 4.14 可见性控制
 
 | 操作 | 说明 |
 |------|------|
@@ -245,3 +288,33 @@ SuperBeamComponent 管理**三套**独立的动态材质，确保镜片、光斑
 
 ### Q: 光束在移动/旋转时有明显的抖动？
 **A**: 这是变焦去抖机制导致的，阈值为角度变化 0.1°、衰减半径变化 1cm。如果需要更平滑的过渡，可以在灯具 Actor 层面加入插值逻辑。
+
+---
+
+## 七、API 快速参考
+
+以下为 `USuperBeamComponent` 的公开函数签名（含继承和新增）：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetBeamDefaultValue() const` | 初始化光束材质默认参数（OnRegister 自动调用） |
+| `virtual void SetLightingMaterial() override` | 创建三套动态材质（镜片+光斑+光束） |
+| `virtual void SetLightingIntensity(const float NewLightIntensity = 1.0f) override` | 亮度（同步更新光束材质） |
+| `virtual void SetLightingStrobe(const float NewStrobe = 0.0f) override` | 频闪速度（同步光束材质） |
+| `virtual void SetLightingStrobeMode(const float NewStrobeMode = 1.0f) override` | 频闪模式 |
+| `virtual void SetRandomSeed(const float NewSeed) override` | 随机种子 |
+| `virtual void SetLightingColor(const FLinearColor NewColor = FLinearColor(1,1,1)) override` | 颜色（三套材质同步） |
+| `virtual void SetLightingZoom(const float NewZoom = 0.0f) override` | 变焦（SpotLight + 光束缩放） |
+| `virtual void UpdateBeamBlockDistance(const float NewMaxLightDistance) override` | 更新光束遮挡距离 |
+| `virtual void SetLightingFrost(const float NewFrost = 0.0f) override` | 雾化（光束额外展宽） |
+| `virtual void SetLightingIris(const float NewIris = 1.0f) override` | 光圈（光束 LensRadius 缩小） |
+| `virtual void SetLightingRotate(const float NewRotate = 0, const float NewInfiniteRotation = 0) override` | 图案旋转（三套材质同步） |
+| `void SetBeamTexture(UTexture2D* = nullptr, int32 NewNumGobos = 1, float GoboIndex = 0, float GoboSpeed = 0, float ShakeSpeed = 0) const` | Gobo 图案（三套材质同步） |
+| `virtual void SetColorTexture(UTexture2D*, int32, float, float) override` | 颜色轮 1 |
+| `virtual void SetColorTexture2(UTexture2D*, int32, float, float) override` | 颜色轮 2 |
+| `virtual void SetColorTexture3(UTexture2D*, int32, float, float) override` | 颜色轮 3 |
+| `void SetBeamPrism(USuperPrismPreset* = nullptr, int32 PrismLayerIndex = 0, float PrismRotation = 0, float PrismRotationSpeed = 0) const` | 棱镜 |
+| `void SetBeamFocus(const float Focus = 0.0f) const` | 对焦 |
+| `void SetBeamAtmosphericDensity(const float Density) const` | 运行时大气密度 |
+| `void SetBeamDisabled(const bool bDisabled)` | 光束禁用 |
+| `virtual void SetLightingVisibility(const bool bNewVisibility = false) override` | 光束可见性 |

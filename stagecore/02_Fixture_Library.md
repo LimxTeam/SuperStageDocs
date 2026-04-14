@@ -3,7 +3,7 @@
 > **所属模块**: SuperFixtureLibrary (USuperFixtureLibrary)  
 > **适用对象**: 灯光设计师、灯具蓝图制作者  
 > **前置阅读**: [00 - DMX 系统总览](/docs/stage-core/overview)  
-> **最后更新**: 2026-03-06
+> **最后更新**: 2026-04-14
 
 ---
 
@@ -50,7 +50,7 @@
 |------|------|------|
 | **Fixture Name** | 灯具型号名称 | `MegaPointe` |
 | **Manufacturer** | 制造商 | `Robe` |
-| **Source** | 数据来源（可选） | `GDTF` 或 `Manual` |
+| **Source** | 数据来源 | `Custom`、`GDTF`、`MA2`、`MA3` |
 | **Power** | 额定功率（瓦特） | `1700` |
 | **Weight** | 重量（千克） | `36.8` |
 
@@ -69,7 +69,7 @@
 | 属性 | 说明 | 示例 |
 |------|------|------|
 | **Module Name** | 模块名称（可选，便于识别） | `Main` 或 `Pixel_1` |
-| **Patch** | 模块在灯具中的通道偏移（1 基）。对于单模块灯具，设为 **1**。对于矩阵灯，每个模块的 Patch 值不同 | `1` |
+| **Patch** | 模块相对 StartAddress 的通道偏移（0 基）。绝对基址 = StartAddress + Patch。单模块灯具一般设为 **0** 或 **1**，矩阵灯每个像素模块的 Patch 值不同 | `1` |
 | **Attribute Defs** | 该模块的属性定义列表（详见下文） | — |
 
 ---
@@ -88,8 +88,9 @@
 | **Coarse** | 粗调通道偏移（1 基） | **必填**。该属性的主通道在模块内的偏移。例如 Coarse=5 表示该属性从模块的第 5 个通道开始 |
 | **Fine** | 精调通道偏移（1 基） | **可选**。设为 0 表示无精调通道。用于 16 位精度控制（如 Pan/Tilt） |
 | **Ultra** | 超精调通道偏移（1 基） | **可选**。设为 0 表示无超精调通道。用于 24 位精度控制（极少使用） |
-| **Category** | 属性分类 | 用于 UI 分组显示，不影响功能逻辑 |
-| **Channel Type** | 通道精度类型 | 决定读取方式：Coarse（8位）/ Fine（16位）/ Ultra（24位） |
+| **Category** | 属性分类（EDMXAttributeCategory） | 用于控台 UI 分组显示，不影响功能逻辑 |
+| **DefaultValue** | 默认 DMX 值（0-100） | 用于控台 Default 预设 |
+| **HighlightValue** | 高亮 DMX 值（0-100） | 用于控台 Highlight 功能 |
 
 ### 4.2 通道偏移详解
 
@@ -147,14 +148,19 @@
 
 | 分类 | 说明 | 典型属性 |
 |------|------|---------|
-| **Intensity** | 亮度相关 | Dimmer, Shutter, Strobe |
-| **Position** | 位置相关 | Pan, Tilt, PanRot, TiltRot |
-| **Color** | 颜色相关 | Red, Green, Blue, White, Amber, ColorWheel, CTO, CTB |
-| **Beam** | 光束相关 | Zoom, Focus, Iris, Frost |
-| **Gobo** | Gobo 相关 | Gobo1, Gobo2, GoboRot |
-| **Effect** | 效果相关 | Prism, PrismRot, Animation |
-| **Control** | 控制相关 | Reset, LampOn, LampOff |
-| **Custom** | 自定义 | 任何其他功能 |
+| **Dimmer** | 亮度 | Dimmer |
+| **Position** | 位置 | Pan, Tilt, PanRot, TiltRot |
+| **Gobo** | 图案 | Gobo1, Gobo2, GoboRot |
+| **Color** | 颜色 | Red, Green, Blue, White, Amber, ColorWheel, CTO |
+| **Beam** | 光束 | Zoom, Iris |
+| **Focus** | 聚焦 | Focus |
+| **Control** | 控制 | Reset, LampOn, LampOff |
+| **Shapers** | 切割 | Blade A1-B4, ShaperRot |
+| **Strobe** | 频闪 | Shutter, Strobe |
+| **Prism** | 棱镜 | Prism1, Prism2, PrismRot |
+| **Frost** | 雾化 | Frost |
+| **Effects** | 效果 | EffectDimmer, EffectValue |
+| **Other** | 其他 | 任何未分类功能 |
 
 ---
 
@@ -166,11 +172,13 @@
 
 | 参数 | 说明 | 示例 |
 |------|------|------|
-| **Name** | 子属性名称 | `Open White`、`Gobo 1`、`Strobe Slow-Fast` |
+| **WheelName** | 子属性名称（Wheel 标识） | `Open White`、`Gobo 1`、`Strobe Slow-Fast` |
+| **StrobeMode** | 频闪模式（仅 Dimmer/Strobe 类属性） | Closed / Open / Linear / Pulse / RampUp / RampDown / Sine / Random |
+| **RotationMode** | 旋转模式（仅 Position 类属性） | Off / Stop / Position / Infinite |
 | **DMX Range Min** | DMX 值范围的最小值（0-255） | `0` |
-| **DMX Range Max** | DMX 值范围的最大值（0-255） | `127` |
-| **Physical Min** | 物理值最小值（真实单位） | `0.0`（度/米/百分比等） |
-| **Physical Max** | 物理值最大值（真实单位） | `540.0` |
+| **DMX Range Max** | DMX 值范围的最大值（0-255） | `255` |
+| **Physical Range** | 物理值范围（真实单位，FVector2D） | (0.0, 540.0)（度/米/百分比等） |
+| **Channel Sets** | 内嵌的槽位列表（见第六节） | 多个 FChannelSet |
 
 ### 5.2 子属性示例
 
@@ -197,12 +205,19 @@
 
 **通道集 (Channel Set)** 是一种快捷方式，类似于 MA2 的 Channel Set 功能。它为属性定义预设的命名值。
 
-### 6.1 通道集参数
+### 6.1 通道集参数 (FChannelSet)
 
 | 参数 | 说明 | 示例 |
 |------|------|------|
-| **Name** | 通道集名称 | `Open`、`Slow`、`Fast` |
-| **DMX Value** | 对应的 DMX 值（0-255） | `128` |
+| **Name** | 槽位名称 | `Open`、`Gobo 1`、`Red` |
+| **GoboMode** | 图案模式 | Static / Scrolling / Shake |
+| **DmxMin** | DMX 值范围最小值 | `0` |
+| **DmxMax** | DMX 值范围最大值 | `15` |
+| **PhysicalRange** | 物理值范围（FVector2D） | (0.0, 360.0) |
+| **Texture** | 图案纹理（UTexture2D，Gobo 专用） | 图案贴图资产 |
+| **Color** | 颜色值（FLinearColor，ColorWheel 专用） | (1,0,0,1) |
+| **ColorIndex** | 颜色索引值（用于 ColorWheel 定位） | `0.5` |
+| **PrismSelection** | 棱镜选择（EPrismLayerSelect） | None / Prism1 / Prism2 / Prism3 |
 
 ### 6.2 使用场景
 

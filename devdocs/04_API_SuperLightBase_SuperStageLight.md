@@ -785,13 +785,23 @@ void SetBeamFocus(FSuperDMXAttribute DmxFocus);
 #### SetBeamPrism
 
 ```cpp
-void SetBeamPrism(FSuperDMXAttribute DmxPrism1, FSuperDMXAttribute DmxPrism2,
-    FSuperDMXAttribute DmxPrismRot);
+void SetBeamPrism(
+    FSuperDMXAttribute DmxPrism1,
+    FSuperDMXAttribute DmxPrism2,
+    FSuperDMXAttribute DmxPrismRot,
+    USuperPrismPreset* InPrismPreset = nullptr);
 ```
 
 双棱镜控制（含旋转）。
 
-**优先级**: 棱镜启用时**覆盖**图案轮效果（Prism > Gobo）。
+| 参数 | 说明 |
+|------|------|
+| `DmxPrism1` | 第一棱镜选择通道 |
+| `DmxPrism2` | 第二棱镜选择通道（无则传空 FSuperDMXAttribute） |
+| `DmxPrismRot` | 棱镜旋转通道 |
+| `InPrismPreset` | 棱镜预设数据资产（`USuperPrismPreset*`），可选，灯库通过 `PrismSelection` 选择预设中的层索引 |
+
+**优先级**: Prism1 > Prism2，若对应 `PrismSelection == None` 则关闭棱镜。
 
 ---
 
@@ -809,9 +819,9 @@ void SetBeamCutting(
 
 四叶片切割控制（8 通道）。
 
-**叶片映射**:
-- `A` 侧: DMX `[0, 1]` → 叶片位置 `[0, 0.4]`
-- `B` 侧: DMX `[0, 1]` → 叶片位置 `[1, 0.6]`
+**叶片映射**（按叶片对方向区分，同对内 A/B 共享同一范围）:
+- 叶片对 1 (A1,B1) 和 叶片对 3 (A3,B3): DMX `[0, 1]` → `[0, 0.4]`
+- 叶片对 2 (A2,B2) 和 叶片对 4 (A4,B4): DMX `[0, 1]` → `[1, 0.6]`
 
 ---
 
@@ -912,31 +922,54 @@ void SetMatrixColorMultiple(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAt
 
 ```cpp
 // 冷暖混色（单点/多点）
-void SetMatrixCoolWarmMixSingle(..., int32 Index, USuperMatrixComponent*);
-void SetMatrixCoolWarmMixMultiple(..., USuperMatrixComponent*);
+void SetMatrixCoolWarmMixSingle(FSuperDMXAttribute DmxCool, FSuperDMXAttribute DmxWarm,
+    float CoolTemperature, float WarmTemperature, int32 Index, USuperMatrixComponent* NewSuperMatrix);
+void SetMatrixCoolWarmMixMultiple(FSuperDMXAttribute DmxCool, FSuperDMXAttribute DmxWarm,
+    float CoolTemperature, float WarmTemperature, USuperMatrixComponent* NewSuperMatrix);
 
 // 多通道混色
-void SetMatrixColorMix(const TArray<FSuperColorChannel>& ColorChannels, USuperMatrixComponent*);
+void SetMatrixColorMix(const TArray<FSuperColorChannel>& ColorChannels, USuperMatrixComponent* NewSuperMatrix);
 
 // RGB + CTO（单点/多点）
-void SetMatrixColorRGBWithCTOSingle(..., int32 Index, USuperMatrixComponent*);
-void SetMatrixColorRGBWithCTOMultiple(..., USuperMatrixComponent*);
+void SetMatrixColorRGBWithCTOSingle(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DmxCTO,
+    float CoolTemperature, float WarmTemperature, int32 Index, USuperMatrixComponent* NewSuperMatrix);
+void SetMatrixColorRGBWithCTOMultiple(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DmxCTO,
+    float CoolTemperature, float WarmTemperature, USuperMatrixComponent* NewSuperMatrix);
 
 // RGBW（单点/多点）
-void SetMatrixColorRGBWSingle(..., int32 Index, USuperMatrixComponent*);
-void SetMatrixColorRGBWMultiple(..., USuperMatrixComponent*);
+void SetMatrixColorRGBWSingle(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DMXAttW,
+    int32 Index, USuperMatrixComponent* NewSuperMatrix);
+void SetMatrixColorRGBWMultiple(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DMXAttW, USuperMatrixComponent* NewSuperMatrix);
 
 // RGBW + CTO（单点/多点）
-void SetMatrixColorRGBWWithCTOSingle(...);
-void SetMatrixColorRGBWWithCTOMultiple(...);
+void SetMatrixColorRGBWWithCTOSingle(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DMXAttW, FSuperDMXAttribute DmxCTO,
+    float CoolTemperature, float WarmTemperature, int32 Index, USuperMatrixComponent* NewSuperMatrix);
+void SetMatrixColorRGBWWithCTOMultiple(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DMXAttW, FSuperDMXAttribute DmxCTO,
+    float CoolTemperature, float WarmTemperature, USuperMatrixComponent* NewSuperMatrix);
 
 // RGB + CoolWarm（单点/多点）
-void SetMatrixColorRGBWithCoolWarmSingle(...);
-void SetMatrixColorRGBWithCoolWarmMultiple(...);
+void SetMatrixColorRGBWithCoolWarmSingle(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DmxCool, FSuperDMXAttribute DmxWarm,
+    float CoolTemperature, float WarmTemperature, int32 Index, USuperMatrixComponent* NewSuperMatrix);
+void SetMatrixColorRGBWithCoolWarmMultiple(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DmxCool, FSuperDMXAttribute DmxWarm,
+    float CoolTemperature, float WarmTemperature, USuperMatrixComponent* NewSuperMatrix);
 
 // RGBW + CoolWarm（单点/多点）
-void SetMatrixColorRGBWWithCoolWarmSingle(...);
-void SetMatrixColorRGBWWithCoolWarmMultiple(...);
+void SetMatrixColorRGBWWithCoolWarmSingle(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DMXAttW, FSuperDMXAttribute DmxCool,
+    FSuperDMXAttribute DmxWarm, float CoolTemperature, float WarmTemperature,
+    int32 Index, USuperMatrixComponent* NewSuperMatrix);
+void SetMatrixColorRGBWWithCoolWarmMultiple(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG,
+    FSuperDMXAttribute DMXAttB, FSuperDMXAttribute DMXAttW, FSuperDMXAttribute DmxCool,
+    FSuperDMXAttribute DmxWarm, float CoolTemperature, float WarmTemperature,
+    USuperMatrixComponent* NewSuperMatrix);
 ```
 
 ---
@@ -1187,7 +1220,7 @@ Event SuperDMXTick
  ├─ SetLightingFrost(DmxFrost)                       // 雾化
  │
  ├─ SetBeamGobo1(DmxGobo1, DmxGobo1Rot)             // 图案轮
- ├─ SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot) // 棱镜
+ ├─ SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot, PrismPreset) // 棱镜
  │
  └─ SetBeamCutting(A1,B1, A2,B2, A3,B3, A4,B4)      // 切割
 ```
@@ -1344,6 +1377,12 @@ void AMyLightController::UpdateLight(ASuperStageLight* Light, float DeltaTime)
 | `SetMatrixComponent` | 矩阵初始化+颜色+亮度 |
 | `SetMatrixWhiteSingle/Multiple` | 矩阵白光 |
 | `SetMatrixColorSingle/Multiple` | 矩阵 RGB |
+| `SetMatrixCoolWarmMixSingle/Multiple` | 矩阵冷暖混色 |
+| `SetMatrixColorRGBWSingle/Multiple` | 矩阵 RGBW |
+| `SetMatrixColorRGBWithCTOSingle/Multiple` | 矩阵 RGB + CTO |
+| `SetMatrixColorRGBWWithCTOSingle/Multiple` | 矩阵 RGBW + CTO |
+| `SetMatrixColorRGBWithCoolWarmSingle/Multiple` | 矩阵 RGB + 冷暖 |
+| `SetMatrixColorRGBWWithCoolWarmSingle/Multiple` | 矩阵 RGBW + 冷暖 |
 | `SetMatrixStrobe` | 矩阵频闪 |
 | `SetMatrixIntensity` | 矩阵亮度 |
 | `SetMatrixColorMix` | 矩阵多通道混色 |

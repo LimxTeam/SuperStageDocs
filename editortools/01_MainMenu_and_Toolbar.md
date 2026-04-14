@@ -40,7 +40,30 @@ SuperStage 工具栏是插件的核心导航入口，位于 Unreal Engine 编辑
 | **MVRImport** | 打开 MVR 导入面板 | 从 .mvr 文件导入灯具布局 |
 | **SuperDataImport** | 打开 SuperData 同步面板 | 通过局域网与其他客户端同步灯具数据 |
 
-### 3.4 分隔线之后
+### 3.4 Documentation 文档中心子菜单
+
+| 菜单项 | 层级 | 说明 |
+|--------|------|------|
+| **QuickStart** | 一级 | 打开快速入门指南网页 |
+| **ProductDocs** | 一级 | 打开完整产品文档网页 |
+| **ModuleManuals** | 子菜单 | 各模块独立手册 |
+| ├ SuperConsolePro | — | DMX 灯光控台手册 |
+| ├ SuperLaser | — | 激光系统手册 |
+| ├ SuperNDI | — | NDI 视频系统手册 |
+| ├ SuperDroneLink | — | 无人机编队手册 |
+| └ SuperCAD | — | 灯光施工图手册 |
+| **SystemReference** | 子菜单 | 系统参考文档 |
+| ├ EditorTools | — | 17 个编辑器工具参考 |
+| ├ LightComponents | — | 9 种灯光组件参考 |
+| ├ StageAssets | — | 6 种舞台资产参考 |
+| └ DMXCoreSystem | — | DMX 核心系统参考 |
+| **SuperDataProtocol** | 子菜单 | SuperData 协议文档 |
+| ├ QuickStart | — | 协议快速入门 |
+| └ ProtocolSpec | — | 协议规范 |
+| **DevDocs** | 一级 | 开发者文档（API 与架构） |
+| **Changelog** | 一级 | 版本更新日志 |
+
+### 3.5 底部菜单项
 
 | 菜单项 | 功能 | 说明 |
 |--------|------|------|

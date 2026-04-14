@@ -1122,25 +1122,23 @@ SetSpotCoolWarmMix(DmxCool, DmxWarm, CoolTemp, WarmTemp);
 FSuperDMXAttributeDef (属性)
  └─ SubAttributes[] (子属性)
      └─ ChannelSets[] (槽位列表)
-         ├─ Name          — 槽位名称（如 "Open", "Gobo1", "Red"）
-         ├─ DmxMin/DmxMax — DMX 范围
-         ├─ PhysicalRange — 物理值映射范围
-         ├─ GoboMode      — 图案模式（Static/Scrolling/Shake）
-         ├─ Texture       — 图案纹理（UTexture2D*）
-         ├─ Color         — 颜色值（FLinearColor）
-         ├─ ColorIndex    — 颜色索引（用于 Color Wheel 定位）
-         ├─ PrismFacets   — 棱镜面数（0=关闭，3/5/6/8 等）
-         ├─ PrismRadius   — 棱镜半径（0.0~1.0）
-         └─ PrismScale    — 棱镜缩放（0.01~1.0）
+         ├─ Name            — 槽位名称（如 "Open", "Gobo1", "Red"）
+         ├─ DmxMin/DmxMax   — DMX 范围
+         ├─ PhysicalRange   — 物理值映射范围
+         ├─ GoboMode        — 图案模式（Static/Scrolling/Shake）
+         ├─ Texture         — 图案纹理（UTexture2D*）
+         ├─ Color           — 颜色值（FLinearColor）
+         ├─ ColorIndex      — 颜色索引（用于 Color Wheel 定位）
+         └─ PrismSelection  — 棱镜选择（EPrismLayerSelect，指向 USuperPrismPreset 层索引）
 ```
 
 **每种属性只使用其中一部分字段**：
 
 | 属性类型 | 使用的 FChannelSet 字段 | 不使用的字段 |
 |---------|----------------------|------------|
-| **图案 (Gobo)** | GoboMode, Texture, DmxMin/Max | Color, PrismFacets/Radius/Scale |
-| **颜色 (Color)** | Color, ColorIndex, DmxMin/Max | Texture, GoboMode, PrismFacets |
-| **棱镜 (Prism)** | PrismFacets, PrismRadius, PrismScale, DmxMin/Max | Texture, Color |
+| **图案 (Gobo)** | GoboMode, Texture, DmxMin/Max | Color, PrismSelection |
+| **颜色 (Color)** | Color, ColorIndex, DmxMin/Max | Texture, GoboMode, PrismSelection |
+| **棱镜 (Prism)** | PrismSelection, DmxMin/Max | Texture, Color, GoboMode |
 
 ---
 
@@ -1360,30 +1358,33 @@ SetLightingColorWheel3AndCMY(DmxCW1, DmxCW2, DmxCW3, DmxC, DmxM, DmxY, Atlas1, A
 
 #### 10.4.1 灯库中的棱镜配置
 
-棱镜属性使用 `FChannelSet` 的 `PrismFacets`、`PrismRadius`、`PrismScale` 字段：
+棱镜属性使用 `FChannelSet` 的 `PrismSelection`（`EPrismLayerSelect`）字段，指向 `USuperPrismPreset` 数据资产中的层索引：
 
 ```
 属性: Prism1, 分类: Prism, Coarse: 12
  └─ SubAttribute[0]: DmxMin=0, DmxMax=127
-     ├─ ChannelSet[0]: Name="Open",    DmxMin=0,  DmxMax=7,  PrismFacets=0  → 关闭
-     ├─ ChannelSet[1]: Name="3-Facet", DmxMin=8,  DmxMax=39, PrismFacets=3, PrismRadius=0.3, PrismScale=0.15
-     ├─ ChannelSet[2]: Name="5-Facet", DmxMin=40, DmxMax=69, PrismFacets=5, PrismRadius=0.25, PrismScale=0.12
-     └─ ChannelSet[3]: Name="8-Facet", DmxMin=70, DmxMax=127,PrismFacets=8, PrismRadius=0.2,  PrismScale=0.10
+     ├─ ChannelSet[0]: Name="Open",    DmxMin=0,  DmxMax=7,  PrismSelection=None     → 关闭棱镜
+     ├─ ChannelSet[1]: Name="3-Facet", DmxMin=8,  DmxMax=39, PrismSelection=Prism1   → 棱镜层 0
+     ├─ ChannelSet[2]: Name="5-Facet", DmxMin=40, DmxMax=69, PrismSelection=Prism2   → 棱镜层 1
+     └─ ChannelSet[3]: Name="Linear",  DmxMin=70, DmxMax=127,PrismSelection=Prism3   → 棱镜层 2
 ```
 
-#### 10.4.2 棱镜参数说明
+#### 10.4.2 EPrismLayerSelect 枚举与 USuperPrismPreset
 
-| 参数 | 类型 | 范围 | 说明 |
-|------|------|------|------|
-| `PrismFacets` | int32 | 0~48 | 棱镜面数。0=关闭，3=三棱镜，5=五棱镜等 |
-| `PrismRadius` | float | 0.0~1.0 | 棱镜效果半径。越大棱镜分离越明显 |
-| `PrismScale` | float | 0.01~1.0 | 棱镜缩放。控制每个棱面的子图像大小 |
+**EPrismLayerSelect 枚举**：
 
-**视觉效果**：
-- `PrismFacets=3, PrismRadius=0.3, PrismScale=0.15` — 标准三棱镜（最常见）
-- `PrismFacets=5, PrismRadius=0.25, PrismScale=0.12` — 五棱镜（更密集）
-- `PrismFacets=8, PrismRadius=0.2, PrismScale=0.10` — 八棱镜（密集光圈）
-- `PrismFacets=0` — 无棱镜（Open）
+| 值 | 说明 |
+|------|------|
+| `None` (0) | 关闭棱镜（Open） |
+| `Prism1` (1) | 指向 `USuperPrismPreset::PrismLayers[0]` |
+| `Prism2` (2) | 指向 `USuperPrismPreset::PrismLayers[1]` |
+| `Prism3` (3) | 指向 `USuperPrismPreset::PrismLayers[2]` |
+
+**USuperPrismPreset** 是棱镜数据资产，通过编辑器可视化创建。每个层（PrismLayer）定义一组棱面（`FSuperPrismFacet`）的位置/缩放，运行时由 `GetPositionTexture()` 生成48×1 RGBA16F 位置查找纹理推送到材质。
+
+**创建方式**：在 Content Browser 中右键 → SuperStage 分类 → 棱镜预设，双击打开可视化编辑器拖拽编辑棱面位置。
+
+**内置预设模板**：Circle（圆形）/ Line（线性）/ Triangle（三角）/ Square（方形）
 
 #### 10.4.3 棱镜旋转（PrismRot）
 
@@ -1399,32 +1400,63 @@ SetLightingColorWheel3AndCMY(DmxCW1, DmxCW2, DmxCW3, DmxC, DmxM, DmxY, Atlas1, A
 #### 10.4.4 运行时查找流程
 
 ```
-DMX 原始值 → FindAttributeDef(InstanceIndex, "Prism1")
-  → FindSubAttribute(DmxValue)
-    → 遍历 ChannelSets，找到 Contains(DmxValue) 的槽位
-      → 读取 PrismFacets / PrismRadius / PrismScale
-        → SuperBeam->SetBeamPrism(Facets, Radius, Scale, Rotation, RotSpeed)
-若 PrismFacets > 0 → 启用棱镜效果
-若 PrismFacets == 0 → 关闭棱镜（Open）
+ASuperStageLight::SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot, InPrismPreset)
+│
+├─ 1. 读取 DMX 归一化值
+│   GetSuperDmxAttributeValue(DmxPrism1, Prism1)
+│   GetSuperDmxAttributeValue(DmxPrism2, Prism2)
+│   GetSuperDmxAttributeValue(DmxPrismRot, Prism_Rot)
+│
+├─ 2. 棱镜旋转（复用 CalcGoboRotation 逻辑）
+│   CalcGoboRotation(DmxPrismRot, Prism_Rot * 255)
+│   → PrismRotation（静态角度） + PrismRotationSpeed（无极速度）
+│
+├─ 3. 棱镜选择（优先级：Prism1 > Prism2）
+│   FindAttributeDef(InstanceIndex, "Prism1")
+│     → FindSubAttribute(DmxValue)
+│       → 遍历 ChannelSets，找到 Contains(DmxValue) 的槽位
+│         → 读取 PrismSelection (EPrismLayerSelect)
+│           → PrismSelection == None → 关闭棱镜
+│           → PrismSelection == Prism1/2/3 → LayerIndex = PrismSelection - 1
+│
+└─ 4. 推送到组件
+   ├─ 找到有效层 → SuperBeam->SetBeamPrism(InPrismPreset, LayerIndex, PrismRotation, PrismRotationSpeed)
+   └─ 全部无效 → SuperBeam->SetBeamPrism(nullptr, 0, 0, 0)  // 关闭棱镜
 ```
 
-**双棱镜优先级**：`SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot)`
-- 先查 Prism1，若找到有效棱镜（Facets > 0）则使用
+**双棱镜优先级**：
+- 先查 Prism1，若对应 `PrismSelection != None` 则使用
 - 否则查 Prism2
-- 都无效则关闭棱镜（Facets=0, Radius=0.3, Scale=0.15）
+- 都为 None 则传入 `nullptr` 关闭棱镜效果
 
 #### 10.4.5 蓝图中使用棱镜
 
+**函数签名**：
+
+```cpp
+void SetBeamPrism(
+    FSuperDMXAttribute DmxPrism1,
+    FSuperDMXAttribute DmxPrism2,
+    FSuperDMXAttribute DmxPrismRot,
+    USuperPrismPreset* InPrismPreset = nullptr);
+```
+
 **SuperDMXTick 中连线**：
 ```
-SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot)
+SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot, MyPrismPreset)
 ```
 
-- `DmxPrism1` — 第一棱镜选择通道
-- `DmxPrism2` — 第二棱镜选择通道（无则传空 FSuperDMXAttribute）
-- `DmxPrismRot` — 棱镜旋转通道
+| 参数 | 说明 |
+|------|------|
+| `DmxPrism1` | 第一棱镜选择通道 |
+| `DmxPrism2` | 第二棱镜选择通道（无则传空 FSuperDMXAttribute） |
+| `DmxPrismRot` | 棱镜旋转通道 |
+| `InPrismPreset` | 棱镜预设资产（`USuperPrismPreset*`，可选，默认 nullptr） |
 
-**注意**：棱镜**不需要图集纹理**，参数直接从灯库的 `FChannelSet` 中读取。
+**注意**：
+- 棱镜不需要图集纹理，但需要传入 `USuperPrismPreset` 数据资产
+- 棱镜面数/位置/缩放由预设资产定义，灯库仅通过 `PrismSelection` 选择层索引
+- `InPrismPreset` 传 `nullptr` 时，棱镜将被关闭（无论灯库如何配置）
 
 ---
 
@@ -1547,7 +1579,7 @@ SetBeamPrism(DmxPrism1, DmxPrism2, DmxPrismRot)
 ```
 SetLightingColorWheel(DmxColorWheel1, ColorAtlas)      // 颜色轮
 SetBeamGobo1(DmxGobo1, DmxGobo1Rot, Gobo1Atlas)        // 图案轮
-SetBeamPrism(DmxPrism1, None, DmxPrismRot)              // 棱镜（无第二棱镜传空）
+SetBeamPrism(DmxPrism1, None, DmxPrismRot, PrismPreset) // 棱镜（无第二棱镜传空，传入棱镜预设资产）
 ```
 
 ---
@@ -1562,10 +1594,10 @@ SetBeamCutting(DmxA1, DmxB1, DmxA2, DmxB2, DmxA3, DmxB3, DmxA4, DmxB4);
 SetBeamCuttingRotate(DmxShaperRot, DmxGoboRot);
 ```
 
-**切割映射**：
-- A 侧：`[0,1] → [0, 0.4]`（从打开到半关）
-- B 侧：`[0,1] → [1, 0.6]`（从全开到部分关闭）
-- 旋转叠加：`ShaperRot[-45°, 45°] + GoboRot[0°, 360°]`
+**切割映射**（按叶片对方向区分，同对内 A/B 共享同一映射范围）：
+- 叶片对 1 (A1,B1) 和 叶片对 3 (A3,B3)：`[0,1] → [0, 0.4]`（从打开到半关）
+- 叶片对 2 (A2,B2) 和 叶片对 4 (A4,B4)：`[0,1] → [1, 0.6]`（从对侧打开到半关）
+- 旋转叠加：`ShaperRot[由子属性物理范围定义] + GoboRot[0°, 360°]`
 
 **需要 `USuperCuttingComponent`**（继承自 `USuperBeamComponent`）。
 
@@ -1629,9 +1661,25 @@ SetMatrixIntensity(DmxAttribute, USuperMatrixComponent*);
 SetMatrixCoolWarmMixSingle(DmxCool, DmxWarm, CoolTemp, WarmTemp, Index, Matrix);
 SetMatrixCoolWarmMixMultiple(DmxCool, DmxWarm, CoolTemp, WarmTemp, Matrix);
 
-// RGBW
+// RGBW（单像素 / 多像素）
 SetMatrixColorRGBWSingle(DmxR, DmxG, DmxB, DmxW, Index, Matrix);
 SetMatrixColorRGBWMultiple(DmxR, DmxG, DmxB, DmxW, Matrix);
+
+// RGB + CTO（单像素 / 多像素）
+SetMatrixColorRGBWithCTOSingle(DmxR, DmxG, DmxB, DmxCTO, CoolTemp, WarmTemp, Index, Matrix);
+SetMatrixColorRGBWithCTOMultiple(DmxR, DmxG, DmxB, DmxCTO, CoolTemp, WarmTemp, Matrix);
+
+// RGBW + CTO（单像素 / 多像素）
+SetMatrixColorRGBWWithCTOSingle(DmxR, DmxG, DmxB, DmxW, DmxCTO, CoolTemp, WarmTemp, Index, Matrix);
+SetMatrixColorRGBWWithCTOMultiple(DmxR, DmxG, DmxB, DmxW, DmxCTO, CoolTemp, WarmTemp, Matrix);
+
+// RGB + CoolWarm（单像素 / 多像素）
+SetMatrixColorRGBWithCoolWarmSingle(DmxR, DmxG, DmxB, DmxCool, DmxWarm, CoolTemp, WarmTemp, Index, Matrix);
+SetMatrixColorRGBWithCoolWarmMultiple(DmxR, DmxG, DmxB, DmxCool, DmxWarm, CoolTemp, WarmTemp, Matrix);
+
+// RGBW + CoolWarm（单像素 / 多像素）
+SetMatrixColorRGBWWithCoolWarmSingle(DmxR, DmxG, DmxB, DmxW, DmxCool, DmxWarm, CoolTemp, WarmTemp, Index, Matrix);
+SetMatrixColorRGBWWithCoolWarmMultiple(DmxR, DmxG, DmxB, DmxW, DmxCool, DmxWarm, CoolTemp, WarmTemp, Matrix);
 
 // 动态多色混合
 SetMatrixColorMix(ColorChannels, Matrix);
@@ -1786,8 +1834,8 @@ Event SuperDMXTick(DeltaSeconds)
     ├─ SetLightingColorWheel(DmxColorWheel, ColorAtlas) // ch9
     │
     ├─ SetBeamGobo1(DmxGobo1, DmxGobo1Rot, GoboAtlas) // ch10-11
-    ├─ SetBeamPrism(DmxPrism1, None, DmxPrismRot)     // ch12-13
-    ├─ SetBeamFocus(DmxFocus)                          // ch14
+    ├─ SetBeamPrism(DmxPrism1, None, DmxPrismRot, PrismPreset) // ch12-13
+    ├─ SetBeamFocus(DmxFocus)                                   // ch14
     │
     ├─ SetLightingZoom(DmxZoom)                 // ch15
     └─ SetLightingFrost(DmxFrost)               // ch16
@@ -2029,7 +2077,7 @@ Event SuperDMXTick(DeltaSeconds)
     │              Gobo1Atlas, Gobo2Atlas)
     │
     │  ── 棱镜 ──
-    ├─ SetBeamPrism(DmxPrism1, None, DmxPrismRot)                     // ch19-20
+    ├─ SetBeamPrism(DmxPrism1, None, DmxPrismRot, PrismPreset)       // ch19-20
     │
     │  ── 光学 ──
     ├─ SetBeamFocus(DmxFocus)                                          // ch21
@@ -2349,7 +2397,7 @@ Event SuperDMXTick(DeltaSeconds)
     ├─ SetLightingStrobe(DmxStrobe)                               // ch8
     ├─ SetLightingColorWheel(DmxColorWheel, ColorAtlas)           // ch9
     ├─ SetBeamGobo1(DmxGobo1, DmxGobo1Rot, GoboAtlas)            // ch10-11
-    ├─ SetBeamPrism(DmxPrism1, None, DmxPrismRot)                // ch12-13
+    ├─ SetBeamPrism(DmxPrism1, None, DmxPrismRot, PrismPreset)  // ch12-13
     ├─ SetBeamFocus(DmxFocus)                                     // ch14
     ├─ SetLightingZoom(DmxZoom)                                   // ch15
     ├─ SetLightingFrost(DmxFrost)                                 // ch16
@@ -2453,8 +2501,8 @@ SetLightingStrobe(DmxStrobe)             // 频闪
 SetLightingColorWheel(DmxColorWheel, ColorAtlas)  // 颜色轮
 
 SetBeamGobo1(DmxGobo1, DmxGobo1Rot, GoboAtlas)   // 图案轮1
-SetBeamPrism(DmxPrism1, None, DmxPrismRot)        // 棱镜
-SetBeamFocus(DmxFocus)                             // 调焦
+SetBeamPrism(DmxPrism1, None, DmxPrismRot, PrismPreset) // 棱镜
+SetBeamFocus(DmxFocus)                                    // 调焦
 
 SetLightingZoom(DmxZoom)                 // 变焦
 SetLightingFrost(DmxFrost)               // 雾化
@@ -2569,8 +2617,8 @@ SetLightingZoom(DmxZoom)
 
 **SuperDMXTick**（切割部分）：
 ```
-SetBeamCutting(DmxA1, DmxA2, DmxA3, DmxA4, DmxB1, DmxB2, DmxB3, DmxB4)
-SetBeamCuttingRotate(DmxShaperRot)
+SetBeamCutting(DmxA1, DmxB1, DmxA2, DmxB2, DmxA3, DmxB3, DmxA4, DmxB4)
+SetBeamCuttingRotate(DmxShaperRot, DmxGoboRot)
 ```
 
 **C++ 构造函数中的组件替换**：

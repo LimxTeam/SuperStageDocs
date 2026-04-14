@@ -274,3 +274,16 @@ ComponentDimmer 会影响所有激光线的材质亮度参数。
 - **碰撞检测** — 每条线一次射线追踪（启用时）
 - **网格重建** — 点数据变化时的顶点/三角形/法线计算
 - **材质渲染** — 半透明材质的 GPU 开销
+
+---
+
+## 九、API 快速参考
+
+以下为 `USuperLaserProComponent` 的全部公开函数签名：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `void SetLaserPoints(const TArray<FLaserPoint>& InPoints)` | 设置激光点数据（触发变化检测和网格重建） |
+| `void RebuildMesh()` | 强制重建程序化网格 |
+| `void SetLaserVisibility(bool bNewVisibility)` | 激光可见性 |
+| `void SetComponentDimmer(const float NewDimmer)` | 组件级亮度分控（0.0 ~ 1.0，更新 MaxLightIntensity 并刷新材质参数） |

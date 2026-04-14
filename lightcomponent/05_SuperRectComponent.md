@@ -95,7 +95,7 @@ SuperRectComponent (继承自 SuperLightingComponent)
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | **DimmerCurveExponent** | 亮度响应曲线指数 | 2.0 |
-| **MaxLightIntensity** | 组件级亮度分控 | 1.0 |
+| **MaxLightIntensity** | 组件最大亮度百分比（100 = 全亮） | 100.0 |
 | **StaticMeshLens** | 镜片模型 | — |
 | **LensTransform** | 镜片变换 | 无偏移 |
 
@@ -113,7 +113,7 @@ SuperRectComponent (继承自 SuperLightingComponent)
 | **最大亮度** | 光源最大亮度系数 | 100.0 | — |
 | **体积散射强度** | RectLight 的体积雾散射强度 | — | — |
 | **是否投射阴影** | RectLight 是否开启阴影投射 | — | — |
-| **光斑亮度** | 光斑材质亮度乘数 | 100.0 | — |
+| **光斑亮度 (LightSpotIntensity)** | 光斑材质亮度乘数 | 1.0 | — |
 | **镜片亮度** | 镜片材质亮度乘数 | 1.0 | — |
 
 ### 阴影配置
@@ -241,3 +241,18 @@ RectLight 的频闪通过 **Tick 直接控制光源强度**实现（不使用光
 
 ### Q: 如何模拟 LED 面板灯的像素控制？
 **A**: 面光组件不支持像素级控制。如果需要像素级控制，请使用 **SuperMatrixComponent**（矩阵灯组件）配合面光组件使用。
+
+---
+
+## 九、API 快速参考
+
+以下为 `USuperRectComponent` 的公开函数签名：
+
+| 函数签名 | 说明 |
+|----------|------|
+| `virtual void SetLightingMaterial() override` | 创建动态材质实例 |
+| `virtual void SetLightingDefaultValue() override` | 推送默认参数到 RectLight |
+| `virtual void SetLightingIntensity(const float NewLightIntensity = 1.0f) override` | 同时更新 RectLight 强度和材质亮度 |
+| `virtual void SetLightingColor(const FLinearColor NewColor = FLinearColor(1,1,1)) override` | 同时设置 RectLight 颜色和材质颜色 |
+| `virtual void SetLightingVisibility(const bool bNewVisibility = false) override` | RectLight + 镜片可见性 |
+| `void InitializeLightFunction() const` | 初始化 RectLight 阴影、通道配置 |

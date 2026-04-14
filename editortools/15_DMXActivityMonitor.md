@@ -8,9 +8,9 @@ DMX 活动监控器（DMX Activity Monitor）是一个实时 DMX 数据查看工
 
 ## 2. 打开方式
 
-DMX 活动监控器可嵌入在 **DMX 配置面板** 中，或作为独立控件使用。
+DMX 活动监控器嵌入在 **DMX 配置面板** 的底部区域中。
 
-**主菜单路径**：工具栏 **SuperStage** 下拉菜单 → **SuperDMXTool** → **DMXConfiguration**
+**打开方式**：编辑器底部状态栏 → 点击 **SuperDMX** 按钮，打开 DMX 配置面板后即可在面板底部看到活动监控器
 
 ---
 

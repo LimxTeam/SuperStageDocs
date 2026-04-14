@@ -754,10 +754,16 @@ Light->GetSuperDmxAttributeValue(DimmerAttr, DimmerValue);
 | `ASuperLaserActor` | `LightActor/SuperLaserActor.h` | 激光纹理显示 |
 | `ASuperLaserProActor` | `LightActor/SuperLaserProActor.h` | 激光点数据显示 |
 | `ASuperProjector` | `LightActor/SuperProjector.h` | 投影 Mapping |
-| `ASuperTruss` | `StageAssets/SuperTruss.h` | 桁架 |
-| `ASuperScaffold` | `StageAssets/SuperScaffold.h` | 脚手架 |
-| `ASuperCurvedScaffold` | `StageAssets/SuperCurvedScaffold.h` | 弧形脚手架 |
-| `ASuperDrape` | `StageAssets/SuperDrape.h` | 幕布 |
+| `ASuperTruss` | `StageAssets/SuperTruss.h` | 桁架龙门架（4 种造型） |
+| `ASuperCircularTruss` | `StageAssets/SuperCircularTruss.h` | 圆形/环形桁架 |
+| `ASuperCurvedTruss` | `StageAssets/SuperCurvedTruss.h` | 样条驱动弧形桁架 |
+| `ASuperTrussGrid` | `StageAssets/SuperTrussGrid.h` | 水平桁架网格（灯光吊挂） |
+| `ASuperTrussTower` | `StageAssets/SuperTrussTower.h` | 垂直桁架塔 |
+| `ASuperScaffold` | `StageAssets/SuperScaffold.h` | 直线脚手架 |
+| `ASuperCurvedScaffold` | `StageAssets/SuperCurvedScaffold.h` | 样条驱动弧形脚手架 |
+| `ASuperDrape` | `StageAssets/SuperDrape.h` | 程序化幕布（4 种褶皱+4 种开合） |
+| `ASuperCrowd` | `StageAssets/SuperCrowd.h` | 程序化人群（泊松采样+样条区域） |
+| `ASuperStageFloor` | `StageAssets/SuperStageFloor.h` | 舞台地台 |
 
 ### SuperStage 模块 — 组件
 
@@ -793,8 +799,10 @@ Light->GetSuperDmxAttributeValue(DimmerAttr, DimmerValue);
 | `EDMXAttributeCategory` | `AssetTool/SuperFixtureLibrary.h` | 属性分类枚举 |
 | `EStrobeMode` | `AssetTool/SuperFixtureLibrary.h` | 频闪模式枚举 |
 | `EGoboMode` | `AssetTool/SuperFixtureLibrary.h` | 图案模式枚举 |
+| `EPrismLayerSelect` | `AssetTool/SuperFixtureLibrary.h` | 棱镜层选择枚举（None/Prism1/2/3） |
 | `EInfiniteRotationMode` | `AssetTool/SuperFixtureLibrary.h` | 无极旋转模式枚举 |
 | `EFixtureLibrarySource` | `AssetTool/SuperFixtureLibrary.h` | 灯库来源枚举 |
+| `USuperPrismPreset` | `AssetTool/SuperPrismPreset.h` | 棱镜预设数据资产 |
 
 ---
 
