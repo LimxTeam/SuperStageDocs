@@ -214,12 +214,12 @@ DMX 值 255 → Iris 归一化 1.0 → 实际 IrisValue = 0.3 (最细, 30%)
 
 | 参数 | DisplayName | 说明 | 默认值 | 值域 | 开关 |
 |------|-------------|------|--------|------|------|
-| **Gobo1** | Gobo1 | 图案轮 1 位置 | 0.0 | 0~255 | bGobo1 |
-| **Gobo2** | Gobo2 | 图案轮 2 位置 | 0.0 | 0~255 | bGobo2 |
-| **Gobo_Rot** | GoboRot | 图案旋转 | 0.0 | 0~255 | bGoboRot |
-| **Prism1** | Prism1 | 棱镜 1 | 0.0 | 0~255 | bPrism1 |
-| **Prism2** | Prism2 | 棱镜 2 | 0.0 | 0~255 | bPrism2 |
-| **Prism_Rot** | PrismRot | 棱镜旋转 | 0.0 | 0~255 | bPrismRot |
+| **Gobo1** | Gobo1 | 图案轮 1 位置 | 0.0 | 0~1 | bGobo1 |
+| **Gobo2** | Gobo2 | 图案轮 2 位置 | 0.0 | 0~1 | bGobo2 |
+| **Gobo_Rot** | GoboRot | 图案旋转 | 0.0 | 0~1 | bGoboRot |
+| **Prism1** | Prism1 | 棱镜 1 | 0.0 | 0~1 | bPrism1 |
+| **Prism2** | Prism2 | 棱镜 2 | 0.0 | 0~1 | bPrism2 |
+| **Prism_Rot** | PrismRot | 棱镜旋转 | 0.0 | 0~1 | bPrismRot |
 
 ### 5.4 切割控制参数
 
@@ -575,7 +575,7 @@ FinalRotate = ShaperRot + GoboRot
 
 ### 11.1 效果 LUT
 
-- DMX 值 0~255 → 查表 → `FEffectParams { Effect, Speed, Width }`
+- DMX 归一化值 0~1 → 查表 → `FEffectParams { Effect, Speed, Width }`
 - 256 级精度，覆盖所有内置效果组合
 
 ### 11.2 效果控制函数

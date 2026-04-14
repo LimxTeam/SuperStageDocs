@@ -2,16 +2,22 @@
 
 ## 1. 概述
 
-**Super Projector**（投影仪 / Mapping 投影）是 SuperStage 插件提供的投影映射模拟工具。它利用 Unreal Engine 的**光照函数**（Light Function）技术，通过三个独立的聚光灯组件（红/绿/蓝通道）将用户指定的贴图投射到场景中的物体表面，实现舞台投影映射（Projection Mapping）的预可视化效果。
+**Super Projector**（投影仪 / Mapping 投影）是 SuperStage 插件提供的投影映射模拟工具。它继承自 `ASuperMediaBase` 媒体基类，支持 **NDI 实时视频流投影** 和 **静态纹理投影** 两种媒体源模式。通过单个白色聚光灯的**光照函数**（Light Function）技术将图像投射到场景表面，实现舞台投影映射（Projection Mapping）的预可视化效果。
+
+### 继承关系
+
+```
+AActor → ASuperBaseActor → ASuperMediaBase → ASuperProjector
+```
 
 ### 工作原理
 
 Super Projector 模拟了真实投影仪的工作方式：
 
-1. 将投影贴图分解为 **R（红）、G（绿）、B（蓝）** 三个颜色通道
-2. 每个通道通过一个独立的**聚光灯 + 光照函数材质**投射
-3. 三个颜色通道在物体表面**叠加混合**，还原出完整的彩色投影画面
-4. 支持**梯形校正**，模拟真实投影仪的四角调整功能
+1. 单个**白色聚光灯**（SpotLight）设置光照函数材质
+2. 光照函数材质内含纹理，根据 SourceMode 选择 NDI 视频帧或静态纹理
+3. 聚光灯投射出全彩图像到场景表面
+4. 支持**梯形校正**（四点透视变换），模拟真实投影仪的四角调整功能
 
 ### 适用场景
 
@@ -36,22 +42,22 @@ Super Projector 模拟了真实投影仪的工作方式：
 
 ## 3. 参数详解
 
-### 3.1 投影内容（Mapping Content）
+### 3.1 媒体源（继承自 SuperMediaBase）
 
-#### 3.1.1 映射贴图（Mapping Texture）
+Super Projector 继承自 `ASuperMediaBase`，支持两种媒体源模式：
 
-- **含义**：投影仪投射的**图像内容**。可以是任何 UE 项目中的 2D 纹理资源
-- **类型**：UTexture（纹理资源引用）
-- **默认值**：无（空）
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| **SourceMode** | 媒体源模式：`NDI`（实时视频流）/ `Texture`（静态纹理） | NDI |
+| **NDIInputSelection** | 要订阅的 NDI 输入名称（仅 NDI 模式） | 无 |
+| **StaticTexture** | 手动指定的静态纹理（仅 Texture 模式） | 无 |
 
-> **设置方法**：
-> 1. 将图片素材（PNG/JPG/TGA 等）导入 UE 项目
-> 2. 在细节面板的 Mapping Texture 属性中，点击下拉箭头选择已导入的纹理
-> 3. 投影仪会立即将该图像投射到场景中
+> **NDI 模式**：从局域网中的 NDI 发送端（媒体服务器、OBS 等）接收实时视频帧并投影。
+> **Texture 模式**：使用项目中的静态纹理资源作为投影内容，适合固定图案投影。
 
-> **支持的纹理格式**：支持 UE 项目中的任何标准纹理资源。建议使用 **正方形或 16:9 比例**的纹理以获得最佳效果。
+### 3.2 投影参数（Mapping）
 
-#### 3.1.2 映射缩放（Mapping Scale）
+#### 映射缩放（Mapping Scale）
 
 - **含义**：控制投影画面的 **Light Function Scale**（光照函数缩放），值越大投影画面越小（单位为渲染缩放值，通常对应分辨率）
 - **类型**：二维向量（X, Y）

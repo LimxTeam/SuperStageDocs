@@ -1,20 +1,28 @@
-# Super NDI Screen NDI 视频屏幕 — 用户手册
+# Super Screen 媒体屏幕 — 用户手册
 
 ## 1. 概述
 
-**Super NDI Screen**（NDI 视频屏幕）是 SuperStage 插件提供的 NDI 视频流接收与显示工具。它可以接收网络中的 **NDI®**（Network Device Interface）视频信号，并将其实时显示在场景中的一个或多个静态网格体（Static Mesh Actor）表面上，实现 LED 屏幕、视频墙等设备的预可视化效果。
+**Super Screen**（媒体屏幕，原名 Super NDI Screen）是 SuperStage 插件提供的媒体显示工具。它继承自 `ASuperMediaBase` 媒体基类，支持 **NDI 实时视频流** 和 **静态纹理** 两种媒体源模式，并将内容显示在场景中的一个或多个静态网格体（Static Mesh Actor）表面上，实现 LED 屏幕、视频墙等设备的预可视化效果。
 
-### 什么是 NDI？
+### 继承关系
 
-NDI 是 NewTek 公司开发的网络视频传输协议。通过 NDI，您可以将来自媒体服务器（如 Resolume、disguise、WATCHOUT）、视频切换台、甚至 OBS 等软件的实时视频画面，通过局域网传输到 Unreal Engine 中并在场景内的"屏幕"上显示。
+```
+AActor → ASuperBaseActor → ASuperMediaBase → ASuperScreen
+```
+
+### 媒体源模式
+
+| 模式 | 说明 |
+|------|------|
+| **NDI** | 接收局域网中的 NDI® 实时视频流（来自 Resolume、disguise、OBS 等） |
+| **Texture** | 使用项目中的静态纹理资源，适合固定画面、待机屏、广告图等 |
 
 ### 工作原理
 
-1. NDI 发送端（媒体服务器等）在局域网中广播视频流
-2. Super NDI Screen 通过 **SuperNDI 子系统**订阅指定的 NDI 源
-3. 接收到的视频帧（BGRA 格式）被更新到动态纹理上
-4. 动态纹理通过**动态材质实例**应用到用户指定的静态网格体上
-5. 支持**梯形校正**、**颜色调整**、**透明度**等后处理参数
+1. `ASuperMediaBase` 基类根据 **SourceMode** 选择活动纹理（NDI 视频帧或静态纹理）
+2. Super Screen 通过重写 `OnActiveTextureChanged()` 将纹理推送到动态材质
+3. 动态材质自动应用到用户指定的静态网格体上
+4. 支持**梯形校正**、**颜色调整**、**透明度**等后处理参数
 
 ### 适用场景
 
@@ -26,36 +34,19 @@ NDI 是 NewTek 公司开发的网络视频传输协议。通过 NDI，您可以�
 
 ---
 
-## 2. 前置条件
-
-在使用 Super NDI Screen 之前，请确保：
-
-1. **NDI 源可用** — 局域网中至少有一个 NDI 发送端正在广播视频流
-2. **网络连通** — 运行 UE 的电脑与 NDI 发送端处于同一局域网
-3. **SuperNDI 子系统已配置** — 在插件的 NDI 配置面板中添加了至少一个输入源
-
-> **常见 NDI 发送端**：
-> - Resolume Arena/Avenue
-> - disguise (d3)
-> - WATCHOUT
-> - OBS Studio（需安装 NDI 插件）
-> - NDI Test Patterns（NDI Tools 自带的测试信号发生器）
-
----
-
 ## 3. 如何添加到场景
 
 ### 3.1 基本设置步骤
 
-1. **准备显示载体** — 在场景中放置一个或多个 **Static Mesh Actor** 作为"屏幕"。可以使用平面（Plane）、立方体的某个面、或任何自定义形状的网格体
-2. **放置 NDI Screen Actor** — 在"放置 Actor"面板中搜索 **"Super NDI Screen"**，拖入场景
-3. **关联屏幕** — 在细节面板中，将步骤 1 中的 Static Mesh Actor 添加到 **Target Static Mesh Actors** 数组中
-4. **选择 NDI 源** — 在 **Input Name** 下拉列表中选择要接收的 NDI 视频源
-5. 视频画面将自动显示在关联的网格体表面上
+1. **准备显示载体** — 在场景中放置一个或多个 **Static Mesh Actor** 作为“屏幕”。可以使用平面（Plane）、立方体的某个面、或任何自定义形状的网格体
+2. **放置 Screen Actor** — 在“放置 Actor”面板中搜索 **“Super Screen”**，拖入场景
+3. **关联屏幕** — 在细节面板中，将步骤 1 中的 Static Mesh Actor 添加到 **ScreenMeshActors** 数组中
+4. **选择媒体源** — 设置 **SourceMode**（NDI 或 Texture），然后选择 NDI 输入名或指定静态纹理
+5. 画面将自动显示在关联的网格体表面上
 
 ### 3.2 关于 Target Static Mesh Actors
 
-Super NDI Screen 本身**不包含屏幕网格体**。它是一个"视频接收器"，需要您手动指定一个或多个 Static Mesh Actor 作为显示载体。
+Super Screen 本身**不包含屏幕网格体**。它是一个“媒体显示器”，需要您手动指定一个或多个 Static Mesh Actor 作为显示载体。
 
 - **支持多个屏幕** — 可以将同一个 NDI 视频源同时显示在多个网格体上
 - **网格体形状自由** — 可以是平面、曲面、甚至异形网格体
@@ -67,35 +58,35 @@ Super NDI Screen 本身**不包含屏幕网格体**。它是一个"视频接收�
 
 ## 4. 参数详解
 
-### 4.1 NDI 源参数（NDI Source）
+### 4.1 媒体源参数（继承自 SuperMediaBase）
 
-#### 4.1.1 输入名称（NDIInputSelection）
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| **SourceMode** | 媒体源模式：`NDI`（实时视频流）/ `Texture`（静态纹理） | NDI |
+| **NDIInputSelection** | 要订阅的 NDI 输入名称（仅 NDI 模式） | 空 |
+| **StaticTexture** | 手动指定的静态纹理（仅 Texture 模式） | 空 |
 
-- **含义**：要接收的 **NDI 源名称**。这是在局域网中广播的 NDI 发送端的标识名
-- **类型**：下拉选择列表（已配置输入源 + 网络发现源）
-- **默认值**：空（None）
+> **NDI 模式**：点击 NDIInputSelection 下拉选择已配置的 NDI 源。更改后自动重新绑定，画面即时切换。
+>
+> **Texture 模式**：在 StaticTexture 中指定项目纹理资源。适合固定画面、待机屏、广告图等场景。
 
-> **选择方式**：点击下拉箭头，系统会列出当前 SuperNDI 子系统中**已配置的所有输入源**名称。选择您要接收的那个源即可。
+### 4.2 屏幕参数（SuperScreen）
 
-> **自动选择**：如果 Input Name 留空（None），系统会自动使用配置列表中的第一个源。
+#### 目标网格体数组（ScreenMeshActors）
 
-> **切换源**：更改 Input Name 后，系统会自动断开旧源的订阅，重新连接新源，画面即时切换。
-
-#### 4.1.2 目标网格体数组（ScreenMeshActors）
-
-- **含义**：接收并显示 NDI 视频画面的**静态网格体 Actor 列表**
+- **含义**：接收并显示媒体画面的**静态网格体 Actor 列表**
 - **类型**：数组（可添加多个）
 - **默认值**：空
 
 > **设置方法**：
-> 1. 点击数组旁的 **"+"** 按钮添加新元素
+> 1. 点击数组旁的 **“+”** 按钮添加新元素
 > 2. 点击元素旁的吸管图标，然后在视口中点击目标 Static Mesh Actor
 > 3. 或从下拉列表中选择场景中的 Static Mesh Actor
 > 4. 重复以上步骤可添加多个屏幕
 
 ---
 
-### 4.2 显示参数（Display Settings）
+### 4.3 显示参数（Display Settings）
 
 #### 4.2.1 透明模式（Transparent）
 
@@ -165,7 +156,7 @@ Super NDI Screen 本身**不包含屏幕网格体**。它是一个"视频接收�
 
 ---
 
-### 4.3 梯形校正（Deformation）
+### 4.4 梯形校正（Deformation）
 
 与 Super Projector 的梯形校正功能相同，通过调整四个角点来补偿画面变形。
 
@@ -203,30 +194,30 @@ Super NDI Screen 本身**不包含屏幕网格体**。它是一个"视频接收�
 
 1. 在场景中放置一个 **Plane**（平面）Static Mesh Actor 作为屏幕
 2. 将 Plane 调整到合适的尺寸和位置（例如 16:9 比例）
-3. 放置一个 **Super NDI Screen** Actor（位置不重要，可以放在任何地方）
-4. 选中 Super NDI Screen，在 **Target Static Mesh Actors** 中添加步骤 1 的 Plane
-5. 在 **Input Name** 中选择一个 NDI 源
-6. 如果一切正确，Plane 表面将显示 NDI 视频画面
+3. 放置一个 **Super Screen** Actor（位置不重要，可以放在任何地方）
+4. 选中 Super Screen，在 **ScreenMeshActors** 中添加步骤 1 的 Plane
+5. 设置 **SourceMode**（NDI 或 Texture），选择输入源
+6. Plane 表面将显示媒体画面
 
 ### 5.2 多屏幕配置
 
 要在多个屏幕上显示同一个视频源：
 
 1. 在场景中放置多个 Static Mesh Actor（作为不同的屏幕）
-2. 创建一个 Super NDI Screen
-3. 将所有屏幕都添加到 Target Static Mesh Actors 数组中
-4. 所有屏幕将同时显示相同的视频画面
+2. 创建一个 Super Screen
+3. 将所有屏幕都添加到 ScreenMeshActors 数组中
+4. 所有屏幕将同时显示相同的画面
 
-要在不同屏幕上显示不同的视频源：
+要在不同屏幕上显示不同的媒体源：
 
-1. 创建多个 Super NDI Screen Actor
-2. 每个 Super NDI Screen 关联不同的 Target Static Mesh Actor
-3. 每个 Super NDI Screen 选择不同的 Input Name
+1. 创建多个 Super Screen Actor
+2. 每个 Super Screen 关联不同的 ScreenMeshActors
+3. 每个 Super Screen 设置不同的媒体源（NDI 输入名或不同静态纹理）
 
 ### 5.3 透明 LED 效果
 
-1. 创建一个带有透明区域的 NDI 视频源（例如黑底白字）
-2. 放置屏幕网格体，并将 Super NDI Screen 关联到它
+1. 创建一个带有透明区域的媒体源（例如黑底白字）
+2. 放置屏幕网格体，并将 Super Screen 关联到它
 3. 开启 **Transparent** 模式
 4. 视频中的黑色/暗色区域将变为透明，亮色区域可见
 5. 通过 **Transparency** 参数进一步调节整体透明度
@@ -261,8 +252,8 @@ Super NDI Screen 本身**不包含屏幕网格体**。它是一个"视频接收�
 ### 示例 4：多画面拼接视频墙
 
 - 屏幕载体：9 个 Plane (3×3 排列)
-- 每个 Plane 关联一个独立的 Super NDI Screen
-- 每个 Super NDI Screen 接收不同的 NDI 源（对应视频墙处理器的各路输出）
+- 每个 Plane 关联一个独立的 Super Screen
+- 每个 Super Screen 接收不同的 NDI 源（对应视频墙处理器的各路输出）
 
 ---
 
@@ -301,7 +292,7 @@ Super NDI Screen 本身**不包含屏幕网格体**。它是一个"视频接收�
 1. **NDI 接收分辨率固定** — 当前版本固定以 1920×1080 分辨率接收 NDI 信号，不可手动修改
 2. **颜色空间为 sRGB** — 接收的纹理强制使用 sRGB 色彩空间
 3. **材质槽替换** — 系统会替换目标网格体的**第一个材质槽**（Material Slot 0），如果网格体有多个材质槽，仅第一个被替换
-4. **复制/粘贴安全** — 复制粘贴 NDI Screen Actor 时，系统会自动为新 Actor 创建独立的动态材质实例，不会与原 Actor 共享材质
-5. **生命周期管理** — 删除 NDI Screen Actor 或退出关卡时，NDI 订阅会自动取消，不会产生悬挂回调
-6. **权限验证** — NDI 接收功能需要有效的插件授权。未授权时，视频帧处理和材质更新将不执行
+4. **复制/粘贴安全** — 复制粘贴 Screen Actor 时，系统会自动为新 Actor 创建独立的动态材质实例，不会与原 Actor 共享材质
+5. **生命周期管理** — 删除 Screen Actor 或退出关卡时，NDI 订阅会自动取消，不会产生悬挂回调
+6. **权限验证** — 媒体接收功能需要有效的插件授权。未授权时，视频帧处理和材质更新将不执行
 7. **GPU 纹理更新** — 视频帧通过 GPU 渲染命令异步上传，对主线程性能影响较小

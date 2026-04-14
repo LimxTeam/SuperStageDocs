@@ -6,34 +6,40 @@
 
 所有 Stage Asset 都是标准的 UE Actor，可以直接拖入场景、移动、旋转、缩放，并在细节面板中调整参数。参数修改后模型**即时重建预览**，无需等待编译或手动刷新。
 
-> **兼容性**：Stage Assets 模块支持 **Unreal Engine 5.6 ~ 5.7** 版本。
+> **兼容性**：Stage Assets 模块支持 **Unreal Engine 5.7 ~ 5.8** 版本。
 
 ---
 
 ## 2. 资产一览
 
-Stage Assets 模块包含以下 6 个可用 Actor：
+Stage Assets 模块包含以下 12 个可用 Actor：
 
 ### 2.1 结构类资产
 
 | Actor | 名称 | 功能简述 |
 |-------|------|----------|
 | **Super Truss Gantry** | [桁架龙门架](01_SuperTruss.md) | 程序化桁架龙门架，支持多种截面（方/三角/平面）、规格（290/400/520mm）和造型（门形/T形/Portal/双跨），内置 DIN 4113 载荷计算 |
+| **Super Circular Truss** | [圆形桁架](08_SuperCircularTruss.md) | 极坐标定位的圆形/环形桁架，支持双环结构 + 辐射撑 + 连接法兰 |
+| **Super Curved Truss** | [弧形桁架](09_SuperCurvedTruss.md) | 样条驱动的自由曲线桁架，截面始终垂直于切线方向 |
+| **Super Truss Grid** | [桁架网格](10_SuperTrussGrid.md) | 水平双层网格桁架，用于大面积灯光吊挂系统 |
+| **Super Truss Tower** | [桁架塔](11_SuperTrussTower.md) | 垂直桁架立柱，含欧拉临界载荷计算 |
 | **Super Scaffold** | [直线脚手架](02_SuperScaffold.md) | 程序化矩形脚手架系统，包含立杆、横杆、斜撑、底座板、平台板和配重块，内置 EN 12811 载荷与配重计算 |
 | **Super Curved Scaffold** | [弧度脚手架](03_SuperCurvedScaffold.md) | 样条驱动的弧形脚手架系统，通过编辑样条曲线实现任意弧度的脚手架结构，其余功能与直线脚手架一致 |
+| **Super Stage Floor** | [舞台地板](07_SuperStageFloor.md) | 程序化舞台地板系统，含面板/支腿/横撑/裙边/台阶，ANSI E1.21 承载计算 |
 
 ### 2.2 软装类资产
 
 | Actor | 名称 | 功能简述 |
 |-------|------|----------|
 | **Super Drape** | [舞台幕布](04_SuperDrape.md) | 程序化舞台幕布/帘幕，支持 6 种幕布类型、5 种面料、4 种褶皱样式和 4 种开合方式，带吊杆和系绳，内置面料重量计算 |
+| **Super Crowd** | [程序化人群](12_SuperCrowd.md) | 泊松圆盘采样的人群生成，样条定义区域，多角色权重分配，地形贴合 |
 
 ### 2.3 视频/投影类资产
 
 | Actor | 名称 | 功能简述 |
 |-------|------|----------|
-| **Super Projector** | [投影仪](05_SuperProjector.md) | 投影映射模拟工具，利用 RGB 三通道光照函数将贴图投射到场景表面，支持梯形校正 |
-| **Super NDI Screen** | [NDI 视频屏幕](06_SuperNDIScreen.md) | NDI 视频流接收与显示工具，将网络中的实时视频画面显示在场景中的网格体上，支持透明模式和颜色调整 |
+| **Super Projector** | [投影仪](05_SuperProjector.md) | 投影映射模拟工具，单白色聚光灯光照函数投影，支持 NDI 视频流和静态纹理，支持梯形校正 |
+| **Super Screen** | [媒体屏幕](06_SuperScreen.md) | 媒体源显示工具（NDI 视频流/静态纹理），支持多屏同步、透明模式和颜色调整 |
 
 ---
 
@@ -81,10 +87,11 @@ Stage Assets 模块在设计中参考了以下行业标准：
 
 | 标准 | 适用资产 | 说明 |
 |------|----------|------|
-| **DIN 4113** | Super Truss | 德国铝合金结构设计标准，用于桁架载荷和挠度计算 |
+| **DIN 4113** | Super Truss 系列 | 德国铝合金结构设计标准，用于桁架载荷和挠度计算 |
 | **EN 12811-1** | Super Scaffold, Super Curved Scaffold | 欧洲脚手架标准，用于荷载等级、配重和安全系数计算 |
 | **EN 10210** | Super Scaffold, Super Curved Scaffold | 热轧空心截面标准，提供钢管壁厚参数 |
 | **BS 1139** | Super Scaffold | 英国脚手架管件标准，定义 Ø48.3mm 标准管径 |
+| **ANSI E1.21** | Super Stage Floor | 美国演艺技术标准——临时地板/舞台承载计算 |
 
 ---
 
@@ -122,7 +129,13 @@ Stage Assets 模块在设计中参考了以下行业标准：
 | 03 | [弧度脚手架](03_SuperCurvedScaffold.md) | Super Curved Scaffold 的完整用户手册 |
 | 04 | [舞台幕布](04_SuperDrape.md) | Super Drape 的完整用户手册 |
 | 05 | [投影仪](05_SuperProjector.md) | Super Projector 的完整用户手册 |
-| 06 | [NDI 视频屏幕](06_SuperNDIScreen.md) | Super NDI Screen 的完整用户手册 |
+| 06 | [媒体屏幕](06_SuperScreen.md) | Super Screen 的完整用户手册 |
+| 07 | [舞台地板](07_SuperStageFloor.md) | Super Stage Floor 的完整用户手册 |
+| 08 | [圆形桁架](08_SuperCircularTruss.md) | Super Circular Truss 的完整用户手册 |
+| 09 | [弧形桁架](09_SuperCurvedTruss.md) | Super Curved Truss 的完整用户手册 |
+| 10 | [桁架网格](10_SuperTrussGrid.md) | Super Truss Grid 的完整用户手册 |
+| 11 | [桁架塔](11_SuperTrussTower.md) | Super Truss Tower 的完整用户手册 |
+| 12 | [程序化人群](12_SuperCrowd.md) | Super Crowd 的完整用户手册 |
 
 ---
 
@@ -130,7 +143,7 @@ Stage Assets 模块在设计中参考了以下行业标准：
 
 - **插件名称**：SuperStage
 - **模块**：Stage Assets
-- **兼容引擎**：Unreal Engine 5.6 ~ 5.7
-- **文档版本**：1.1
-- **最后更新**：2026-03
+- **兼容引擎**：Unreal Engine 5.7 ~ 5.8
+- **文档版本**：2.0
+- **最后更新**：2026-04
 - **开发团队**：LimxTeam
