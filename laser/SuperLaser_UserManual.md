@@ -176,7 +176,7 @@ SuperStage 提供两种激光 Actor，适用于不同场景：
 |--------|--------|------|--------|------|
 | **DeviceID** | DeviceID | 1–12 | 1 | Beyond 设备编号。Beyond 中的设备 1 对应此处的 1。系统内部会自动转换为 0-based 索引 |
 | **LaserIntensity** | LaserIntensity | 1–5000 | 100 | 控制激光的最大亮度强度。值越大光束越亮。推荐范围 50–500 |
-| **MaxLaserDistance** | MaxLaserDistance | 100–10000 cm | 2345 | 激光能照射到的最大距离（厘米）。根据场景大小调整 |
+| **MaxLaserDistance** | MaxLaserDistance | 1–100 m | 23.45 | 激光能照射到的最大距离（米，内部乘以 100 转为 Shader 使用的厘米）。根据场景大小调整 |
 | **AtmosphericDensity** | AtmosphericDensity | 0–1 | 0.03 | 大气衰减系数。控制激光随距离变暗的程度。0 = 不衰减，1 = 快速衰减 |
 | **FogIntensity** | BeamFogIntensity | 0–100 | 20 | 激光光束中的烟雾效果强度。值越大雾气越浓 |
 | **AtmosFogSpeed** | AtmosBeamFogSpeed | 0–100 | 10 | 烟雾流动速度。值越大烟雾飘动越快 |
@@ -666,7 +666,7 @@ SuperLaser 支持编辑器模式实时预览。如果无法预览：
 |------|------|------|------|------|
 | DeviceID | int32 | 1–12 | 1 | SuperLaser |
 | LaserIntensity | float | 1–5000 | 100 | SuperLaser |
-| MaxLaserDistance | float | 100–10000 cm | 2345 | SuperLaser |
+| MaxLaserDistance | float | 1–100 m | 23.45 | SuperLaser |
 | AtmosphericDensity | float | 0–1 | 0.03 | SuperLaser |
 | FogIntensity | float | 0–100 | 20 | SuperLaser |
 | AtmosFogSpeed | float | 0–100 | 10 | SuperLaser |

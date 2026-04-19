@@ -2039,7 +2039,7 @@ bCuttingChannel=true
 ### 19.5 蓝图默认参数
 
 - `ZoomRange`: `(7, 50)` — Profile 灯典型角度范围
-- `LightDefaultValue.MaxLightDistance`: `8000` — 光照距离
+- `LightDefaultValue.MaxLightDistance`: `80` — 光照距离（米）
 - `LightDefaultValue.MaxLightIntensity`: `500`
 - `LightDefaultValue.bLightShadow`: `true`
 - `BeamDefaultValue.AtmosphericDensity`: `0.03`
@@ -2512,7 +2512,7 @@ SetLightingFrost(DmxFrost)               // 雾化
 - `ZoomRange`: `(1, 8)` — 1°~8° 光束角
 - `PanRange`: `(-270, 270)` — 默认即可
 - `TiltRange`: `(-135, 135)` — 默认即可
-- `LightDefaultValue.MaxLightDistance`: `5000` — 光照距离(cm)
+- `LightDefaultValue.MaxLightDistance`: `50` — 光照距离（米）
 - `LightDefaultValue.MaxLightIntensity`: `1000` — 最大亮度
 
 ---
@@ -2965,7 +2965,7 @@ NDI 网络流 → SuperNDISubsystem → OnFrame 回调 → HandleNDIFrame →
 - `MappingTexture`：投影纹理
 - `MappingScale`：投影分辨率（默认 1920×1080）
 - `Dimmer`：亮度 (%)
-- `MaxLightDistance`：投影距离 (cm)
+- `MaxLightDistance`：投影距离（米，内部 ×100 转为厘米写入 SpotLight 衰减半径）
 - `Zoom`：投影角度 (10-100°)
 - `DilutionFactor`：边缘柔化 [0,1]
 - `MappingDeformation`：梯形校正（四角偏移）
@@ -2996,7 +2996,7 @@ SpotLightR/G/B 分别设置 LightFunctionMaterial
 **蓝图配置**：
 - `DeviceID`：Beyond 设备编号 (1-12)
 - `LaserIntensity`：激光强度 (1-5000)
-- `MaxLaserDistance`：投射距离 (100-10000 cm)
+- `MaxLaserDistance`：投射距离 (1-100 米，内部 ×100 转为厘米后传入 Shader)
 - `AtmosphericDensity`：大气衰减 [0,1]
 - `FogIntensity`：雾效强度 (0-100)
 - `AtmosFogSpeed`：雾效流速 (0-100)

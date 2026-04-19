@@ -1078,7 +1078,7 @@ struct FLightDefaultValue
 |------|------|--------|------|
 | `MaxLightIntensity` | `float` | `100.0` | 最大亮度（%），≥1 |
 | `LensIntensity` | `float` | `1.0` | 镜头强度乘数 |
-| `MaxLightDistance` | `float` | `2345.0` | 最大光照距离（cm），≥100 |
+| `MaxLightDistance` | `float` | `23.45` | 最大光照距离（米，≥1；内部 ×100 转为厘米应用于光源衰减半径 / Shader / 射线检测） |
 | `LightSpotDefaultValue` | `FLightSpotDefaultValue` | — | 光斑参数 |
 | `BeamDefaultValue` | `FBeamDefaultValue` | — | 光束参数 |
 

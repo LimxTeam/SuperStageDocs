@@ -109,7 +109,7 @@ SuperRectComponent (继承自 SuperLightingComponent)
 
 | 参数 | 说明 | 默认值 | 单位 |
 |------|------|--------|------|
-| **最大光照距离** | RectLight 的衰减半径 | 2345.0 | cm |
+| **最大光照距离** | RectLight 的衰减半径（字段单位米，内部 ×100 转为厘米写入 AttenuationRadius） | 23.45 | m |
 | **最大亮度** | 光源最大亮度系数 | 100.0 | — |
 | **体积散射强度** | RectLight 的体积雾散射强度 | — | — |
 | **是否投射阴影** | RectLight 是否开启阴影投射 | — | — |

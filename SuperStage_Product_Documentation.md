@@ -1122,7 +1122,7 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | MaxLightIntensity | 最大亮度倍数 | 100% |
-| MaxLightDistance | 光照最大距离 | 2345cm |
+| MaxLightDistance | 光照最大距离 | 23.45 m |
 | BeamQuality | 光束渲染质量 | 75% |
 | BeamFogIntensity | 雾气浓度 | 20% |
 | AtmosphericDensity | 大气衰减 | 3% |

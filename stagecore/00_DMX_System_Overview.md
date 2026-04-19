@@ -486,7 +486,7 @@ SuperStage 提供「起始 Universe」偏移设置，用于与不同控台的编
 | **减少光束渲染** | 降低 `BeamQuality`（默认 75，可降至 50） | GPU 负载 ↓ 20-30% |
 | **关闭阴影** | `FLightLightSpotDefaultValue.bLightShadow = false` | GPU 负载 ↓ 15-25% |
 | **降低体积雾** | `VolumetricScattering = 0` | GPU 负载 ↓ 10-15% |
-| **减少光照距离** | 降低 `MaxLightDistance`（默认 2345cm） | GPU 负载 ↓ |
+| **减少光照距离** | 降低 `MaxLightDistance`（默认 23.45 m） | GPU 负载 ↓ |
 | **Spot 辅光按需** | 仅在需要真实光照交互时启用 SpotLight | 大幅降低光照计算 |
 | **矩阵灯优化** | 减少矩阵规模或降低更新频率 | CPU 负载 ↓ |
 
@@ -525,7 +525,7 @@ SuperStage 提供「起始 Universe」偏移设置，用于与不同控台的编
 |------|---------|
 | 灯光太暗 | 调高 `MaxLightIntensity`（默认 100，可调至 200-500） |
 | 光束不可见 | 确认场景中有雾效（ExponentialHeightFog），调高 `BeamFogIntensity`（默认 20） |
-| 光束太短 | 调高 `MaxLightDistance`（默认 2345cm，大场景可调至 5000-10000cm） |
+| 光束太短 | 调高 `MaxLightDistance`（默认 23.45 m，大场景可调至 50-100 m） |
 | 没有阴影 | 启用 `LightSpotDefaultValue.bLightShadow = true` |
 | 颜色不准 | 检查 Post Process Volume 的色调映射设置，建议使用 ACES 色调映射 |
 

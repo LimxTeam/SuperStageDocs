@@ -687,7 +687,7 @@ AActor → ASuperBaseActor → ASuperLaserActor
 |------|------|--------|------|------|
 | `DeviceID` | `int32` | `1` | 1-12 | Beyond 设备编号 |
 | `LaserIntensity` | `float` | `100.0` | 1-5000 | 激光强度 |
-| `MaxLaserDistance` | `float` | `2345.0` | 100-10000 | 最大投射距离（cm） |
+| `MaxLaserDistance` | `float` | `23.45` | 1-100 | 最大投射距离（米，内部 ×100 转为厘米后传入 Shader） |
 | `AtmosphericDensity` | `float` | `0.03` | 0-1 | 大气衰减 |
 | `FogIntensity` | `float` | `20.0` | 0-100 | 雾效强度（%） |
 | `AtmosFogSpeed` | `float` | `10.0` | 0-100 | 雾效流速（%） |
