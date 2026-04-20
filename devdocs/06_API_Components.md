@@ -336,7 +336,6 @@ void SetBeamDefaultValue(
     float NewLightMaxIntensity,
     float AtmosphericDensity,
     float LensRadius,
-    float NewBeamQuality,
     float NewFogInfluence,
     float NewFogSpeed,
     float NewBeamIntensity = 1.0f) const;
@@ -350,7 +349,6 @@ void SetBeamDefaultValue(
 |------|------|
 | `AtmosphericDensity` | 大气衰减密度（0-1） |
 | `LensRadius` | 镜头尺寸（%），影响光束宽度 |
-| `NewBeamQuality` | 光束渲染质量（%） |
 | `NewFogInfluence` | 光束雾强度（%） |
 | `NewFogSpeed` | 光束雾流速（%） |
 | `NewBeamIntensity` | 光束基础强度 |

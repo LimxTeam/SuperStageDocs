@@ -1123,16 +1123,15 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 |------|------|--------|
 | MaxLightIntensity | 最大亮度倍数 | 100% |
 | MaxLightDistance | 光照最大距离 | 23.45 m |
-| BeamQuality | 光束渲染质量 | 75% |
 | BeamFogIntensity | 雾气浓度 | 20% |
 | AtmosphericDensity | 大气衰减 | 3% |
 | VolumetricScattering | 体积光强度 | 0% |
 | LightShadow | 阴影开关 | 关 |
 
 **性能优化建议：**
-- 大场景降低 BeamQuality
 - 不需要体积光时关闭 VolumetricScattering
 - 远景灯具降低 MaxLightDistance
+- 光束采样质量由系统自动管理（距离 LOD）：近景高精度、远景自动节能，无需手动调整
 
 ### 4.8 SuperStageEditor - 编辑器工具箱
 
@@ -2153,10 +2152,10 @@ A：
 **Q：帧率不稳定**
 
 A：
-1. 降低 BeamQuality 参数
-2. 关闭不必要的 VolumetricScattering
-3. 减少激光点云采样密度
-4. 大场景使用 LOD 分组策略
+1. 关闭不必要的 VolumetricScattering
+2. 减少激光点云采样密度
+3. 大场景使用 LOD 分组策略
+4. 光束采样质量已由系统自动 LOD 管理，无需手动干预
 
 ---
 

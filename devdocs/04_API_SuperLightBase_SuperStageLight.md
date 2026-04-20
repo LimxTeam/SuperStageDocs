@@ -1103,8 +1103,9 @@ struct FLightDefaultValue
 | `BeamFogIntensity` | `float` | `20.0` | 0-100 | 光束雾强度（%） |
 | `AtmosBeamFogSpeed` | `float` | `10.0` | 0-100 | 光束雾流速（%） |
 | `LensRadius` | `float` | `10.0` | 1-100 | 镜头尺寸（%） |
-| `BeamQuality` | `float` | `75.0` | 0-100 | 光束渲染质量（%） |
 | `bBeamBlock` | `bool` | `false` | — | 光束遮挡开关 |
+
+> 注：`BeamQuality` 字段自 26Q2.9 起已移除。光束采样精度由 Shader 根据相机距离自动 LOD 管理（近景高精度、远景节能），无需手动配置。
 
 ---
 

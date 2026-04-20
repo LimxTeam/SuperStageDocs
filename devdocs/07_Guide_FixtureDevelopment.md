@@ -449,7 +449,6 @@ SetBeamDefaultValue(
     float MaxIntensity,        // 最大亮度
     float AtmosphericDensity,  // 大气密度（光束衰减，0.03推荐）
     float LensRadius,          // 镜头半径（光斑大小，默认10）
-    float BeamQuality,         // 光束质量（步进数，越高越平滑）
     float FogInfluence,        // 雾效强度
     float FogSpeed,            // 雾效流速
     float BeamIntensity        // 光束亮度倍率（默认1）
@@ -2043,8 +2042,9 @@ bCuttingChannel=true
 - `LightDefaultValue.MaxLightIntensity`: `500`
 - `LightDefaultValue.bLightShadow`: `true`
 - `BeamDefaultValue.AtmosphericDensity`: `0.03`
-- `BeamDefaultValue.BeamQuality`: `64`
 - `DimmerCurveExponent`: `2.0`
+
+> 注：`BeamQuality` 自 26Q2.9 起已移除，光束采样精度由 Shader 根据相机距离自动 LOD 管理。
 
 ### 19.6 蓝图节点连线
 

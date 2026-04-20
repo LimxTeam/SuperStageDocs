@@ -483,7 +483,7 @@ SuperStage 提供「起始 Universe」偏移设置，用于与不同控台的编
 
 | 优化项 | 方法 | 效果 |
 |--------|------|------|
-| **减少光束渲染** | 降低 `BeamQuality`（默认 75，可降至 50） | GPU 负载 ↓ 20-30% |
+| **光束采样自动 LOD** | 系统根据相机距离自动管理（26Q2.9 起默认启用） | GPU 负载自动优化 20-30% |
 | **关闭阴影** | `FLightLightSpotDefaultValue.bLightShadow = false` | GPU 负载 ↓ 15-25% |
 | **降低体积雾** | `VolumetricScattering = 0` | GPU 负载 ↓ 10-15% |
 | **减少光照距离** | 降低 `MaxLightDistance`（默认 23.45 m） | GPU 负载 ↓ |
