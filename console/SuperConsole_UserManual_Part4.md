@@ -1,4 +1,4 @@
-# SuperConsolePro 灯光控台 — 用户手册（四）
+# SuperConsole 灯光控台 — 用户手册（四）
 
 ## CUE 编程 · 回放面板 · 帧效果编辑器
 
@@ -752,4 +752,4 @@ Step 3: Red=0%,   Green=0%,   Blue=100%   (蓝色)
 
 ---
 
-> **下一篇**：[用户手册（五）时间线编辑器、时间码与布局视图](SuperConsolePro_UserManual_Part5.md)
+> **下一篇**：[用户手册（五）时间线编辑器、时间码与布局视图](SuperConsole_UserManual_Part5.md)

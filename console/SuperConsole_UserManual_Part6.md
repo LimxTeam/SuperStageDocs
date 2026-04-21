@@ -1,4 +1,4 @@
-# SuperConsolePro 灯光控台 — 用户手册（六）
+# SuperConsole 灯光控台 — 用户手册（六）
 
 ## DMX 输出 · 演出文件管理 · 设置面板 · 快捷键速查
 
@@ -8,7 +8,7 @@
 
 ## 1.1 DMX 输出架构
 
-SuperConsolePro 通过底层的 **SuperDMX 模块** 将控制信号发送到灯具。控台内部有多个"值来源"，它们经过优先级合并后输出最终的 DMX 值。
+SuperConsole 通过底层的 **SuperDMX 模块** 将控制信号发送到灯具。控台内部有多个"值来源"，它们经过优先级合并后输出最终的 DMX 值。
 
 ### 值来源与优先级
 
@@ -109,7 +109,7 @@ DMX 面板用于管理 DMX 输出的全局设置。
 
 ## 2.1 演出文件概述
 
-演出文件（Show File）是 SuperConsolePro 的项目文件，保存了控台的**全部工作数据**。
+演出文件（Show File）是 SuperConsole 的项目文件，保存了控台的**全部工作数据**。
 
 ### 文件格式
 
@@ -371,7 +371,7 @@ DMX 面板用于管理 DMX 输出的全局设置。
 ```
 第 1 步：准备
 ├── 在场景中摆放 SuperDMX 灯具
-├── 打开 SuperConsolePro
+├── 打开 SuperConsole
 └── 新建演出文件
 
 第 2 步：配接
@@ -519,9 +519,9 @@ DMX 面板用于管理 DMX 输出的全局设置。
 > **本手册至此结束。**
 >
 > 完整手册目录：
-> - [手册（一）概述、快速入门、界面布局与窗口管理](SuperConsolePro_UserManual_Part1.md)
-> - [手册（二）灯具配接、灯具选择与灯具组](SuperConsolePro_UserManual_Part2.md)
-> - [手册（三）编程器、编码器、颜色选择器与预设系统](SuperConsolePro_UserManual_Part3.md)
-> - [手册（四）CUE 编程、回放面板与帧效果编辑器](SuperConsolePro_UserManual_Part4.md)
-> - [手册（五）时间线编辑器、时间码与布局视图](SuperConsolePro_UserManual_Part5.md)
-> - [手册（六）DMX 输出、演出文件管理、设置与快捷键速查](SuperConsolePro_UserManual_Part6.md)
+> - [手册（一）概述、快速入门、界面布局与窗口管理](SuperConsole_UserManual_Part1.md)
+> - [手册（二）灯具配接、灯具选择与灯具组](SuperConsole_UserManual_Part2.md)
+> - [手册（三）编程器、编码器、颜色选择器与预设系统](SuperConsole_UserManual_Part3.md)
+> - [手册（四）CUE 编程、回放面板与帧效果编辑器](SuperConsole_UserManual_Part4.md)
+> - [手册（五）时间线编辑器、时间码与布局视图](SuperConsole_UserManual_Part5.md)
+> - [手册（六）DMX 输出、演出文件管理、设置与快捷键速查](SuperConsole_UserManual_Part6.md)

@@ -50,7 +50,7 @@ USceneComponent
 
 **头文件**: `LightComponent/SuperLightingComponent.h`  
 **基类**: `USceneComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `BlueprintSpawnableComponent`，`DisplayName = "SuperLightComponent"`
 
 所有灯光组件的基类，提供镜头网格、光斑材质、亮度/颜色/频闪等通用接口。
@@ -235,7 +235,7 @@ virtual void UpdateBeamBlockDistance(float NewMaxLightDistance);
 
 **头文件**: `LightComponent/SuperSpotComponent.h`  
 **基类**: `USuperLightingComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperSpotComponent"`
 
 继承灯光基类，增加实际 SpotLight 光源。适用于需要真实光照投射的灯具（辅光、补光）。
@@ -288,7 +288,7 @@ virtual void UpdateBeamBlockDistance(float NewMaxLightDistance);
 
 ```cpp
 UCLASS()
-class SUPERSTAGE_API USilentSpotLightComponent : public USpotLightComponent
+class SUPERCORE_API USilentSpotLightComponent : public USpotLightComponent
 ```
 
 安全版 SpotLight，提供 `SetAttenuationRadiusSafe(float)` 函数：
@@ -301,7 +301,7 @@ class SUPERSTAGE_API USilentSpotLightComponent : public USpotLightComponent
 
 **头文件**: `LightComponent/SuperBeamComponent.h`  
 **基类**: `USuperSpotComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperBeamComponent"`
 
 在 SpotLight 基础上增加体积光束网格，通过光束材质实现可见光柱效果。
@@ -419,7 +419,7 @@ void SetBeamFocus(float Focus = 0.f) const;
 
 **头文件**: `LightComponent/SuperCuttingComponent.h`  
 **基类**: `USuperBeamComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperCuttingComponent"`
 
 在体积光束基础上增加四叶片切割控制。构造函数中加载切割专用材质。
@@ -473,7 +473,7 @@ virtual void SetLightingRotate(float NewRotate, float NewInfiniteRotation = 0.f)
 
 **头文件**: `LightComponent/SuperRectComponent.h`  
 **基类**: `USuperLightingComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperRectComponent"`
 
 矩形面光组件，桥接 `URectLightComponent` 与灯光基类接口。适用于 LED 面板灯、Wash 灯等面光源。
@@ -507,7 +507,7 @@ virtual void SetLightingRotate(float NewRotate, float NewInfiniteRotation = 0.f)
 
 ```cpp
 UCLASS()
-class SUPERSTAGE_API USilentRectLightComponent : public URectLightComponent
+class SUPERCORE_API USilentRectLightComponent : public URectLightComponent
 ```
 
 空壳子类，用于隐藏编辑器图标。
@@ -518,7 +518,7 @@ class SUPERSTAGE_API USilentRectLightComponent : public URectLightComponent
 
 **头文件**: `LightComponent/SuperEffectComponent.h`  
 **基类**: `USceneComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperEffectComponent"`
 
 效果平面组件，使用静态网格 + 动态材质实现 LED 效果（流水、追逐、脉冲等）。支持不透明/半透明材质切换。
@@ -605,7 +605,7 @@ void SetEffectsControl(
 
 **头文件**: `LightComponent/SuperMatrixComponent.h`  
 **基类**: `USceneComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperMatrixComponent"`
 
 矩阵灯组件，按分段（Segment）控制颜色、频闪和亮度。每个分段对应一个像素。支持分段光源（PointLight/SpotLight）模拟真实光照。
@@ -723,7 +723,7 @@ void UpdateLightParameters();   // 更新光源参数（无需重建）
 
 **头文件**: `LightComponent/SuperLiftComponent.h`  
 **基类**: `USceneComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperLiftComponent"`
 
 Z 轴升降控制组件。不使用 Tick 自动更新，由父 Actor 主动调用。
@@ -754,7 +754,7 @@ void SetLiftZ(float InPosZ = 0.f, float LiftRange = 100.f, float LiftSpeed = 1.f
 
 **头文件**: `LightComponent/SuperLaserProComponent.h`  
 **基类**: `USceneComponent`  
-**导出宏**: `SUPERSTAGE_API`  
+**导出宏**: `SUPERCORE_API`  
 **蓝图标识**: `DisplayName = "SuperLaserProComponent"`
 
 基于程序化网格实现点数据驱动的激光线可视化。每个点对应一条从光源到目标点的激光线。
@@ -841,7 +841,7 @@ SetLaserPoints(InPoints)
 ### USilentSpotLightComponent
 
 ```cpp
-class SUPERSTAGE_API USilentSpotLightComponent : public USpotLightComponent
+class SUPERCORE_API USilentSpotLightComponent : public USpotLightComponent
 ```
 
 **定义位置**: `SuperSpotComponent.h`
@@ -851,7 +851,7 @@ class SUPERSTAGE_API USilentSpotLightComponent : public USpotLightComponent
 ### USilentRectLightComponent
 
 ```cpp
-class SUPERSTAGE_API USilentRectLightComponent : public URectLightComponent
+class SUPERCORE_API USilentRectLightComponent : public URectLightComponent
 ```
 
 **定义位置**: `SuperRectComponent.h`
@@ -861,7 +861,7 @@ class SUPERSTAGE_API USilentRectLightComponent : public URectLightComponent
 ### USilentPointLightComponent
 
 ```cpp
-class SUPERSTAGE_API USilentPointLightComponent : public UPointLightComponent
+class SUPERCORE_API USilentPointLightComponent : public UPointLightComponent
 ```
 
 **定义位置**: `SuperMatrixComponent.h`
@@ -871,7 +871,7 @@ class SUPERSTAGE_API USilentPointLightComponent : public UPointLightComponent
 ### USilentMatrixSpotLightComponent
 
 ```cpp
-class SUPERSTAGE_API USilentMatrixSpotLightComponent : public USpotLightComponent
+class SUPERCORE_API USilentMatrixSpotLightComponent : public USpotLightComponent
 ```
 
 **定义位置**: `SuperMatrixComponent.h`

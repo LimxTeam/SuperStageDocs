@@ -1,6 +1,6 @@
 # 08 - DMX 录制与回放
 
-> **所属模块**: SuperDMX Sequencer / SuperStageEditor Recording  
+> **所属模块**: SuperDMX Sequencer / SuperTools Recording  
 > **适用对象**: 灯光编程师、虚拟制作技术人员  
 > **前置阅读**: [01 - DMX 网络配置](/docs/stage-core/dmx-network)  
 > **最后更新**: 2026-04-14

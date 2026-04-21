@@ -1,4 +1,4 @@
-# SuperConsolePro 灯光控台 — 用户手册（五）
+# SuperConsole 灯光控台 — 用户手册（五）
 
 ## 时间线编辑器 · 时间码 · 布局视图
 
@@ -486,4 +486,4 @@
 
 ---
 
-> **下一篇**：[用户手册（六）DMX 输出、演出文件管理、设置与快捷键速查](SuperConsolePro_UserManual_Part6.md)
+> **下一篇**：[用户手册（六）DMX 输出、演出文件管理、设置与快捷键速查](SuperConsole_UserManual_Part6.md)

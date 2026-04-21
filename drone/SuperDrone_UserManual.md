@@ -1,4 +1,4 @@
-# SuperDroneLink 用户手册
+# SuperDrone 用户手册
 
 **版本：** v1.0 | **最后更新：** 2026-03-04 | **适用版本：** SuperStage 26Q1.2+ | **作者：** LimxTeam
 
@@ -25,11 +25,11 @@
 
 # 第一章 概述
 
-## 1.1 什么是 SuperDroneLink
+## 1.1 什么是 SuperDrone
 
-**SuperDroneLink** 是 SuperStage 插件中的无人机编队实时可视化模块。它接收来自无人机编队设计软件（如 LimxDroneStudio）的实时数据，在 Unreal Engine 中以三维方式呈现成千上万架无人机的位置、姿态和 LED 灯光颜色，实现无人机表演的「数字孪生」预演。
+**SuperDrone** 是 SuperStage 插件中的无人机编队实时可视化模块。它接收来自无人机编队设计软件（如 LimxDroneStudio）的实时数据，在 Unreal Engine 中以三维方式呈现成千上万架无人机的位置、姿态和 LED 灯光颜色，实现无人机表演的「数字孪生」预演。
 
-**简单来说：** 编队设计软件负责「编排」，SuperDroneLink 负责「实时 3D 预览」。
+**简单来说：** 编队设计软件负责「编排」，SuperDrone 负责「实时 3D 预览」。
 
 ### 核心能力
 
@@ -88,7 +88,7 @@ GPS 到 UE 坐标的转换原点。第一架连接的无人机 GPS 位置会自�
 ## 2.1 五分钟上手
 
 ### 第 1 步：确认插件已启用
-Edit > Plugins，搜索 SuperStage，确认已启用并重启编辑器。SuperDroneLink 作为子模块自动加载。
+Edit > Plugins，搜索 SuperStage，确认已启用并重启编辑器。SuperDrone 作为子模块自动加载。
 
 ### 第 2 步：放置编队管理器
 在 Super浏览器 面板搜索 `DroneSwarmManager`，拖拽到关卡中。
@@ -379,17 +379,17 @@ BeginPlay：重新获取子系统 > 重新订阅事件 > 刷新实例。Tick 行
 ## 6.4 基本属性
 
 ### Drone Id（无人机编号）
-- 类别：SuperDroneLink
+- 类别：SuperDrone
 - 默认：0
 - 范围：0-65535
 - 须与外部软件发送的编号一致
 
 ### Auto Sync（自动同步）
-- 类别：SuperDroneLink
+- 类别：SuperDrone
 - 默认：开启
 - 自动开始同步数据
 
-## 6.5 同步选项（SuperDroneLink > Sync）
+## 6.5 同步选项（SuperDrone > Sync）
 
 ### Sync Position（同步位置）
 - 默认：开启
@@ -414,7 +414,7 @@ BeginPlay：重新获取子系统 > 重新订阅事件 > 刷新实例。Tick 行
 - 范围：>=0
 - 设为 0 则瞬间旋转，默认 10 为适中平滑
 
-## 6.6 材质参数（SuperDroneLink > Material）
+## 6.6 材质参数（SuperDrone > Material）
 
 ### LED Color Parameter Name
 - 默认：`LedColor`
@@ -733,7 +733,7 @@ UE 坐标：X=北，Y=东，Z=上
    - 高度 = 目标海拔 - 锚点海拔
 4. **转厘米：** x100
 
-WGS84 参数：长半轴 6,378,137m，扁率 1/298.257。同一经纬度差在不同纬度对应不同实际距离，SuperDroneLink 使用精确椭球参数而非简单线性近似。
+WGS84 参数：长半轴 6,378,137m，扁率 1/298.257。同一经纬度差在不同纬度对应不同实际距离，SuperDrone 使用精确椭球参数而非简单线性近似。
 
 ## 10.3 单位汇总
 
@@ -913,4 +913,4 @@ WGS84 参数：长半轴 6,378,137m，扁率 1/298.257。同一经纬度差在�
 
 ---
 
-*本手册涵盖 SuperDroneLink 模块的所有用户可操作功能。如有技术问题，请联系 LimxTeam 技术支持。*
+*本手册涵盖 SuperDrone 模块的所有用户可操作功能。如有技术问题，请联系 LimxTeam 技术支持。*

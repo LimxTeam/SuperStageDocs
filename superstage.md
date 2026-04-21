@@ -45,12 +45,12 @@ YourProject/
 
 1. 打开 SuperBrowser 资产浏览器（`Window → SuperStage → SuperBrowser`）
 2. 从灯库中拖入灯具到场景
-3. 打开 SuperConsolePro 控台（`Window → SuperStage → Console`）
+3. 打开 SuperConsole 控台（`Window → SuperStage → Console`）
 4. 选中灯具，调整参数
 
 ## 核心模块
 
-### SuperConsolePro
+### SuperConsole
 
 内置专业灯光控台，支持 CUE 编程、Preset 预设、Effect 引擎、Timeline 时间线、Timecode 时间码同步。
 
@@ -82,7 +82,7 @@ NDI 视频流集成系统，支持在 3D 场景中嵌入实时视频流。
 - 视频纹理实时更新
 - Alpha 通道支持
 
-### SuperDroneLink
+### SuperDrone
 
 无人机编队模块，接收 LimxDroneStudio 的编队数据并在 UE5 中实时可视化。
 

@@ -1,4 +1,4 @@
-# SuperConsolePro 灯光控台 — 用户手册（三）
+# SuperConsole 灯光控台 — 用户手册（三）
 
 ## 编程器 · 编码器 · 颜色选择器 · 预设系统
 
@@ -488,4 +488,4 @@
 
 ---
 
-> **下一篇**：[用户手册（四）CUE 编程、回放面板与帧效果编辑器](SuperConsolePro_UserManual_Part4.md)
+> **下一篇**：[用户手册（四）CUE 编程、回放面板与帧效果编辑器](SuperConsole_UserManual_Part4.md)

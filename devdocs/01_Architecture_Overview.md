@@ -14,9 +14,9 @@ SuperStage 是一套面向 **Unreal Engine 5** 的专业舞台灯光与演出可
 | 模块 | 导出宏 | 职责 |
 |------|--------|------|
 | **SuperDMX** | `SUPERDMX_API` | DMX 协议通信层：Art-Net/sACN 收发、数据缓存、Sequencer 集成 |
-| **SuperStage** | `SUPERSTAGE_API` | 舞台设备层：灯具 Actor、灯光组件、灯库、机械控制、激光、NDI、VFX |
+| **SuperCore** | `SUPERCORE_API` | 舞台设备层：灯具 Actor、灯光组件、灯库、机械控制、激光、NDI、VFX |
 
-两者的依赖关系为 **SuperStage → SuperDMX**（SuperStage 依赖 SuperDMX，反向无依赖）。
+两者的依赖关系为 **SuperCore → SuperDMX**（SuperCore 依赖 SuperDMX，反向无依赖）。
 
 ### 1.1 核心能力矩阵
 
@@ -63,7 +63,7 @@ SuperStage 是一套面向 **Unreal Engine 5** 的专业舞台灯光与演出可
             │ GetDMXBuffer / SendDMXBuffer    │
             ▼                                 ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        SuperStage 模块                               │
+│                        SuperCore 模块                               │
 │                                                                     │
 │  ┌─────────────────────────────────────────────────────────────┐   │
 │  │                    灯库系统 (Data Layer)                      │   │
@@ -156,7 +156,7 @@ Sequencer 回放时通过 `USuperDMXSubsystem::SendDMXBuffer()` 输出 DMX 数�
 
 ---
 
-### 3.2 SuperStage 模块
+### 3.2 SuperCore 模块
 
 SuperStage 构建在 SuperDMX 之上，提供完整的舞台设备建模与控制能力。
 
@@ -736,7 +736,7 @@ Light->GetSuperDmxAttributeValue(DimmerAttr, DimmerValue);
 | `UMovieSceneSuperDMXTrack` | `Sequencer/MovieSceneSuperDMXTrack.h` | Sequencer DMX 轨道 |
 | `UMovieSceneSuperDMXSection` | `Sequencer/MovieSceneSuperDMXSection.h` | Sequencer DMX 段落 |
 
-### SuperStage 模块 — Actor
+### SuperCore 模块 — Actor
 
 | 类 | 头文件 | 说明 |
 |----|--------|------|
@@ -765,7 +765,7 @@ Light->GetSuperDmxAttributeValue(DimmerAttr, DimmerValue);
 | `ASuperCrowd` | `StageAssets/SuperCrowd.h` | 程序化人群（泊松采样+样条区域） |
 | `ASuperStageFloor` | `StageAssets/SuperStageFloor.h` | 舞台地台 |
 
-### SuperStage 模块 — 组件
+### SuperCore 模块 — 组件
 
 | 类 | 头文件 | 说明 |
 |----|--------|------|
@@ -779,7 +779,7 @@ Light->GetSuperDmxAttributeValue(DimmerAttr, DimmerValue);
 | `USuperLiftComponent` | `LightComponent/SuperLiftComponent.h` | 升降组件 |
 | `USuperLaserProComponent` | `LightComponent/SuperLaserProComponent.h` | 激光 Pro 渲染组件 |
 
-### SuperStage 模块 — 数据类型
+### SuperCore 模块 — 数据类型
 
 | 类型 | 头文件 | 说明 |
 |------|--------|------|

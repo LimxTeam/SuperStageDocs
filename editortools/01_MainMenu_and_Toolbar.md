@@ -28,7 +28,7 @@ SuperStage 工具栏是插件的核心导航入口，位于 Unreal Engine 编辑
 | 菜单项 | 功能 | 说明 |
 |--------|------|------|
 | **SuperCAD** | 打开 SuperCAD 施工图窗口 | 在正交视口中绘制灯光施工图 |
-| **SuperConsolePro** | 打开 SuperConsolePro 控台窗口 | DMX 灯光控台模拟器 |
+| **SuperConsole** | 打开 SuperConsole 控台窗口 | DMX 灯光控台模拟器 |
 
 ### 3.3 SuperDMXTool 子菜单
 
@@ -47,10 +47,10 @@ SuperStage 工具栏是插件的核心导航入口，位于 Unreal Engine 编辑
 | **QuickStart** | 一级 | 打开快速入门指南网页 |
 | **ProductDocs** | 一级 | 打开完整产品文档网页 |
 | **ModuleManuals** | 子菜单 | 各模块独立手册 |
-| ├ SuperConsolePro | — | DMX 灯光控台手册 |
+| ├ SuperConsole | — | DMX 灯光控台手册 |
 | ├ SuperLaser | — | 激光系统手册 |
 | ├ SuperNDI | — | NDI 视频系统手册 |
-| ├ SuperDroneLink | — | 无人机编队手册 |
+| ├ SuperDrone | — | 无人机编队手册 |
 | └ SuperCAD | — | 灯光施工图手册 |
 | **SystemReference** | 子菜单 | 系统参考文档 |
 | ├ EditorTools | — | 17 个编辑器工具参考 |

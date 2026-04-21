@@ -1,4 +1,4 @@
-# SuperConsolePro 灯光控台 — 用户手册（二）
+# SuperConsole 灯光控台 — 用户手册（二）
 
 ## 灯具配接 · 灯具选择 · 灯具组 · 灯具表
 
@@ -486,4 +486,4 @@
 
 ---
 
-> **下一篇**：[用户手册（三）编程器、编码器、颜色选择器与预设系统](SuperConsolePro_UserManual_Part3.md)
+> **下一篇**：[用户手册（三）编程器、编码器、颜色选择器与预设系统](SuperConsole_UserManual_Part3.md)

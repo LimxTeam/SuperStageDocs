@@ -28,13 +28,13 @@
    - 3.5 技术深潜：隐形护城河
 4. [核心子系统](#4-核心子系统core-subsystems)
    - 4.1 灯光控制系统
-   - 4.2 SuperConsolePro
+   - 4.2 SuperConsole
    - 4.3 SuperLaser
    - 4.4 SuperNdi
-   - 4.5 SuperDroneLink
+   - 4.5 SuperDrone
    - 4.6 SuperShader
    - 4.7 SuperStage 核心框架
-   - 4.8 SuperStageEditor
+   - 4.8 SuperTools
    - 4.9 SuperAI
 5. [SuperData - 跨平台数据同步](#5-superdata---跨平台数据同步)
    - 5.1 产品概述
@@ -404,9 +404,9 @@ SuperDMX 模块同时支持 **Art-Net 4** 和 **sACN/E1.31** 双协议，与传�
 - 编辑器中清晰可见，Game 模式自动隐藏
 - 支持自定义偏移位置
 
-### 4.2 SuperConsolePro - 内置专业控台
+### 4.2 SuperConsole - 内置专业控台
 
-SuperConsolePro 是完全集成在 UE5 编辑器中的专业级灯光控台，实现"零硬件"灯光编程。它是一个功能完备的灯光控制系统，核心概念与 grandMA 系列控台高度一致：Patch 配接、Selection 选择、Programmer 编程器、CUE 场景、Preset 预设、Frame Effect 帧效果、Timeline 时间线、Layout 布局、Show File 演出文件。
+SuperConsole 是完全集成在 UE5 编辑器中的专业级灯光控台，实现"零硬件"灯光编程。它是一个功能完备的灯光控制系统，核心概念与 grandMA 系列控台高度一致：Patch 配接、Selection 选择、Programmer 编程器、CUE 场景、Preset 预设、Frame Effect 帧效果、Timeline 时间线、Layout 布局、Show File 演出文件。
 
 #### 界面布局
 
@@ -571,7 +571,7 @@ SuperConsolePro 是完全集成在 UE5 编辑器中的专业级灯光控台，�
 
 #### DMX 输出优先级
 
-SuperConsolePro 的 DMX 输出采用**多来源优先级混合机制**，从高到低依次为：
+SuperConsole 的 DMX 输出采用**多来源优先级混合机制**，从高到低依次为：
 
 | 优先级 | 来源 | 说明 |
 |--------|------|------|
@@ -588,7 +588,7 @@ SuperConsolePro 的 DMX 输出采用**多来源优先级混合机制**，从高�
 
 #### 快捷键系统
 
-SuperConsolePro 提供完整的快捷键体系，覆盖 CUE 操作、通用操作、选择、编码器、时间线、布局视图等六大领域，并支持 CUE 快捷键自定义绑定
+SuperConsole 提供完整的快捷键体系，覆盖 CUE 操作、通用操作、选择、编码器、时间线、布局视图等六大领域，并支持 CUE 快捷键自定义绑定
 
 ### 4.3 SuperLaser - Beyond 激光系统集成
 
@@ -778,9 +778,9 @@ SuperNdi 实现 NDI 视频流的接收、录制和渲染，解决官方 NDI 插�
 2. Evaluate：GetFrameAtTime → InjectFrameBGRA
 3. TearDown：EndLoopback 恢复真实接收器
 
-### 4.5 SuperDroneLink - 无人机编队模块
+### 4.5 SuperDrone - 无人机编队模块
 
-SuperDroneLink 将实时无人机编队表演引入 UE5，接收 **LimxDroneStudio** 的 LDLink 数据流，实现天地联动的舞美效果。
+SuperDrone 将实时无人机编队表演引入 UE5，接收 **LimxDroneStudio** 的 LDLink 数据流，实现天地联动的舞美效果。
 
 **系统要求**：UE 5.3+、Windows 64-bit
 
@@ -848,7 +848,7 @@ SuperDroneLink 将实时无人机编队表演引入 UE5，接收 **LimxDroneStud
 
 #### Sequencer 支持
 
-- **MovieSceneSuperDroneLinkTrack**：无人机专用轨道
+- **MovieSceneSuperDroneTrack**：无人机专用轨道
 - **10 通道曲线**：Position(X/Y/Z)、Attitude(Roll/Pitch/Yaw)、Led(R/G/B/Brightness)
 - 录制模式 + 离线渲染
 
@@ -889,7 +889,7 @@ SuperShader 内置棱镜渲染引擎，通过数据资产 + 可视化编辑器�
 
 ### 4.7 SuperStage - 核心框架
 
-SuperStage 模块是整个插件的核心，提供 **真正还原物理灯具行为** 的虚拟舞台设备。每个灯具资产都经过精心设计，确保与真实灯具的控制方式完全一致。
+SuperCore 模块是整个插件的核心，提供 **真正还原物理灯具行为** 的虚拟舞台设备。每个灯具资产都经过精心设计，确保与真实灯具的控制方式完全一致。
 
 #### Actor 继承层级
 
@@ -1133,9 +1133,9 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 - 远景灯具降低 MaxLightDistance
 - 光束采样质量由系统自动管理（距离 LOD）：近景高精度、远景自动节能，无需手动调整
 
-### 4.8 SuperStageEditor - 编辑器工具箱
+### 4.8 SuperTools - 编辑器工具箱
 
-SuperStageEditor 提供一站式编辑器工具，大幅提升灯光设计工作效率。
+SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率。
 
 #### Super Stage Mode 舞台模式
 
@@ -1277,7 +1277,7 @@ SuperStageEditor 提供一站式编辑器工具，大幅提升灯光设计工作
 | **Ultra** | 全部付费模块 + 免费模块 |
 | **Team** | Ultra 全部 + SuperCustom 定制开发 |
 
-- 免费模块（SuperConsolePro / SuperShader / SuperData）始终可用，无需订阅
+- 免费模块（SuperConsole / SuperShader / SuperData）始终可用，无需订阅
 - 离线缓存：7 天内离线可用
 - 多设备管理：同一账号多端登录
 
@@ -1751,7 +1751,7 @@ LimxDroneStudio 是 LimxTeam 自研的 **专业无人机集群编排与仿真软
 | 输出类型 | 协议/格式 | 目标系统 |
 |----------|----------|----------|
 | **实时预览** | egui + three-d | 本地 3D 视口 |
-| **UE5 推流** | LDLink (UDP) | SuperDroneLink 模块 |
+| **UE5 推流** | LDLink (UDP) | SuperDrone 模块 |
 | **实飞执行** | MAVLink v2.0 | QGC/DSS 地面站 |
 | **离线导出** | .csv, .waypoints | 离线上传 |
 
@@ -2207,7 +2207,7 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 | **SuperStage** | 舞台灯光核心——DMX 双向 Art-Net/sACN，100+ Universe，8/16/24bit 精度，专业电脑灯完整模拟 |
 | **SuperLaser** | 激光编程系统——Beyond(Pangolin) UDP 接入，71.4% 点云压缩，扫描仪物理模拟 |
 | **SuperNdi** | NDI 视频接入——视频流接收/录制/回放，Alpha 通道，Sequencer 集成 |
-| **SuperDroneLink** | 无人机编队控制——LDLink 协议接入，HISM 万级渲染，GPS 坐标转换 |
+| **SuperDrone** | 无人机编队控制——LDLink 协议接入，HISM 万级渲染，GPS 坐标转换 |
 | **SuperCAD** | 施工图绘制——UE 内直接绘图，DXF/PDF/PNG 导出，BOM 统计 |
 | **SuperCustom** | 定制开发能力——开放集成接口，支持第三方系统对接（**Team 版专属**） |
 
@@ -2215,7 +2215,7 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 
 | 模块 | 功能描述 |
 |------|----------|
-| **SuperConsolePro** | 内置专业灯光控台，CUE/Preset/Effects/Timeline，.ssshow 格式 |
+| **SuperConsole** | 内置专业灯光控台，CUE/Preset/Effects/Timeline，.ssshow 格式 |
 | **SuperShader** | VFX 渲染——光束/雾气/丁达尔效果，频闪波形，棱镜预设 |
 | **SuperData** | 跨平台数据同步——支持 UE/Unity/Vectorworks/GrandMA2 |
 
@@ -2223,13 +2223,13 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 
 | 功能 | 7 天体验 | Pro 版 | Ultra 版 | Team 版 |
 |------|:-------:|:------:|:--------:|:-------:|
-| SuperConsolePro（DMX 控台） | 免费 | 免费 | 免费 | 免费 |
+| SuperConsole（DMX 控台） | 免费 | 免费 | 免费 | 免费 |
 | SuperShader（VFX 视效） | 免费 | 免费 | 免费 | 免费 |
 | SuperData（跨平台同步） | 免费 | 免费 | 免费 | 免费 |
 | SuperStage（舞台灯光核心） | ✓ | ✓ | ✓ | ✓ |
 | SuperLaser（激光系统） | ✓ | — | ✓ | ✓ |
 | SuperNdi（NDI 视频） | ✓ | — | ✓ | ✓ |
-| SuperDroneLink（无人机编队） | ✓ | — | ✓ | ✓ |
+| SuperDrone（无人机编队） | ✓ | — | ✓ | ✓ |
 | SuperCAD（施工图绘制） | ✓ | — | ✓ | ✓ |
 | SuperCustom（定制开发能力） | — | — | — | ✓ |
 | **商业项目使用权** | 仅学习测试 | ✓ | ✓ | ✓ |

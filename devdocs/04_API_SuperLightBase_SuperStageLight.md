@@ -48,7 +48,7 @@
 
 **头文件**: `LightActor/SuperLightBase.h`  
 **基类**: `ASuperDmxActorBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 提供水平（Pan）和垂直（Tilt）旋转控制基础功能。所有具有运动能力的电脑灯 Actor 都继承自此类。
 
@@ -340,7 +340,7 @@ void SetLiftZ(USuperLiftComponent* NewSuperLift, FSuperDMXAttribute DmxLiftZ);
 
 **头文件**: `LightActor/SuperStageLight.h`  
 **基类**: `ASuperLightBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 完整的电脑灯实现类，涵盖光束、颜色、图案、棱镜、切割、效果和矩阵控制。适用于 Martin、Robe、ClayPaky 等各品牌专业电脑灯。
 

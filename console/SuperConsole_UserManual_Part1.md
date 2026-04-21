@@ -1,4 +1,4 @@
-# SuperConsolePro 灯光控台 — 用户手册（一）
+# SuperConsole 灯光控台 — 用户手册（一）
 
 ## 概述 · 快速入门 · 界面布局 · 窗口管理
 
@@ -6,9 +6,9 @@
 
 # 第一章 概述
 
-## 1.1 什么是 SuperConsolePro
+## 1.1 什么是 SuperConsole
 
-SuperConsolePro 是一套内置于 Unreal Engine 编辑器的 **专业级灯光控台系统**。它让灯光设计师能够在虚幻引擎的 3D 场景中，像操作真实物理控台（如 MA3、ETC Eos）一样完成：
+SuperConsole 是一套内置于 Unreal Engine 编辑器的 **专业级灯光控台系统**。它让灯光设计师能够在虚幻引擎的 3D 场景中，像操作真实物理控台（如 MA3、ETC Eos）一样完成：
 
 - 灯具配接（Patch）
 - 灯具选择与分组
@@ -65,7 +65,7 @@ SuperConsolePro 是一套内置于 Unreal Engine 编辑器的 **专业级灯光�
 
 ## 2.1 打开控台
 
-1. 在 Unreal Editor 中，点击顶部工具栏的 **SuperConsolePro** 按钮（或通过菜单 **Window → SuperConsolePro**）
+1. 在 Unreal Editor 中，点击顶部工具栏的 **SuperConsole** 按钮（或通过菜单 **Window → SuperConsole**）
 2. 控台主窗口将以独立面板形式打开
 
 ## 2.2 五分钟上手流程
@@ -382,4 +382,4 @@ DMX 输出管理。包含全局 DMX 输出开关和各 Universe 的独立启用/
 
 ---
 
-> **下一篇**：[用户手册（二）灯具配接、灯具选择与灯具组](SuperConsolePro_UserManual_Part2.md)
+> **下一篇**：[用户手册（二）灯具配接、灯具选择与灯具组](SuperConsole_UserManual_Part2.md)

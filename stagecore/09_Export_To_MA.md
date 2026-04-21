@@ -1,6 +1,6 @@
 # 09 - MA 控台导出与 CSV 导出
 
-> **所属模块**: SuperStageEditor (SSuperDMXToMa / SSuperDMXToCsv)  
+> **所属模块**: SuperTools (SSuperDMXToMa / SSuperDMXToCsv)  
 > **适用对象**: 灯光编程师、舞美设计师  
 > **前置阅读**: [07 - Patch 工具](/docs/stage-core/patch-tools)  
 > **最后更新**: 2026-04-14

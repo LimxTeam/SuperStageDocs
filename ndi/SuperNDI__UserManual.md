@@ -708,7 +708,7 @@ SuperNDI 默认使用 **sRGB** 色彩空间。如果 NDI 源输出的是线性�
 
 #### Q：Take Recorder 中看不到 Super NDI Input 选项
 
-确认 SuperStageEditor 模块已加载。在 Output Log 中搜索 `SuperNDI` 确认初始化成功。
+确认 SuperTools 模块已加载。在 Output Log 中搜索 `SuperNDI` 确认初始化成功。
 
 #### Q：录制后帧缓冲数据丢失
 

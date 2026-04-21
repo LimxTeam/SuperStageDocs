@@ -31,7 +31,7 @@
 
 **头文件**: `SuperBaseActor.h`  
 **基类**: `AActor`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 所有 SuperStage Actor 的**根基类**，提供资产元数据管理和编辑器方向预览功能。
 
@@ -116,7 +116,7 @@ struct FSuperDMXFixture
 
 **头文件**: `SuperDmxActorBase.h`  
 **基类**: `ASuperBaseActor`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 所有 DMX 控制 Actor 的**核心基类**，提供从 `USuperDMXSubsystem` 读取 DMX 数据并转换为可用值的完整接口。
 

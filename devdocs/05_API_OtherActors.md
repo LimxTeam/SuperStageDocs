@@ -27,7 +27,7 @@
 
 **头文件**: `LightActor/SuperDMXCamera.h`  
 **基类**: `ASuperDmxActorBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 通过 DMX 控制电影摄像机的 6 轴运动（3 轴位移 + 3 轴旋转）以及摄像机参数（FOV/光圈/对焦）。支持渲染到 RenderTarget，可用于 LED 屏幕实时内容输出。
 
@@ -182,7 +182,7 @@ UTextureRenderTarget2D* GetRenderTarget() const;
 
 **头文件**: `LightActor/SuperLiftingMachinery.h`  
 **基类**: `ASuperDmxActorBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 通过 DMX 控制舞台设备的 6 轴运动（3 轴位移 + 3 轴旋转），支持绝对旋转和无极旋转两种模式。适用于升降台、旋转舞台、机械臂等设备。
 
@@ -270,7 +270,7 @@ void LiftingMachinery(
 
 **头文件**: `LightActor/SuperRailMachinery.h`  
 **基类**: `ASuperDmxActorBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 沿 `USplineComponent` 样条曲线路径运动 + 6 轴局部偏移/旋转的复合控制。共 **7 个 DMX 控制轴**：轨道位置(RailPos) + XYZ 偏移 + XYZ 旋转。
 
@@ -389,7 +389,7 @@ void RailPositionOnly(FSuperDMXAttribute DmxRailPos);
 
 **头文件**: `LightActor/SuperStageVFXActor.h`  
 **基类**: `ASuperLightBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 通过 DMX 控制 Niagara 粒子系统（烟雾/火焰/雪花/CO2/彩带/烟花等）。继承自 `ASuperLightBase`，因此支持 Pan/Tilt 旋转控制。
 
@@ -499,7 +499,7 @@ DMX 控制粒子颜色（RGB 三通道）。
 
 **头文件**: `LightActor/SuperLightStripEffect.h`  
 **基类**: `ASuperDmxActorBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 通过材质实现可编程 LED 灯带效果（流水、追逐等）。支持将效果材质批量应用到场景中的多个 StaticMeshActor。
 
@@ -592,7 +592,7 @@ void SetLightStripEffect(
 
 **头文件**: `LightActor/SuperLiftMatrix.h`  
 **基类**: `ASuperLightBase`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 升降矩阵 Actor，包含 5 个垂直排列的场景组件（间距 5cm），每个组件下有两个 `USuperEffectComponent`。四角有钢丝绳模拟。
 
@@ -669,7 +669,7 @@ void SetEffectColorMatrix(FSuperDMXAttribute DMXAttR, FSuperDMXAttribute DMXAttG
 
 **头文件**: `LightActor/SuperLaserActor.h`  
 **基类**: `ASuperBaseActor`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 在 UE 场景中实时显示激光投影纹理。从 `SuperLaserSubsystem` 获取指定 Beyond 设备的 RenderTarget 并应用到光束材质。
 
@@ -707,7 +707,7 @@ Tick → GetLaserTexture(查询Subsystem)
 
 **头文件**: `LightActor/SuperLaserProActor.h`  
 **基类**: `ASuperBaseActor`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 基于点数据驱动的激光显示。从 `SuperLaserSubsystem` 获取激光点数据，使用 `USuperLaserProComponent` 程序化生成网格绘制激光线。
 
@@ -766,7 +766,7 @@ Tick → UpdateLaserPoints()
 
 **头文件**: `LightActor/SuperNDIScreen.h`  
 **基类**: `ASuperBaseActor`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 从 `SuperNDISubsystem` 接收实时 NDI 视频流并显示到屏幕网格。支持多屏输出、梯形校正、透明材质切换。
 
@@ -831,7 +831,7 @@ NDI 网络流 → SuperNDISubsystem → OnFrame 回调
 
 **头文件**: `LightActor/SuperProjector.h`  
 **基类**: `ASuperBaseActor`  
-**导出宏**: `SUPERSTAGE_API`
+**导出宏**: `SUPERCORE_API`
 
 使用三个 SpotLight 的光照函数（Light Function）实现 Projection Mapping。RGB 三通道分别投影，叠加合成全彩效果。
 

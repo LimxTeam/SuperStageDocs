@@ -706,7 +706,7 @@ Z: 光束标记（>0 表示光束点）
 #include "MyCustomLight.generated.h"
 
 UCLASS(meta = (DisplayName = "MyCustomLight"))
-class SUPERSTAGE_API AMyCustomLight : public ASuperStageLight
+class SUPERCORE_API AMyCustomLight : public ASuperStageLight
 {
     GENERATED_BODY()
     

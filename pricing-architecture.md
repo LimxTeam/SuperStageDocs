@@ -28,7 +28,7 @@ SuperStage 是基于 Unreal Engine 5 的工业级舞台灯光与演艺生态系�
 | **SuperStage** | 舞台灯光核心——DMX 双向 Art-Net/sACN，100+ Universe，8/16/24bit 精度，专业电脑灯完整模拟 |
 | **SuperLaser** | 激光编程系统——Beyond(Pangolin) UDP 接入，71.4% 点云压缩，扫描仪物理模拟 |
 | **SuperNdi** | NDI 视频接入——视频流接收/录制/回放，Alpha 通道，最高 8K，Sequencer 集成 |
-| **SuperDroneLink** | 无人机编队控制——LDLink 协议接入，HISM 万级渲染，GPS 坐标转换 |
+| **SuperDrone** | 无人机编队控制——LDLink 协议接入，HISM 万级渲染，GPS 坐标转换 |
 | **SuperCAD** | 施工图绘制——UE 内直接绘图，DXF/PDF/PNG 导出，BOM 统计，自动联动 3D 场景 |
 | **SuperCustom** | 定制开发能力——开放集成接口，支持第三方系统对接（**Team 版专属**） |
 
@@ -36,7 +36,7 @@ SuperStage 是基于 Unreal Engine 5 的工业级舞台灯光与演艺生态系�
 
 | 模块名称 | 功能描述 |
 |----------|----------|
-| **SuperConsolePro** | 内置专业灯光控台，15 子系统，CUE/Preset/Effects/Timeline，.ssshow 格式 |
+| **SuperConsole** | 内置专业灯光控台，15 子系统，CUE/Preset/Effects/Timeline，.ssshow 格式 |
 | **SuperShader** | VFX 渲染——光束/雾气/丁达尔效果，6 种频闪波形 |
 | **SuperData** | 跨平台数据同步——8 语言 SDK 开源（MIT），支持 UE/Unity/Vectorworks/GrandMA2 |
 
@@ -52,10 +52,10 @@ SuperStage 是基于 Unreal Engine 5 的工业级舞台灯光与演艺生态系�
 | SuperStage（灯光核心） | ✓ | ✓ | ✓ | ✓ |
 | SuperLaser（激光） | ✓ | — | ✓ | ✓ |
 | SuperNdi（NDI 视频） | ✓ | — | ✓ | ✓ |
-| SuperDroneLink（无人机） | ✓ | — | ✓ | ✓ |
+| SuperDrone（无人机） | ✓ | — | ✓ | ✓ |
 | SuperCAD（施工图） | ✓ | — | ✓ | ✓ |
 | SuperCustom（定制开发） | — | — | — | ✓ |
-| SuperConsolePro / SuperShader / SuperData | ✓ | ✓ | ✓ | ✓ |
+| SuperConsole / SuperShader / SuperData | ✓ | ✓ | ✓ | ✓ |
 | **可用于商业项目** | ✗ | ✓ | ✓ | ✓ |
 | **席位数** | 1 | 1 | 1 | 自定义（≥6） |
 | **增值税发票 / 正式合同** | — | — | — | ✓ |
@@ -184,7 +184,7 @@ SuperStage 是基于 Unreal Engine 5 的工业级舞台灯光与演艺生态系�
 
 - 用户持有有效订阅 → 按套餐档次获得对应模块权益
 - 用户同时持有个人订阅和团队席位 → 取权限最高的套餐
-- 免费模块（SuperConsolePro / SuperShader / SuperData）→ 无需订阅，始终可用
+- 免费模块（SuperConsole / SuperShader / SuperData）→ 无需订阅，始终可用
 
 ---
 
