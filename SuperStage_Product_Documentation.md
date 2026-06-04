@@ -35,7 +35,6 @@
    - 4.6 SuperShader
    - 4.7 SuperStage 核心框架
    - 4.8 SuperTools
-   - 4.9 SuperAI
 5. [SuperData - 跨平台数据同步](#5-superdata---跨平台数据同步)
    - 5.1 产品概述
    - 5.2 工作原理
@@ -1293,77 +1292,6 @@ SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率
 - Laser 录制源：录制 Beyond 激光到 Sequencer
 - DroneLink 录制源：录制无人机轨迹到 Sequencer
 
-### 4.9 SuperAI - AI 智能助手
-
-SuperAI 是编辑器内置的 AI 智能助手模块，通过自然语言对话驱动 **37 个专用工具**，覆盖场景搭建、属性配置、材质编辑、蓝图操作、资产管理、视口控制等完整工作流。
-
-#### 系统架构
-
-SuperAI 由 7 个核心组件协同运作：
-
-| 组件 | 职责 |
-|------|------|
-| **SSuperAIChatPanel** | Slate 聊天面板 UI（Markdown 渲染、流式输出、工具卡片） |
-| **USuperAISubsystem** | 引擎级子系统，管理会话生命周期与 LLM 通信 |
-| **FSuperAIChatSession** | 单个会话上下文（消息历史、工具调用记录） |
-| **FSuperAIToolRegistry** | 工具注册中心，自动发现并注册全部 37 个工具 |
-| **FSuperAIMCPServer** | MCP 协议 HTTP 服务器，对外暴露工具能力 |
-| **FSuperAIConfig** | 配置管理（LLM 预设、API Key、模型参数） |
-| **FSuperAIToolBase** | 工具基类，所有工具继承此类并实现 Execute() |
-
-**消息处理流水线**：用户输入 → 会话拼装上下文 → HTTP 请求 LLM → SSE 流式接收 → 解析工具调用 → GameThread 执行工具 → 结果回传 LLM → 最终回复渲染到 UI
-
-#### 聊天面板
-
-- **打开方式**：`Window → 工具 (Tools) → SuperAI 助手` / 编辑器工具栏 SuperAI 按钮 / 状态栏 SuperAI 按钮
-- **面板功能**：Markdown 富文本渲染、流式 SSE 输出、工具调用卡片可视化、多会话管理
-- **多会话管理**：创建/切换/删除会话，每个会话独立维护消息历史，会话持久化存储
-- **Tab ID**：`SuperAIChat`，支持停靠持久化
-
-#### 37 个专用工具
-
-涵盖六大类别的编辑器自动化工具：
-
-| 类别 | 工具示例 | 说明 |
-|------|----------|------|
-| **场景管理** | spawn_actor, delete_actor, list_actors | Actor 增删查，批量操作 |
-| **属性配置** | get_property, set_property, batch_set_property | UPROPERTY 读写，支持嵌套路径 |
-| **材质编辑** | create_material_graph, add_material_node, connect_nodes | 完整材质图编辑能力 |
-| **蓝图操作** | get_blueprint_info, add_component | 蓝图信息查询与组件管理 |
-| **资产管理** | list_super_assets, import_asset | 灯具库浏览与资产导入 |
-| **视口控制** | set_viewport_camera, take_screenshot | 摄像机控制与截图 |
-
-所有工具均自描述 JSON Schema，支持参数校验和错误提示。
-
-#### 多 LLM 预设
-
-配置文件存储在 `AppData/Local/SuperStage/SuperAI.sav`（二进制格式，v2 多预设架构），支持多个 LLM 服务预设自由切换：
-
-| 预设字段 | 说明 |
-|----------|------|
-| PresetName | 预设名称（如 "OpenAI GPT-4o"、"DeepSeek"） |
-| Endpoint | API 端点 URL（OpenAI 兼容格式） |
-| ApiKey | API 密钥（磁盘 XOR 混淆存储） |
-| Model | 模型名称 |
-| Temperature | 采样温度（0.0 - 2.0，默认 0.7） |
-| MaxTokens | 最大输出 Token 数（默认 4096） |
-| bEnableStreaming | SSE 流式输出开关（默认开启） |
-
-#### MCP 协议服务器
-
-SuperAI 内置 MCP（Model Context Protocol）HTTP 服务器，允许外部 AI 客户端（Claude Desktop、Cursor 等）通过标准 MCP 协议调用全部 37 个工具。
-
-- **启动方式**：聊天面板状态栏 MCP 开关按钮
-- **通信方式**：Streamable HTTP（POST `/mcp` JSON-RPC 2.0，端口 **13090**）
-- **协议端点**：
-  - `POST /mcp` — JSON-RPC 2.0 主端点（initialize / tools/list / tools/call / ping）
-  - `GET /mcp/tools` — REST 兼容：列出所有工具
-  - `POST /mcp/tool/{name}` — REST 兼容：执行指定工具
-  - `GET /mcp/status` — 服务器状态
-- **安全控制**：手动启停，不使用时不占用端口和资源
-
----
-
 ## 5. SuperData - 跨平台数据同步
 
 SuperData 是一个独立产品，但与 SuperStage 插件紧密集成。它实现了 **舞台灯具数据在不同软件之间的实时同步**，让灯光设计师可以在不同工具之间无缝协作。
@@ -1841,7 +1769,6 @@ LimxDroneStudio 是 LimxTeam 自研的 **专业无人机集群编排与仿真软
 | NDI | 动态 | TCP/UDP | 视频流 |
 | LDLink | 14555 | UDP | 无人机数据（LimxDroneStudio） |
 | SuperData | 5966 | TCP | 跨平台数据同步 |
-| MCP | 13090 | HTTP | SuperAI MCP 服务器 |
 
 ### 7.5 数据精度规格
 

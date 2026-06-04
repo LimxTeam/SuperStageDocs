@@ -116,18 +116,6 @@ DMX 通讯引擎模块，提供 Art-Net / sACN (E1.31) 双协议的收发、缓�
 - Sequencer DMX 录制与回放轨道
 - sACN 自动多播组管理
 
-### SuperAI
-
-编辑器内置 AI 智能助手，通过自然语言对话驱动 37 个专用工具完成场景搭建、属性配置、材质编辑、蓝图操作等。
-
-**核心特性：**
-
-- 37 个自描述工具（场景管理/属性/材质/蓝图/资产/视口）
-- 流式 SSE 输出 + 工具调用可视化
-- 多 LLM 预设切换（OpenAI / DeepSeek / 通义千问）
-- 内置 MCP (Model Context Protocol) HTTP 服务器，端口 13090
-- 多会话管理与持久化
-
 ### SuperCAD
 
 专业施工图绘制系统，在 UE5 编辑器内直接生成 CAD 级别灯位图、正立面图。
@@ -150,8 +138,6 @@ DMX 通讯引擎模块，提供 Art-Net / sACN (E1.31) 双协议的收发、缓�
 | NDI | 动态 | 接收 | 视频流 |
 | OSC | UDP 可配 | 双向 | 开放声音控制 |
 | LimxDroneStudio | UDP 14555 | 接收 | 无人机编队 |
-| MCP | HTTP 13090 | 双向 | SuperAI MCP 服务器 |
-
 ## 设计哲学
 
 ### Configuration over Customization
