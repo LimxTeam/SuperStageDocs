@@ -412,6 +412,22 @@ SuperStage 适合需要在 Unreal Engine 中进行舞台灯光预演、DMX 联�
 
 ---
 
+## 12. 获取与联系
+
+如果需要进一步评估 SuperStage，可通过以下入口获取资料、试用版本或联系团队：
+
+| 需求 | 入口 |
+| --- | --- |
+| 官网 | https://yunsio.com |
+| 下载试用 | https://www.yunsio.com/download |
+| 技术支持 / 文档中心 | https://yunsio.com/docs/superstage |
+| 联系邮箱 | yunsio@yunsio.com |
+| 商务咨询 | yunsio@yunsio.com |
+| YouTube 教程 | https://www.youtube.com/channel/UCzr_PcLdN00gxABoTnCSZeA |
+| 哔哩哔哩教程 | https://www.bilibili.com/video/BV1UcdVBsEXb |
+
+---
+
 ## 版权声明
 
 本文档版权所有 © 2026 LimxTeam，保留所有权利。
