@@ -2,8 +2,8 @@
 
 > **数字舞台的中央神经系统 —— 工业级现场控制与虚拟制片统一生产环境**
 
-**版本**: 26Q2.5  
-**更新日期**: 2026年4月14日  
+**版本**: 26H2.0  
+**更新日期**: 2026年5月21日  
 **版权所有**: 佛山市壹贰冉冉科技有限公司 (LimxTeam)
 
 ---
@@ -16,6 +16,7 @@
    - 1.3 核心定位
    - 1.4 我们解决的问题
    - 1.5 适用边界
+   - 1.6 26H2.0 更新重点
 2. [核心价值](#2-核心价值)
    - 2.1 零摩擦工作流
    - 2.2 数字孪生级保真度
@@ -35,13 +36,13 @@
    - 4.6 SuperShader
    - 4.7 SuperStage 核心框架
    - 4.8 SuperTools
-5. [SuperData - 跨平台数据同步](#5-superdata---跨平台数据同步)
+5. [数据交换与控台配接](#5-数据交换与控台配接)
    - 5.1 产品概述
-   - 5.2 工作原理
-   - 5.3 支持的平台
-   - 5.4 协议规范
-   - 5.5 典型工作流
-   - 5.6 安装与配置
+   - 5.2 MVR 导入与导出
+   - 5.3 grandMA2 / grandMA3 直接配接导入
+   - 5.4 DMX → MA 文件导出
+   - 5.5 SuperData 历史兼容
+   - 5.6 典型工作流
 6. [LimxDroneStudio - 无人机编队软件](#6-limxdronestudio---无人机编队软件)
    - 6.1 产品概述
    - 6.2 资产管理
@@ -68,16 +69,23 @@
    - 9.2 10分钟：连接物理控台
    - 9.3 15分钟：Arena NDI 连接与渲染
    - 9.4 15分钟：录制激光到 Sequencer
+   - 9.5 5分钟：导出 MVR 给外部软件
+   - 9.6 10分钟：连接 grandMA 并导入配接
+   - 9.7 10分钟：接入 MADRIX 灯带
+   - 9.8 5分钟：使用 Director 导播模式
 10. [常见问题与故障排除](#10-常见问题与故障排除)
     - 10.1 安装问题
     - 10.2 DMX 问题
     - 10.3 激光问题
     - 10.4 NDI 问题
-    - 10.5 性能问题
+    - 10.5 MVR / grandMA 问题
+    - 10.6 MADRIX / Director 问题
+    - 10.7 性能问题
 11. [已知限制与版本兼容性](#11-已知限制与版本兼容性)
     - 11.1 已知限制
     - 11.2 版本兼容性
     - 11.3 升级注意事项
+    - 11.4 外部依赖
 12. [授权与定价](#12-授权与定价)
     - 12.1 产品模块划分
     - 12.2 套餐体系（7天体验 / Pro / Ultra / Team）
@@ -157,6 +165,21 @@ SuperStage 深度集成 UE Sequencer，将其改造为支持 **SMPTE 时间码�
 - 不使用 Unreal Engine 的团队
 - 只需简单 UE 灯光效果（官方免费灯具库够用）
 
+### 1.6 26H2.0 更新重点
+
+26H2.0 是一次面向大型项目交付、控台互通和视觉真实感的综合升级。本版本基于 26Q2.9 开发，重点提升了 DMX 数据容量、外部软件数据交换、灯具资产规模和现场编辑效率。
+
+| 更新方向 | 关键变化 |
+|---------|---------|
+| **大型 DMX 项目** | SuperDMX Art-Net / sACN 输入输出能力扩展至 **512 个 Universe**，配接、活动监看和录制流程同步支持 |
+| **MVR 数据交换** | DMX 工具新增 **MVR 导出**，可将已选灯具的位置、朝向、DMX 配接和 GDTF 灯库打包为 `.mvr` |
+| **grandMA 配接导入** | 新增 grandMA2 / grandMA3 直接连接与配接导入流程，不再依赖 SuperData 服务器或 MA 插件 |
+| **MADRIX 灯带** | 新增麦爵士主输出接入、灯带材质驱动、Sequencer 录制与离线回放 |
+| **媒体输入** | SuperScreen / SuperProjector 新增 **Director 导播模式**，可用场景中的导播相机作为屏幕或投影内容源 |
+| **灯具资产** | 新增 **40 款原生 C++ 舞台灯具资产**，覆盖 Robe、ClayPaky、GLP、JB-Lighting、ADJ 等品牌 |
+| **渲染真实感** | 光束表面光斑、切割片范围、灯光色彩和光束质量控制全面优化 |
+| **编辑效率** | Patch Tool 新增自动递增、RenameID、可视化通道网格、拖拽改地址和冲突高亮 |
+
 ---
 
 ## 2. 核心价值
@@ -200,6 +223,8 @@ SuperStage 深度集成 UE Sequencer，将其改造为支持 **SMPTE 时间码�
 |------|---------|
 | **Beyond 激光原生化** | 通过 UDP 5568 直接摄取 Pangolin Beyond 点云数据，转化为 UE 原生几何体，激光束可被玻璃折射、照亮烟雾、被景深模糊 |
 | **NDI 视频体素化** | 视频不仅是纹理，而是光源——LED 屏幕播放的火焰视频会真实照亮虚拟角色 |
+| **Director 导播输入** | 屏幕与投影可直接引用场景内导播相机，实现舞台内屏联动、虚拟监视器和多机位画面分发 |
+| **MADRIX 灯带融合** | 麦爵士主输出可实时驱动灯带/矩阵灯带材质，并录制进 Sequencer 离线回放 |
 | **无人机编队同步** | LDLink 协议实现无人机与舞台灯光在统一 Sequencer 时间轴编排 |
 
 ### 2.4 主权与解耦：屏蔽异构差异的通用协议
@@ -208,10 +233,11 @@ SuperStage 深度集成 UE Sequencer，将其改造为支持 **SMPTE 时间码�
 
 | 协议层 | SuperStage 处理方式 |
 |--------|-------------------|
-| **DMX (Art-Net/sACN)** | 统一寻址模型，屏蔽 Universe 映射差异，支持 100+ Universe |
+| **DMX (Art-Net/sACN)** | 统一寻址模型，屏蔽 Universe 映射差异，支持 512 Universe |
 | **激光 (Beyond)** | 点云数据 71.4% 压缩存储（28→8 字节/点），扫描仪物理模拟 |
-| **视频 (NDI)** | 多源帧缓冲录制，支持 Alpha 通道，最高 8K 分辨率 |
+| **视频 / 媒体 (NDI/Director/MADRIX)** | 多源帧缓冲录制，支持 Alpha 通道、导播相机输入、麦爵士灯带回放，最高 8K 分辨率 |
 | **无人机 (LDLink/MAVLink)** | 标准化飞控指令，地面站可替换 |
+| **数据交换 (MVR/grandMA)** | 标准 MVR 导入/导出与 grandMA2 / grandMA3 直接配接导入，减少交付时的灯库与 Patch 重复维护 |
 
 ### 2.5 确定性交付：工业级的实时响应保障
 
@@ -232,8 +258,11 @@ SuperStage 深度集成 UE Sequencer，将其改造为支持 **SMPTE 时间码�
 | **虚拟演唱会预演** | 完整灯光编程 + 影视级渲染，提案即交付 |
 | **大型巡演预演** | 混合模式：物理推杆触发 SuperStage 程序化效果，落地即演出 |
 | **LED 墙虚拟制作** | NDI 帧录制，脱离视频服务器离线渲染，支持 Path Tracing 8K 重渲染 |
+| **导播内屏联动** | DirectorCamera 输出到 SuperScreen / SuperProjector，同一机位可同时驱动多块屏幕 |
+| **MADRIX 灯带预演** | 麦爵士主输出实时进入 UE 灯带载体，可录制后离线回放 |
 | **激光秀制作** | Beyond 点云录制，Sequencer 精确编排，扫描仪物理模拟 |
 | **无人机天地联动** | 编队与舞台灯光在统一时间轴协同 |
+| **MVR / grandMA 交付** | UE 场景可导出标准 MVR，也可直接把灯具与灯库导入 grandMA2 / grandMA3 |
 | **离线编程交付** | 办公室编程，现场 Art-Net 一键输出 |
 
 ---
@@ -281,12 +310,14 @@ SuperStage 深度集成 UE Sequencer，将其改造为支持 **SMPTE 时间码�
 
 **不假设任何外部系统是可靠的。**
 
-所有外部输入（DMX、NDI、Beyond、MAVLink）都经过校验和容错处理。外部系统的异常不会污染 SuperStage 的内部状态。
+所有外部输入（DMX、NDI、Beyond、MADRIX、MAVLink、MVR/grandMA 数据）都经过校验和容错处理。外部系统的异常不会污染 SuperStage 的内部状态。
 
 **技术实现：**
 - DMX 输入经过地址范围校验（1-512）
 - NDI 帧缓冲带时间戳校验，拒绝乱序帧
 - 激光点云数据经过坐标范围校验（[-1, 1]）
+- MADRIX Preview 帧采用请求去重与尺寸上限校验，防止异常帧拖垮渲染
+- MVR/grandMA 数据导入前校验灯具型号、地址、Universe 与灯库绑定
 - 网络数据包采用 Magic Number + CRC 校验
 
 ---
@@ -362,12 +393,14 @@ SuperDMX 模块同时支持 **Art-Net 4** 和 **sACN/E1.31** 双协议，与传�
 - **接收模式** - 用你熟悉的 MA/GrandMA/珍珠台编程，UE 实时预览灯光效果
 - **发送模式** - 在 UE 中编程完成后，输出 Art-Net/sACN 控制实体灯具
 - **混合模式** - 虚拟灯 + 实体灯同时控制
+- **512 Universe** - Art-Net / sACN 输入与输出均扩展至 512 个 DMX 域，覆盖大型舞台、像素灯带、矩阵灯墙和多控台联调
 - **sACN 特性** - 自动多播组管理、E1.31 三层 PDU 完整实现、单播/多播双模式
 
 **应用场景：**
 - 办公室编程，现场直接播放
 - 接几盏真灯验证虚拟与实际一致性
 - MA 编程 + UE 预览渲染
+- 大型项目保持统一 Universe 规划，无需因域数上限拆分工程
 
 #### 零配接灯具系统
 
@@ -383,16 +416,42 @@ SuperDMX 模块同时支持 **Art-Net 4** 和 **sACN/E1.31** 双协议，与传�
 - 自动识别灯具类型和通道映射
 - 支持 8/16/24 位精度通道
 - 多模块灯具（如矩阵灯）统一管理
+- 配接工具自动读取场景现有灯具，从下一个可用 Universe / Address / Fixture ID 开始
+- Apply 后起始值自动递增，适合多轮分批配接
+- RenameID 可在配接时自动将大纲名称改为 `类名_灯具ID`
+- 可视化通道网格以 32×16 显示单个 Universe 的 512 个通道，支持拖拽改地址与冲突高亮
 
 #### 专业灯具库
 
-已收录 Acme、Chauvet、ClayPaky、EK、ETC、Robe 等国内外品牌 **38+ 灯具配置**，持续更新中。
+已收录 Acme、Chauvet、ClayPaky、EK、ETC、Robe、GLP、JB-Lighting、Martin、ADJ、Astera LED 等国内外品牌 **78+ 灯具配置**，持续更新中。26H2.0 新增 **40 款原生 C++ 舞台灯具资产**，全部基于真实 GDTF 通道映射，DMX 控制到颜色、旋转、光束、图案、棱镜、切割全链路渲染就绪。
 
 **灯库编辑器功能：**
 - 可视化属性编辑（亮度/位置/图案/颜色/光束/聚焦/控制/切割/频闪/棱镜/雾化/效果）
 - Coarse/Fine/Ultra 多精度通道配置
 - 多模块实例管理（矩阵灯、多头灯）
 - 支持导入 MA2/GDTF 灯库格式
+- 支持绑定插件目录内置的 grandMA2 与 GDTF 灯库资源，MVR 导出和 grandMA 配接导入可自动携带灯库
+
+**26H2.0 新增原生灯具资产：**
+
+| 品牌 | 新增型号 |
+|------|---------|
+| **Robe** | BMFL Blade、MegaPointe、LEDWash800、iSpiider Wash、DL4X Spot、iBar15（11CH / 61CH） |
+| **ClayPaky** | Sharpy Plus、HY B-EYE K25、B-EYE K10、Alpha Beam 300 |
+| **ADJ** | 12P HEX、Encore Burst 200、32HEX Panel IP、40HEX IP Panel、Encore LB15IP（7CH / 60CH） |
+| **ETC** | ColorSource Par、ColorSource Spot、D60 Vivid |
+| **GTD** | 1500N Profile、330II Beam |
+| **Martin** | ELP Par IP、MAC Aura |
+| **Chauvet** | Strike 1、Strike 4 |
+| **CKC** | P10+ |
+| **PR-Lighting** | AQUA 580 BWS、PR-2926 |
+| **GLP** | Impression GT-1、Impression S350、JDC1、Impression X5 IP Maxx、Impression X4 Bar 20 |
+| **Astera LED** | Titan Tube |
+| **Spark** | P1Evo |
+| **JB-Lighting** | P18 MK2 Profile MA HP、P18 MK2 Wash MA HP |
+| **GTB** | XS600IP、LED X7 |
+
+这些资产均自带灯具图标、3D 外壳模型和 `SuperFixtureLibrary` 灯库，拖入场景、配接 DMX 后即可使用；C++ 实现比蓝图灯具更适合多灯、大矩阵和高帧率预演。
 
 **厂商合规认证（Manufacturer Certification）：** 我们开放了硬件接入标准。制造商可申请加入 **SuperStage 认证合作伙伴计划**。经实验室级物理校验通过的设备（几何精度、光度学、机械延迟），将作为 **"实验室校验资产（Lab-Verified Assets）"** 内置于全球分发版本中。认证申请：yerrkj@outlook.com
 
@@ -704,9 +763,9 @@ SuperLaser 提供两种渲染模式的激光 Actor，适用于不同场景：
 - 场景中可放置多个不同 DeviceID 的 Actor
 - 关闭编辑器或切换关卡时自动释放网络资源
 
-### 4.4 SuperNdi - NDI 视频系统
+### 4.4 SuperNdi - NDI 视频与媒体输入系统
 
-SuperNdi 实现 NDI 视频流的接收、录制和渲染，解决官方 NDI 插件无法离线渲染的痛点。
+SuperNdi 实现 NDI 视频流的接收、录制和渲染，解决官方 NDI 插件无法离线渲染的痛点。26H2.0 进一步把屏幕与投影的输入源扩展为 **NDI / Texture / Director** 三种模式，并通过 SuperMadrix 支持麦爵士灯带主输出的录制回放。
 
 #### Arena (Resolume) 连接配置
 
@@ -723,6 +782,14 @@ SuperNdi 实现 NDI 视频流的接收、录制和渲染，解决官方 NDI 插�
 4. 设置输入源名称对应 Arena 输出
 
 #### SuperScreen Actor
+
+**输入源模式：**
+
+| SourceMode | 内容来源 | 适用场景 |
+|------------|----------|---------|
+| **NDI** | 网络 NDI 视频源 | Resolume Arena、导播台、媒体服务器实时输入 |
+| **Texture** | 静态纹理或本地素材 | 固定画面、Logo、无外部视频环境的预览 |
+| **Director** | 场景中的 `ASuperDirectorCamera` 捕获画面 | 舞台内屏联动、虚拟监视器、多机位画面分发 |
 
 **材质与纹理：**
 - 自动创建动态材质实例（MID）
@@ -741,12 +808,24 @@ SuperNdi 实现 NDI 视频流的接收、录制和渲染，解决官方 NDI 插�
 | Contrast | 对比度 |
 | Transparency | 透明度 |
 
+#### DirectorCamera 导播模式
+
+在场景中放置 **DirectorCamera** 后，SuperScreen 和 SuperProjector 可把该相机视角作为实时内容源。多个屏幕/投影可引用同一台导播相机，也可分别引用不同机位。
+
+**关键能力：**
+- 自定义捕获分辨率和 FOV，按项目平衡画质与性能
+- EnableCapture 关闭时零捕获开销
+- 多屏同源显示，适合 LED 内屏、虚拟监视器、舞台实时画面回传
+- 多机位放置后可快速切换不同屏幕的输入来源
+
 #### USuperNDISubsystem 核心功能
 
 **NDI SDK 集成：**
 - 显式加载 Processing.NDI.Lib.x64.dll（避免系统 DLL 冲突）
 - 持久化 Finder 自动发现源（mDNS）
-- 50Hz 轮询接收帧 + 2.5s 刷新发现缓存
+- 配置面板打开后自动刷新一次源列表，后续由用户按需手动刷新
+- 源列表下拉框使用最近一次刷新结果，展开与选择时不再反复扫描
+- 50Hz 轮询接收帧
 
 **格式转换：**
 - BGRA/BGRX：直接 Memcpy
@@ -776,6 +855,17 @@ SuperNdi 实现 NDI 视频流的接收、录制和渲染，解决官方 NDI 插�
 1. Setup：BeginLoopback 屏蔽真实 NDI 帧
 2. Evaluate：GetFrameAtTime → InjectFrameBGRA
 3. TearDown：EndLoopback 恢复真实接收器
+
+#### MADRIX（麦爵士）灯带接入
+
+SuperMadrix 通过本机 MADRIX Remote HTTP Preview 接口读取主输出 BMP 帧，并将其转换为 UE 纹理驱动灯带/矩阵灯带材质。它适合舞台 LED 线条、矩阵灯墙、像素灯带等项目，在 UE 中直接预览麦爵士输出的动态画面。
+
+**工作方式：**
+- 读取本机 `http://127.0.0.1/RemoteCommands/GetPreviewOutput.bmp`
+- `ASuperMadrixActor` 将预览纹理推送到灯带材质，仅保留亮度等关键参数入口
+- 一个 MADRIX 源可同时驱动多个 StaticMeshActor
+- 支持录制到 Sequencer，录制完成后可脱离 MADRIX 软件离线回放
+- 针对连续动画减少重复刷新，兼顾实时预览流畅度与画面质量
 
 ### 4.5 SuperDrone - 无人机编队模块
 
@@ -860,6 +950,9 @@ SuperShader 提供专业舞台灯光所需的各类材质和着色器效果。
 - 频闪算法：8 种模式（Closed/Open/Linear/Pulse/RampUp/RampDown/Sine/Random）
 - 自发光材质：LED 屏幕、灯带效果
 - 物理光照：与 UE Lumen 深度集成
+- 表面光斑：部分灯具由光束自身绘制落点光斑，GOBO、颜色轮、棱镜和切割在光束内外保持一致
+- 色彩真实感：统一白光、色温、RGB/RGBW/CMY、GOBO、切割光、激光和特效光的色彩观感
+- 动态/自定义质量：默认自动质量策略，特殊机位可固定 10%-100% 光束采样质量
 
 #### 棱镜预设系统（Prism Builder）
 
@@ -952,6 +1045,7 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 - **CMY 减色**：青/品红/黄滤片物理叠加
 - **色温调节**：1700K-12000K 冷暖连续可调
 - **动态混色通道**：支持灯库定义的任意扩展颜色通道（如 Amber、UV、Lime 等）
+- **真实色彩校准**：白光更接近真实舞台灯具冷白观感，CTO/CTB、RGB/RGBW/CMY、激光和特效光色彩表现统一
 
 **图案系统：**
 - **双图案轮**：Gobo1 + Gobo2 同时工作
@@ -969,6 +1063,7 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 - **四叶片切割**：A1/B1 到 A4/B4 八通道控制
 - **切割旋转**：整个切割系统可旋转 ±45°
 - **与图案联动**：切割旋转叠加图案旋转
+- **范围校准**：切割片推入 50% 时遮挡半个光斑，满值可完全遮光，所有使用切割系统的灯具统一生效
 
 **效果层（独立于主光束）：**
 - **15 种内置效果**：脉冲、波浪、追逐、扫描、呼吸等
@@ -985,6 +1080,7 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 - 灯具光束自动检测场景碰撞，实现光斑投射到地面/墙面的效果
 - 两级检测策略：粗检测（低频）确定目标面 + 精检测（高频）更新光斑位置
 - 可设置检测距离和响应通道
+- 光束表面光斑可由光束材质自身绘制，减少额外 SpotLight 开销，并确保光斑与光束体积在图案、颜色、棱镜、切割上的表现完全同步
 
 #### 激光灯
 
@@ -996,9 +1092,9 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 
 #### LED 屏幕与投影
 
-**SuperScreen**（原 SuperNDIScreen，继承 `ASuperMediaBase`） - 支持两种媒体源模式：NDI 视频流 / 静态纹理。接收视频并显示在 3D 模型上，支持四角梯形校正，适合异形屏幕。可绑定任意网格模型，让 LED 屏幕“贴”在任何形状的物体上。
+**SuperScreen**（原 SuperNDIScreen，继承 `ASuperMediaBase`） - 支持三种媒体源模式：NDI 视频流 / 静态纹理 / Director 导播相机。接收视频或场景捕获画面并显示在 3D 模型上，支持四角梯形校正，适合异形屏幕。可绑定任意网格模型，让 LED 屏幕“贴”在任何形状的物体上。
 
-**SuperProjector** - Projection Mapping 投影仪。使用 UE5 的 Light Function 实现纹理投影，支持四点透视校正，用于建筑投影或舞台背景。
+**SuperProjector** - Projection Mapping 投影仪。使用 UE5 的 Light Function 实现纹理投影，支持四点透视校正，并同样支持 NDI / Texture / Director 输入源，用于建筑投影、舞台背景或实时导播投影。
 
 #### 机械与特效
 
@@ -1011,6 +1107,8 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 **SuperDMXCamera** - DMX 控制的虚拟摄像机。6 轴运动 + FOV/光圈/对焦控制，可将画面渲染到 RenderTarget，用于 LED 大屏显示虚拟机位画面。
 
 **SuperLightStripEffect** - LED 灯带/灯条效果。10 种内置特效（流水、追逐、呼吸等），可批量应用到多个网格模型，一个 Actor 控制整个场景的灯带。
+
+**SuperMadrix** - 麦爵士灯带输入 Actor。读取本机 MADRIX 主输出 Preview BMP 并驱动灯带/矩阵材质，支持 Sequencer 录制与离线回放。
 
 **SuperStageVFXActor** - DMX 控制的 Niagara 粒子特效。烟雾机、CO2 喷射、彩带炮、火焰、雪花等舞台特效，通过 DMX 控制开关、颜色、生成量
 
@@ -1126,11 +1224,15 @@ SuperStageLight 内部的光渲染由**光组件（Light Component）** 层级�
 | AtmosphericDensity | 大气衰减 | 3% |
 | VolumetricScattering | 体积光强度 | 0% |
 | LightShadow | 阴影开关 | 关 |
+| DynamicQuality | 动态质量开关 | 开 |
+| CustomQuality | 手动光束采样质量 | 10%-100% |
 
 **性能优化建议：**
 - 不需要体积光时关闭 VolumetricScattering
 - 远景灯具降低 MaxLightDistance
-- 光束采样质量由系统自动管理（距离 LOD）：近景高精度、远景自动节能，无需手动调整
+- 默认开启 DynamicQuality，由系统按摄像机距离、Zoom 和视角自动降采样
+- 特殊机位、远距离视角或高精度拍摄需要稳定光束细节时，可关闭 DynamicQuality 并固定 CustomQuality
+- 普通光束与带切割光束共用同一套质量参数，切割、棱镜、GOBO、颜色轮效果保持一致
 
 ### 4.8 SuperTools - 编辑器工具箱
 
@@ -1178,14 +1280,17 @@ SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率
 **DMX 通讯配置中心：**
 - Art-Net / sACN (E1.31) 双协议切换
 - 绑定 IP / 端口配置
-- Universe 管理：启用/禁用/添加/移除
+- Universe 管理：启用/禁用/添加/移除，最高 512 个 Universe
 - DMX 活动监视器嵌入（详见下方）
 - 信号收发状态实时显示
 
 #### NDI 配置面板
 
 **NDI 源管理中心：**
-- 自动发现网络中的 NDI 源（mDNS）
+- 打开面板时自动发现一次网络中的 NDI 源（mDNS）
+- 后续由用户通过手动刷新按钮按需重新扫描
+- 刷新过程中显示明确状态，避免大量 NDI 源或复杂网络环境下卡住配置界面
+- 下拉框使用最近一次刷新结果，展开和选择时不重复触发扫描
 - 添加/编辑/删除输入源映射
 - 逻辑名称 → 外部源名称映射
 - 源匹配状态实时显示
@@ -1195,12 +1300,17 @@ SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率
 **批量配址神器：**
 - 选中灯具 → 设置起始 Universe/Address → 一键应用
 - **预览模式**：应用前预览配址结果，确认无误再提交
-- 自动递增：Universe/Address 自动计算，跨 Universe 自动进位
+- 自动递增：打开工具时读取场景现有灯具，从下一个可用 Universe / Address / Fixture ID 开始
+- Apply 后自动更新起始值，连续批量配接无需反复手动调整
+- **RenameID**：默认勾选，配接时自动将灯具大纲名称改为 `类名_灯具ID`
 - **自然排序**：灯具按场景空间位置自然排序
 - 冲突检测：地址冲突高亮显示
+- 可视化通道网格：以 32×16 显示 512 通道占用，支持多 Universe 展开
+- 网格拖拽改地址：拖动灯具色块即可修改起始地址，表格与网格双向高亮
+- 重复 Fixture ID 与同域地址重叠均会醒目标红
 - 支持撤销：Ctrl+Z 回退
 
-#### MVR 导入
+#### MVR 导入与导出
 
 **从 MVR 标准导入舞台：**
 - 支持 MVR 1.0 – 1.6 版本
@@ -1210,23 +1320,49 @@ SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率
 - 批量生成 Actor 到场景（保留位置/旋转/编号）
 - 无法匹配的灯具类型给出警告提示
 
-#### SuperData 同步
+**导出 SuperStage 场景为 MVR：**
+- 扫描当前关卡中已选灯具类型
+- 导出灯具三维位置、朝向、Fixture ID、Universe、起始地址
+- 将灯具绑定的 GDTF 灯库一并打包到 `.mvr`
+- 输出文件可导入 Vectorworks、Depence、grandMA onPC、Capture 等支持 MVR 的软件
 
-**多端数据同步（v2.0 协议）：**
-- 连接 SuperDataServer（TCP 5966）
-- 从其他客户端导入灯具数据
-- 坐标转换自动处理（不同软件坐标系自动适配）
-- 实时显示在线客户端列表
-- 支持双向同步：SuperStage ↔ Vectorworks / MA / Unity
+#### grandMA 连接与配接导入
+
+**26H2.0 新流程：**
+- 在 DMX 工具中直接打开 grandMA 连接面板
+- 支持 grandMA2 / grandMA3 两个独立标签页
+- 直接连接控台或 onPC，将 SuperStage 场景灯具导入控台 Patch
+- 不再需要 SuperData 服务器
+- 不再需要在 MA 控台或 onPC 中安装 MA 插件
+- 不再需要手动准备、替换或维护灯库文件
+- 每种灯具类型只处理一次，批量项目导入更快
+- 支持基于缓存的后续同步，新增或变更灯具可增量写入
+
+**灯库资源：**
+- 插件目录内置 grandMA2 灯库
+- 插件目录内置 GDTF 灯库
+- 导入流程优先使用随插件提供并已绑定的灯库资源，迁移项目和交付客户电脑更稳定
 
 #### DMX → MA 导出
 
-**导出配置到物理控台：**
+**文件式导出配置到物理控台：**
 - 扫描场景所有灯具，收集 Patch 信息
 - **grandMA2 格式**：生成 XML 导入文件
 - **grandMA3 格式**：生成 Lua 宏脚本
 - 支持批量导出整个场景
-- 导出后可直接导入对应版本的 GrandMA 控台
+- 导出后可直接导入对应版本的 grandMA 控台
+- 适用于无法直连控台、需要离线交付文件或客户现场网络受限的项目
+
+#### 右键绑定模型到屏幕/灯带
+
+**快速绑定显示载体：**
+- 在关卡视口或大纲中选中一个或多个 StaticMeshActor
+- 右键菜单 → SuperStage → Bind To SuperScreen / Bind To LightStripEffect
+- 二级菜单自动列出场景内所有候选目标 Actor
+- 支持 Add To ALL，一次性绑定到所有目标
+- 采用追加 + 去重模式，保留既有手动绑定项
+- 全程支持 Undo / Redo
+- 当选中对象不含静态网格体或场景内无候选目标时，菜单项自动隐藏
 
 #### 图集生成器
 
@@ -1276,7 +1412,7 @@ SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率
 | **Ultra** | 全部付费模块 + 免费模块 |
 | **Team** | Ultra 全部 + SuperCustom 定制开发 |
 
-- 免费模块（SuperConsole / SuperShader / SuperData）始终可用，无需订阅
+- 免费模块（SuperConsole / SuperShader / 基础数据交换工具）始终可用，无需订阅
 - 离线缓存：7 天内离线可用
 - 多设备管理：同一账号多端登录
 
@@ -1289,246 +1425,139 @@ SuperTools 提供一站式编辑器工具，大幅提升灯光设计工作效率
 **一键录制所有信号：**
 - DMX 录制源：录制 Art-Net/sACN 到 Sequencer
 - NDI 录制源：录制视频帧到 Sequencer
+- Madrix 录制源：录制麦爵士主输出到 Sequencer
 - Laser 录制源：录制 Beyond 激光到 Sequencer
 - DroneLink 录制源：录制无人机轨迹到 Sequencer
 
-## 5. SuperData - 跨平台数据同步
+## 5. 数据交换与控台配接
 
-SuperData 是一个独立产品，但与 SuperStage 插件紧密集成。它实现了 **舞台灯具数据在不同软件之间的实时同步**，让灯光设计师可以在不同工具之间无缝协作。
+26H2.0 将数据交换重心从“额外服务器同步”前移到 **DMX 工具内的一站式交付**：MVR 负责与舞台设计/预演软件交换空间与灯库数据，grandMA 连接面板负责把 SuperStage 场景灯具直接写入控台 Patch。
 
 ### 5.1 产品概述
 
-**打破软件壁垒。** 舞台设计往往需要多个软件协同工作：
-- **Vectorworks Spotlight** - 灯光布局设计
-- **GrandMA2/MA3** - 灯光控台编程
-- **Unreal Engine** - 3D 可视化预演
-- **Unity** - 实时渲染
+**场景即配接，配接即可交付。** SuperStage 当前关卡中的灯具位置、朝向、Fixture ID、Universe、起始地址和灯库绑定，都是可导出的正式生产数据。
 
-传统工作流中，设计师需要在每个软件中重复输入灯具位置、DMX 地址等数据。SuperData 让这一切自动化——**在一处修改，处处同步**。
+| 目标 | 推荐方式 | 说明 |
+|------|---------|------|
+| **交给 Vectorworks / Depence / Capture / grandMA onPC** | MVR 导出 | 输出标准 `.mvr`，灯具空间信息、配接和 GDTF 灯库随包交付 |
+| **从外部 MVR 搭建 UE 场景** | MVR 导入 | 解析 GeneralSceneDescription，按型号生成 SuperStage 灯具 Actor |
+| **把 UE 场景导入 grandMA2 / grandMA3** | grandMA 连接面板 | 直接连接控台或 onPC，自动携带灯库，支持后续增量同步 |
+| **无法直连控台的现场** | DMX → MA 文件导出 | 生成 grandMA2 XML 或 grandMA3 Lua 宏脚本，离线交付 |
+| **旧项目兼容** | SuperData 历史兼容 | 仅建议用于旧流程迁移，不再作为 grandMA 配接主流程 |
 
-### 5.2 工作原理
+### 5.2 MVR 导入与导出
 
-#### 群聊架构
+MVR（My Virtual Rig）是灯光行业用于交换舞台设备、灯具模型、位置与配接数据的标准格式。SuperStage 既能导入 MVR 搭建 UE 场景，也能把当前场景导出为 MVR 供外部软件复用。
 
-SuperData 采用 **"群聊"架构**：
+**MVR 导出内容：**
+- 场景内所有已选灯具的三维位置与朝向
+- 每盏灯的 Universe、起始地址、Fixture ID
+- 每种灯具绑定的 GDTF 灯库文件
+- `GeneralSceneDescription.xml` 与 GDTF 资源打包在同一个 `.mvr` 文件中
 
-1. **中央服务器 (SuperDataServer.exe)**
-   - 运行在本地（127.0.0.1:5966）
-   - 管理所有客户端连接
-   - 转发灯具数据
-   - 自动启动（首次连接时由客户端唤起）
+**MVR 导出流程：**
+1. 打开 DMX 工具 → 切换到 **MVR 导出** 标签页
+2. 勾选需要导出的灯具类型
+3. 点击 **Export MVR**，选择保存路径
+4. 将 `.mvr` 交给 Vectorworks、Depence、grandMA onPC、Capture 等软件导入
 
-2. **客户端**
-   - 各软件的 SuperData 插件
-   - 连接到中央服务器
-   - 发送/接收灯具数据
+**MVR 导入能力：**
+- 支持 MVR 1.0-1.6
+- 支持 `.mvr` / `.zip` / 直接 XML
+- 解析灯具位置、旋转、Fixture ID、地址与型号
+- 自动匹配 SuperStage 灯具资产，无法匹配时给出警告
+- 按外部文件批量生成关卡灯具，保留空间和配接数据
 
-3. **数据流**
-   ```
-   Vectorworks ←→ SuperDataServer ←→ Unreal Engine
-                        ↑
-                        ↓
-                   GrandMA2
-   ```
+### 5.3 grandMA2 / grandMA3 直接配接导入
 
-#### 同步数据内容
+26H2.0 起，grandMA 配接交付不再依赖 SuperData 服务器，也不再要求在 MA 控台或 onPC 中额外安装插件。用户可在 DMX 工具中直接连接 grandMA2 / grandMA3，将 SuperStage 场景中的灯具与灯库导入控台。
 
-每个灯具包含以下同步字段：
+**核心优势：**
+- 无需安装 `SuperDataServer.exe`
+- 无需复制 `SuperData.lua` 到 MA 插件目录
+- 无需手动准备或替换灯库文件
+- 每种灯具类型只处理一次，大批量灯具导入更省心
+- 支持根据当前关卡缓存继续同步新增或变更灯具
+- 插件目录内置 grandMA2 灯库与 GDTF 灯库，迁移项目和客户交付更稳定
 
-| 字段 | 说明 |
-|------|------|
-| uuid | 唯一标识符（跨平台追踪同一盏灯） |
-| name | 显示名称 |
-| fixtureType | 灯具型号（如 "Martin MAC Aura"） |
-| universe | DMX Universe (1-256) |
-| startAddress | DMX 起始地址 (1-512) |
-| fixtureID | 灯具编号 |
-| position | 位置坐标 (X, Y, Z) - 厘米 |
-| rotation | 旋转角度 (Pitch, Yaw, Roll) - 度 |
-| scale | 缩放 |
-| channelSpan | DMX 通道数 |
+**导入内容：**
 
-#### 坐标系转换
+| 数据 | grandMA2 | grandMA3 |
+|------|:--------:|:--------:|
+| Fixture ID | ✓ | ✓ |
+| Universe / Address | ✓ | ✓ |
+| 灯具型号分组 | ✓ | ✓ |
+| grandMA2 XML 灯库 | ✓ | — |
+| GDTF 灯库 | — | ✓ |
+| 后续增量同步 | ✓ | ✓ |
 
-不同软件使用不同坐标系，SuperData 自动处理转换：
+**推荐流程：**
+1. 在 SuperStage 中完成灯具摆放、地址规划和 Fixture ID 编排
+2. 打开 DMX 工具 → **grandMA 连接**
+3. 选择 grandMA2 或 grandMA3 标签页
+4. 连接目标控台 / onPC
+5. 预览将写入的灯具类型与变更列表
+6. 点击导入/同步，完成控台 Patch 与灯库写入
 
-| 软件 | 坐标系 | 单位 |
-|------|--------|------|
-| Vectorworks | 右手 Z-up | mm |
-| Unreal Engine | 左手 Z-up | cm |
-| Unity | 左手 Y-up | m |
-| Standard (传输) | 右手 Z-up | cm |
+### 5.4 DMX → MA 文件导出
 
-### 5.3 支持的平台
+当现场网络无法直连控台，或需要提前把配接数据交给外部灯光团队时，可继续使用文件式 DMX → MA 导出。
 
-#### Unreal Engine (SuperStage 插件内置)
+| 导出格式 | 用途 |
+|----------|------|
+| **grandMA2 XML** | 交给 grandMA2 / MA2 onPC 导入 |
+| **grandMA3 Lua 宏脚本** | 交给 grandMA3 / MA3 onPC 执行 |
 
-**SuperData Sync 面板：**
-- 编辑器菜单 → SuperStage → SuperData Sync
-- 一键连接到 SuperData 网络
-- 显示所有在线客户端（Unity/VW/MA 等）
-- 选择源客户端 → Fetch Data → 导入灯具
-- 类型映射：将源灯具型号匹配到本地 SuperStage 资产
-- 坐标自动转换
+**适用场景：**
+- 客户现场网络受限，不允许 UE 主机直接连控台
+- 需要提前发送 Patch 文件给灯光团队审核
+- 控台软件版本或权限限制导致直连同步不可用
+- 需要归档一次性离线交付文件
 
-**导入功能：**
-- 自动创建灯具 Actor
-- 自动配置 DMX 地址
-- 自动设置位置/旋转
-- 支持增量同步（只更新变化的灯具）
+### 5.5 SuperData 历史兼容
 
-#### Vectorworks Spotlight
+SuperData 作为旧版跨平台数据同步方案，在 26H2.0 中不再作为 grandMA 配接导入的推荐路径。新的 grandMA 连接面板已经覆盖 MA2 / MA3 配接交付，并取消了服务器、MA 插件和手动灯库维护。
 
-**SuperStageForVw 插件：**
-- Python 实现
-- 读取 Vectorworks 中的 Lighting Device 数据
-- 提取位置（3D）、旋转、DMX 地址、灯具型号
-- 发送到 SuperData 网络
-- 支持双向同步
+**保留说明：**
+- 旧项目中已经依赖 SuperData 的数据，可作为迁移参考继续读取
+- grandMA 新项目请使用 **grandMA 连接面板**
+- Vectorworks / Capture / Depence 等标准交换请优先使用 **MVR 导入/导出**
+- TCP 5966 仅作为历史兼容端口说明，不建议新项目围绕它设计流程
 
-**操作流程：**
-1. 在 Vectorworks 中完成灯位图设计
-2. 运行 SuperStageForVw
-3. 插件自动扫描所有 Lighting Device
-4. 发送灯具列表到 SuperData 服务器
-5. Unreal Engine 端接收并生成灯具
+### 5.6 典型工作流
 
-#### GrandMA2
+#### 场景 1：SuperStage → MVR → Vectorworks / Depence / Capture
 
-**SuperData.lua 插件：**
-- Lua 实现
-- 读取 Fixture Layer 中的灯具信息
-- 提取 Channel、Patch Address、Fixture Type
-- 发送到 SuperData 网络
+1. 在 SuperStage 中完成灯具布置与 DMX 地址规划
+2. 打开 DMX 工具 → MVR 导出
+3. 勾选需要交付的灯具类型
+4. 导出 `.mvr`
+5. 外部软件导入后自动获得灯具型号、空间位置、Fixture ID 和配接数据
 
-**操作流程：**
-1. 在 MA2 中完成 Patch
-2. 运行 `Plugin 1`（SuperData）
-3. 插件扫描 Fixture Layer
-4. 发送灯具列表到 SuperData 服务器
-5. 其他客户端接收灯具数据
+#### 场景 2：SuperStage → grandMA3 onPC
 
-**典型应用场景：**
-- 从 MA2 导入灯具配置到 UE5
-- 控台 Patch 变更自动同步到可视化
+1. 在 SuperStage 中完成灯具配接
+2. 打开 DMX 工具 → grandMA 连接 → grandMA3
+3. 连接目标 MA3 onPC
+4. 预览灯具类型和变更列表
+5. 同步灯库、Fixture ID、Universe 与地址
+6. 后续新增灯具时再次打开面板执行增量同步
 
-#### Unity (SuperStageForUnity 插件)
+#### 场景 3：外部 MVR → SuperStage 预演
 
-**SuperData 数据共享工具：**
-- 菜单 SuperStage → 工具 → SuperData 数据共享
-- 双模式界面：导入（Import）/ 导出（Export）
-- 连接状态实时显示
-- 在线客户端列表（显示平台图标）
+1. 从 Vectorworks、Depence 或客户资料中获取 `.mvr`
+2. 打开 DMX 工具 → MVR 导入
+3. 检查灯具型号匹配结果
+4. 导入生成 SuperStage 灯具 Actor
+5. 在 UE 中进行渲染预演、控台联调或离线输出
 
-**导入功能：**
-- 选择源客户端（VW/UE/MA）
-- Fetch Data 获取灯具列表
-- 按灯具类型分组显示
-- 类型映射：源型号 → 本地 Prefab
-- 批量勾选/取消
-- 一键导入生成 GameObject
-- 自动配置 DMX 地址和位置
+#### 场景 4：无直连条件的离线控台交付
 
-**导出功能：**
-- 扫描场景中的 SuperDMX 灯具
-- 自动提取位置/旋转/DMX 配置
-- 发送到 SuperData 网络
-- 其他客户端可接收
-
-**技术实现：**
-- `SuperDataService` - 单例服务管理器
-- `SuperDataClient` - TCP 客户端（线程安全）
-- `SuperDataTypes` - 协议数据类型
-- 完整实现 SuperData Protocol v2.0
-
-### 5.4 协议规范
-
-**SuperData Protocol v2.0**
-
-| 参数 | 值 |
-|------|-----|
-| 协议版本 | 2.0.0 |
-| 端口 | TCP 5966 |
-| 魔数 | "SPDT" |
-| 包头大小 | 24 字节 |
-| 负载格式 | JSON (UTF-8) |
-
-**数据包类型：**
-
-| 类型码 | 名称 | 说明 |
-|--------|------|------|
-| 0x0010 | Connect | 客户端连接请求 |
-| 0x0011 | ConnectAck | 服务器响应（含其他客户端列表） |
-| 0x0012 | Disconnect | 断开连接 |
-| 0x0013 | Heartbeat | 心跳（3 秒间隔） |
-| 0x0014 | ClientJoined | 新客户端加入通知 |
-| 0x0015 | ClientLeft | 客户端离开通知 |
-| 0x0020 | FixtureListRequest | 请求灯具列表 |
-| 0x0021 | FixtureListResponse | 灯具列表响应 |
-| 0x0022 | FixtureUpdate | 灯具增量更新 |
-| 0x0023 | FixtureFullSync | 灯具全量同步 |
-| 0x0024 | FixtureDelete | 删除灯具 |
-
-### 5.5 典型工作流
-
-#### 场景 1：从 Vectorworks 导入到 UE5
-
-1. **VW 设计师**：在 Vectorworks Spotlight 中完成灯位图
-2. **VW 设计师**：运行 SuperStageForVw 插件
-3. **VW 设计师**：点击 "Sync" 发送灯具数据
-4. **UE 可视化师**：打开 SuperData Sync 面板
-5. **UE 可视化师**：看到 Vectorworks 客户端在线
-6. **UE 可视化师**：点击 "Fetch Data" 获取灯具
-7. **UE 可视化师**：配置类型映射（VW 型号 → SuperStage 资产）
-8. **UE 可视化师**：点击 "Import" 生成灯具
-
-#### 场景 2：从 MA2 导入 Patch
-
-1. **灯光师**：在 GrandMA2 中完成 Patch 配置
-2. **灯光师**：运行 SuperData 插件
-3. **灯光师**：插件自动上传灯具数据
-4. **UE 可视化师**：接收并导入灯具
-5. **结果**：UE 中的灯具自动具有正确的 DMX 地址
-
-#### 场景 3：实时协作
-
-多个软件同时连接到 SuperData：
-- VW 设计师修改灯位 → 自动同步到 UE5
-- UE 可视化师预演效果 → 反馈给设计师
-- MA 灯光师调整 Patch → 所有端口自动更新
-
-### 5.6 安装与配置
-
-#### 中央服务器
-
-SuperDataServer.exe 通常由客户端自动启动，无需手动配置。
-
-**手动启动（可选）：**
-```
-SuperDataServer.exe --port 5966 --verbose
-```
-
-**监控界面：**
-服务器运行时显示实时日志：
-- 客户端连接/断开
-- 数据包收发统计
-- 错误信息
-
-#### Unreal Engine
-
-已内置于 SuperStage 插件，无需额外安装。
-
-#### Vectorworks
-
-1. 将 `SuperStageForVw` 文件夹复制到 VW 插件目录
-2. 重启 Vectorworks
-3. 在菜单中找到 SuperStageForVw
-
-#### GrandMA2
-
-1. 将 `SuperData.lua` 复制到 MA2 插件目录
-2. 重启 MA2 或重新加载插件
-3. 使用 `Plugin 1` 命令运行
+1. 在 SuperStage 中完成灯具配接
+2. 使用 DMX → MA 导出 grandMA2 XML 或 grandMA3 Lua 宏
+3. 将文件交给现场灯光师
+4. 控台端离线导入或执行脚本
+5. 使用 Art-Net / sACN 回连 SuperStage 验证效果
 
 ---
 
@@ -1740,14 +1769,16 @@ LimxDroneStudio 是 LimxTeam 自研的 **专业无人机集群编排与仿真软
 
 | 核心指标 | 参数规格 | 竞品对比优势 |
 |---------|---------|-------------|
-| **DMX 处理能力** | 100+ Universe (51,200+ 通道) @ 60fps | 远超一般 UE 插件的单线程瓶颈 |
+| **DMX 处理能力** | 512 Universe (262,144 通道) @ 60fps | 覆盖大型舞台、矩阵灯墙、像素灯带和多控台联调 |
 | **DMX 精度** | 8/16/24-bit 可配置 | 24-bit 消除长焦镜头锯齿 |
 | **DMX 延迟** | < 16ms（一帧内响应） | 确定性调度 |
 | **时序抖动** | < 1ms | 工业级稳定 |
-| **通讯协议** | Art-Net 4, sACN, OSC, UDP (Beyond), MIDI, Timecode (LTC/MTC) | 全协议栈，无须第三方转换器 |
+| **通讯协议** | Art-Net 4, sACN, OSC, UDP (Beyond), MIDI, Timecode (LTC/MTC), MVR, grandMA2/3 连接, MADRIX Remote HTTP Preview | 全协议栈，无须第三方转换器 |
 | **激光同步延迟** | < 1 帧 (16.6ms @ 60fps) | 硬件级同步 |
 | **激光点云压缩** | 71.4% (28→8 字节/点) | 独家压缩算法 |
 | **NDI 录制规格** | 支持 Alpha 通道，最高 8K，同步写入 Sequencer | 独家功能，支持后期高画质重渲染 |
+| **MADRIX 录制规格** | 本机 Remote HTTP Preview 接入，同步写入 Sequencer | 灯带/矩阵灯带可脱离麦爵士离线回放 |
+| **MVR 数据交换** | 导入 MVR 1.0-1.6，导出 `.mvr` 并打包 GDTF 灯库 | 与 Vectorworks、Depence、Capture、grandMA onPC 互通 |
 | **无人机渲染** | 50,000+ 架次 @ 30fps | HISM 批量优化 |
 
 ### 7.3 灯库兼容性
@@ -1758,6 +1789,7 @@ LimxDroneStudio 是 LimxTeam 自研的 **专业无人机集群编排与仿真软
 | **MA2 Fixture Library** | 原生兼容 |
 | **MA3 Fixture Library** | 原生兼容 |
 | **自定义灯库** | 可视化编辑器创建 |
+| **MVR** | 导入/导出，支持随包携带 GDTF |
 
 ### 7.4 网络端口
 
@@ -1767,8 +1799,9 @@ LimxDroneStudio 是 LimxTeam 自研的 **专业无人机集群编排与仿真软
 | sACN | 5568 | UDP | DMX 收发（多播 239.255.x.y） |
 | Beyond | 5568 | UDP | 激光点云数据 |
 | NDI | 动态 | TCP/UDP | 视频流 |
+| MADRIX Remote Preview | 80（本机 127.0.0.1） | HTTP | 麦爵士主输出预览 BMP |
 | LDLink | 14555 | UDP | 无人机数据（LimxDroneStudio） |
-| SuperData | 5966 | TCP | 跨平台数据同步 |
+| SuperData（历史兼容） | 5966 | TCP | 旧版跨平台数据同步 |
 
 ### 7.5 数据精度规格
 
@@ -2004,6 +2037,106 @@ SuperStage 提供向导式安装程序，自动检测已安装的 Unreal Engine 
 
 ---
 
+### 9.5 5分钟：导出 MVR 给外部软件
+
+**目标**：将 SuperStage 当前场景中的灯具交付给 Vectorworks、Depence、Capture 或 grandMA onPC。
+
+**步骤：**
+
+1. **检查灯具数据**
+   - 确认灯具已设置 Fixture ID、Universe 和 StartAddress
+   - 确认灯具绑定了可用于导出的 GDTF 灯库
+
+2. **打开 MVR 导出**
+   - SuperStage 下拉菜单 → SuperDMXTool → **MVR Export**
+   - 或在 DMX 工具中切换到 **MVR 导出** 标签页
+
+3. **选择导出范围**
+   - 勾选需要导出的灯具类型
+   - 检查列表中的灯具数量、型号和地址信息
+
+4. **导出文件**
+   - 点击 **Export MVR**
+   - 选择保存路径，输出 `.mvr`
+   - 将该文件交给外部软件导入
+
+---
+
+### 9.6 10分钟：连接 grandMA 并导入配接
+
+**目标**：直接把 SuperStage 场景灯具和灯库导入 grandMA2 / grandMA3。
+
+**步骤：**
+
+1. **准备控台**
+   - 确保 grandMA 控台或 onPC 与 UE 主机网络可达
+   - 打开目标 show file
+
+2. **打开 grandMA 连接面板**
+   - SuperStage 下拉菜单 → SuperDMXTool → **grandMA Connection**
+   - 选择 **grandMA2** 或 **grandMA3** 标签页
+
+3. **连接与预览**
+   - 输入连接参数并连接目标控台 / onPC
+   - 点击刷新，检查将导入的灯具类型和变更列表
+
+4. **执行导入**
+   - 确认灯库、Fixture ID、Universe 和 Address 无误
+   - 点击导入/同步
+   - 在 grandMA 端检查 Patch 是否生成
+
+> 26H2.0 起该流程不需要 SuperData 服务器，也不需要在 MA 端安装额外插件。
+
+---
+
+### 9.7 10分钟：接入 MADRIX 灯带
+
+**目标**：将本机 MADRIX 主输出画面显示到 SuperStage 灯带或矩阵灯带模型上，并可录制到 Sequencer。
+
+**步骤：**
+
+1. **准备 MADRIX**
+   - 打开 MADRIX 软件
+   - 确认本机 Remote HTTP Preview 可访问
+
+2. **放置 SuperMadrix**
+   - 从 SuperBrowser 或 Content Browser 放置 **SuperMadrix** Actor
+   - 在场景中准备灯带/矩阵灯带 StaticMeshActor
+
+3. **绑定显示载体**
+   - 在 SuperMadrix 的 ScreenMeshActors 中添加一个或多个 StaticMeshActor
+   - 如使用 LightStripEffect 统一管理灯带载体，也可右键 → SuperStage → Bind To LightStripEffect
+   - 检查材质是否显示 MADRIX 主输出
+
+4. **录制回放**
+   - 打开 Take Recorder
+   - 添加 **Madrix** 录制源
+   - 开始录制并播放 MADRIX 内容
+   - 停止后在 Sequencer 中离线回放
+
+---
+
+### 9.8 5分钟：使用 Director 导播模式
+
+**目标**：让 SuperScreen 或 SuperProjector 显示场景内导播相机的实时画面。
+
+**步骤：**
+
+1. **放置导播相机**
+   - 从资产浏览器拖入 **DirectorCamera**
+   - 调整机位、CaptureResolution 和 FieldOfView
+
+2. **配置屏幕/投影**
+   - 选中 SuperScreen 或 SuperProjector
+   - 将 **SourceMode** 设置为 **Director**
+   - 在 **DirectorCamera** 属性中选择场景内的导播相机
+
+3. **启用捕获**
+   - 打开 DirectorCamera 的 EnableCapture
+   - 检查屏幕或投影画面是否随导播相机视角变化
+
+---
+
 ## 10. 常见问题与故障排除
 
 ### 10.1 安装问题
@@ -2074,7 +2207,44 @@ A：
 2. 确保网络带宽充足（千兆网络）
 3. 录制时将 Arena/Resolume 切换到前台
 
-### 10.5 性能问题
+### 10.5 MVR / grandMA 问题
+
+**Q：导出的 MVR 在外部软件中灯具型号没有正确识别**
+
+A：
+1. 检查灯具是否绑定了 GDTF 灯库
+2. 确认导出时已勾选对应灯具类型
+3. 在外部软件中确认已启用随 MVR 包携带的 GDTF
+4. 如型号仍无法匹配，检查灯具库名称是否与外部软件识别规则一致
+
+**Q：grandMA 连接导入失败**
+
+A：
+1. 确认 UE 主机与 grandMA 控台 / onPC 网络可达
+2. 确认选择了正确的 grandMA2 或 grandMA3 标签页
+3. 检查灯具 Fixture ID、Universe、Address 是否完整
+4. 检查对应灯具是否已绑定插件内置 grandMA2 或 GDTF 灯库
+5. 无法直连时，改用 DMX → MA 文件导出离线交付
+
+### 10.6 MADRIX / Director 问题
+
+**Q：MADRIX 灯带没有画面**
+
+A：
+1. 确认本机 MADRIX 正在运行
+2. 在浏览器访问 `http://127.0.0.1/RemoteCommands/GetPreviewOutput.bmp` 检查是否能看到预览 BMP
+3. 检查 SuperMadrix 的 ScreenMeshActors 是否绑定了目标模型
+4. 确认目标模型材质索引正确，亮度参数不为 0
+
+**Q：Director 模式屏幕为空**
+
+A：
+1. 确认场景中已放置 DirectorCamera
+2. 确认 SuperScreen / SuperProjector 的 SourceMode 已设为 Director
+3. 确认 DirectorCamera 属性已指向正确实例
+4. 打开 EnableCapture，并检查 CaptureResolution 是否有效
+
+### 10.7 性能问题
 
 **Q：帧率不稳定**
 
@@ -2082,7 +2252,7 @@ A：
 1. 关闭不必要的 VolumetricScattering
 2. 减少激光点云采样密度
 3. 大场景使用 LOD 分组策略
-4. 光束采样质量已由系统自动 LOD 管理，无需手动干预
+4. 默认保持 DynamicQuality 自动管理；如特定机位下光束质量被降得过低，可关闭 DynamicQuality 并将 CustomQuality 固定到 10%-100%
 
 ---
 
@@ -2095,7 +2265,7 @@ A：
 | **激光设备** | 单实例最多 4 台 Beyond 设备（DeviceID 1-4） |
 | **NDI 分辨率** | 超过 4K 分辨率可能出现丢帧 |
 | **无人机数量** | 超过 10,000 架建议降至 30fps |
-| **DMX Universe** | 最多 100+ Universe（受网络带宽限制） |
+| **DMX Universe** | 最多 512 Universe（受网络带宽与现场交换机能力影响） |
 | **操作系统** | 仅支持 Windows 10/11，暂不支持 macOS/Linux |
 | **引擎版本** | 仅支持 UE 5.6 及以上版本 |
 
@@ -2103,7 +2273,7 @@ A：
 
 | SuperStage 版本 | UE 版本 | 状态 |
 |----------------|---------|------|
-| **26Q2.5** | 5.6 / 5.7 | ✅ 当前稳定版 |
+| **26H2.0** | 5.6 / 5.7 | 当前稳定版 |
 
 ### 11.3 升级注意事项
 
@@ -2117,6 +2287,8 @@ A：
 |---------|-------|---------|
 | Beyond 激光 | linetD2_x64.dll, matrix64.dll | Pangolin Beyond 安装目录 |
 | NDI 视频 | Processing.NDI.Lib.x64.dll | NDI Tools 安装后自动包含 |
+| MADRIX 灯带 | MADRIX Remote HTTP Preview | 本机 MADRIX 软件启用 Remote 输出 |
+| MVR / grandMA 数据交换 | 插件内置 GDTF / grandMA2 灯库资源 | 随 SuperStage 安装 |
 | Art-Net/sACN | 无额外依赖 | 内置支持 |
 
 ---
@@ -2131,9 +2303,9 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 
 | 模块 | 功能描述 |
 |------|----------|
-| **SuperStage** | 舞台灯光核心——DMX 双向 Art-Net/sACN，100+ Universe，8/16/24bit 精度，专业电脑灯完整模拟 |
+| **SuperStage** | 舞台灯光核心——DMX 双向 Art-Net/sACN，512 Universe，8/16/24bit 精度，专业电脑灯完整模拟，MVR / grandMA 数据交换 |
 | **SuperLaser** | 激光编程系统——Beyond(Pangolin) UDP 接入，71.4% 点云压缩，扫描仪物理模拟 |
-| **SuperNdi** | NDI 视频接入——视频流接收/录制/回放，Alpha 通道，Sequencer 集成 |
+| **SuperNdi** | 媒体视频接入——NDI 接收/录制/回放，Director 导播输入，Alpha 通道，Sequencer 集成 |
 | **SuperDrone** | 无人机编队控制——LDLink 协议接入，HISM 万级渲染，GPS 坐标转换 |
 | **SuperCAD** | 施工图绘制——UE 内直接绘图，DXF/PDF/PNG 导出，BOM 统计 |
 | **SuperCustom** | 定制开发能力——开放集成接口，支持第三方系统对接（**Team 版专属**） |
@@ -2144,7 +2316,7 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 |------|----------|
 | **SuperConsole** | 内置专业灯光控台，CUE/Preset/Effects/Timeline，.ssshow 格式 |
 | **SuperShader** | VFX 渲染——光束/雾气/丁达尔效果，频闪波形，棱镜预设 |
-| **SuperData** | 跨平台数据同步——支持 UE/Unity/Vectorworks/GrandMA2 |
+| **基础数据交换工具** | MVR 导入/导出、grandMA 连接面板、DMX → MA 文件导出、SuperData 历史兼容 |
 
 ### 12.2 套餐体系
 
@@ -2152,7 +2324,7 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 |------|:-------:|:------:|:--------:|:-------:|
 | SuperConsole（DMX 控台） | 免费 | 免费 | 免费 | 免费 |
 | SuperShader（VFX 视效） | 免费 | 免费 | 免费 | 免费 |
-| SuperData（跨平台同步） | 免费 | 免费 | 免费 | 免费 |
+| 基础数据交换工具 | 免费 | 免费 | 免费 | 免费 |
 | SuperStage（舞台灯光核心） | ✓ | ✓ | ✓ | ✓ |
 | SuperLaser（激光系统） | ✓ | — | ✓ | ✓ |
 | SuperNdi（NDI 视频） | ✓ | — | ✓ | ✓ |
@@ -2266,4 +2438,4 @@ SuperStage 采用 **三档付费套餐 + 免费体验** 的季度订阅制定价
 
 ---
 
-*文档最后更新：2026年4月14日*
+*文档最后更新：2026年5月21日*
