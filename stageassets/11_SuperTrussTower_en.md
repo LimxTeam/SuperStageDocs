@@ -1,76 +1,41 @@
-# Super Truss Tower — User Manual
+# Super Truss Tower User Manual
 
-## 1. Overview
+## Purpose
 
-**Super Truss Tower** is a procedural vertical truss column generation tool provided by SuperStage. It simulates stage lighting towers, speaker rigging towers and other vertical structures, and supports load calculation.
+Super Truss Tower generates a vertical truss tower. The Actor calculates the bay count from tower height and standard bay height, then creates vertical chords, diagonal braces, horizontal braces, a base plate, and a top flange.
 
-### Core Features
+Use it for lighting towers, speaker rigging towers, and support towers for truss grids in visualization scenes.
 
-- **Vertical column structure** — Chords + diagonals + horizontal braces
-- **Base plate** — Ground contact plate, increasing contact area
-- **Top flange** — For connecting to truss grids or other structures
-- **Euler critical load** — Simplified stability calculation
-
-### Use Cases
-
-- Stage lighting towers
-- Speaker rigging towers
-- Vertical support for truss grids
-- Standalone signal/flag towers
-
----
-
-## 2. Main Parameters
-
-### 2.1 Dimension Parameters
+## Main Parameters
 
 | Parameter | Description |
-|------|------|
-| **TowerHeight** | Tower height (cm) |
-| **SectionType** | Section type: Box / Triangle / Flat |
-| **TrussSize** | Size: S290 / S400 / S520 |
+| --- | --- |
+| `TowerHeight` | Total tower height in centimeters. |
+| `SectionType` | Section type: Box, Triangle, or Flat. |
+| `TrussSize` | Truss size: S290, S400, or S520. |
+| `BracePattern` | Brace pattern: Warren or Cross. |
+| `TopSuspendedLoad` | Top suspended load used by the simplified statistics. |
+| `WindLoad` | Wind load input used by the simplified statistics. |
+| `bShowBasePlate` | Shows the base plate. |
+| `bShowTopFlange` | Shows the top flange. |
+| `bShowDiagonalBraces` | Shows diagonal braces. |
+| `bShowHorizontalBraces` | Shows horizontal braces. |
+| `ChordMaterial` | Material for chord members. |
+| `BraceMaterial` | Material for brace members. |
+| `PlateMaterial` | Material for the base plate and top flange. |
 
-### 2.2 Component Visibility
+## Statistics
 
-| Parameter | Description |
-|------|------|
-| **bShowBasePlates** | Show base plates |
-| **bShowTopFlange** | Show top flange |
-| **bShowDiagonals** | Show diagonal braces |
-| **bShowHorizontalBraces** | Show horizontal braces |
+The Actor updates these values from the current parameters:
 
-### 2.3 Load Parameters
+- `PartCounts`: instance counts for chords, braces, base plate, top flange, and related parts.
+- `WeightStats`: simplified estimates for self weight, suspended load, maximum point load, maximum distributed load, deflection, and reaction per upright.
+- `CurrentProfile`: profile data for the selected section and truss size.
+- `NumberOfBays`: bay count calculated from the tower height.
+- `ActualBayHeight`: actual height per bay.
 
-| Parameter | Description |
-|------|------|
-| **TopLoad** | Top load (kg) |
+## Notes
 
----
-
-## 3. ISM Components
-
-| Component | Elements |
-|------|------|
-| ChordISM | Chords (vertical main tubes) |
-| DiagonalISM | Diagonal braces |
-| HorizontalBraceISM | Horizontal braces |
-| BasePlateISM | Base plates |
-| TopFlangeISM | Top flange |
-
----
-
-## 4. Statistics
-
-- **Self-weight** — Total tower weight
-- **Euler critical load** — Simplified buckling stability calculation
-
-> ⚠️ Euler critical load is a theoretical simplified value, for reference only; cannot replace professional structural calculation.
-
----
-
-## 5. Usage Tips
-
-- When paired with Super Truss Grid, the tower top flange should align with the grid height
-- Box section provides the best stability, suitable for tall towers
-- Triangle section is suitable for lightweight short towers
-- Base plates increase ground contact area in outdoor scenarios
+- Tower height is rounded into bay count, so the actual bay height may differ slightly from the standard bay height.
+- When used with Super Truss Grid, align the tower top and grid height manually.
+- Load and deflection values are quick estimates only. They do not replace structural engineering calculations or site approval.

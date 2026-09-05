@@ -1,82 +1,42 @@
-# Super Circular Truss 圆形桁架 — 用户手册
+# Super Circular Truss 用户手册
 
-## 1. 概述
+## 功能定位
 
-**Super Circular Truss**（圆形/环形桁架）是 SuperStage 提供的程序化圆形桁架生成工具。它使用极坐标定位和分段拼接的方式，生成完整的环形桁架结构。
+Super Circular Truss 用于生成完整的圆形或双环桁架。它不是任意角度弧形桁架；当前实现按 360 度整环生成，弧段数量由 `SegmentCount` 控制。
 
-### 核心功能
+适合用于圆形灯光架、环形吊挂结构、舞台中央环架等预演场景。
 
-- **外环/内环** — 支持单环或双环结构
-- **辐射撑** — 内外环之间的径向支撑
-- **连接法兰** — 分段之间的连接件
-- **截面选择** — Box（方截面）/ Triangle（三角截面）/ Flat（平面截面）
-- **分段控制** — 通过弧度和分段数控制圆弧形状
-- **多种规格** — S290 / S400 / S520 三种规格
-
-### 适用场景
-
-- 圆形灯架（如演唱会中央灯架）
-- 圆弧形舞台天顶结构
-- 半圆/四分之一圆等弧形桁架结构
-
----
-
-## 2. 与 Super Truss Gantry 的区别
-
-| 特性 | Super Truss Gantry | Super Circular Truss |
-|------|--------------------|-----------------------|
-| 形状 | 直线段组合（门形/T形等） | 圆弧/完整圆环 |
-| 定位方式 | 笛卡尔坐标 | 极坐标（半径+角度） |
-| 双层结构 | 否 | 支持外环+内环 |
-| 辐射撑 | 否 | 支持 |
-
----
-
-## 3. 主要参数
-
-### 3.1 圆弧参数
+## 主要参数
 
 | 参数 | 说明 |
-|------|------|
-| **Radius** | 外环半径 (cm) |
-| **ArcAngle** | 弧度角度（360°=完整圆环） |
-| **SegmentCount** | 分段数量 |
-| **SectionType** | 截面类型：Box / Triangle / Flat |
-| **TrussSize** | 规格：S290 / S400 / S520 |
+| --- | --- |
+| `OuterRadius` | 外环半径，单位厘米。 |
+| `InnerRadius` | 内环半径，单位厘米。设为 0 时只生成单环。 |
+| `SegmentCount` | 圆环分段数量。数值越大，环形越细分，实例数量也越多。 |
+| `SectionType` | 截面类型，可选 Box、Triangle、Flat。 |
+| `SectionRotation` | 截面绕环向的自转角，−180 ~ 180 度，默认 0。**26H2.5 新增** |
+| `TrussSize` | 桁架规格，可选 S290、S400、S520。 |
+| `BracePattern` | 支撑样式，可选 Warren、Cross。 |
+| `SuspendedLoad` | 悬挂载荷，用于统计面板的简化估算。 |
+| `bShowInnerRing` | 显示内环。只有 `InnerRadius` 大于 0 时才有实际效果。 |
+| `bShowRadialBraces` | 显示内外环之间的径向支撑。需要启用内环。 |
+| `bShowConnectionFlanges` | 显示分段连接法兰。 |
+| `ChordMaterial` | 主弦杆材质。 |
+| `BraceMaterial` | 支撑杆材质。 |
+| `FlangeMaterial` | 法兰材质。 |
 
-### 3.2 双环参数
+## 统计信息
 
-| 参数 | 说明 |
-|------|------|
-| **bInnerRing** | 是否启用内环 |
-| **InnerRadius** | 内环半径 (cm) |
-| **bRadialBraces** | 是否显示辐射撑 |
+组件会根据当前参数更新数量和估算信息：
 
-### 3.3 构件可见性
+- `PartCounts`：主弦杆、支撑杆、法兰等实例数量。
+- `WeightStats`：自重、悬挂载荷、最大点载荷、最大均布载荷、挠度、立柱反力等简化估算。
+- `CurrentProfile`：当前截面和规格对应的桁架型材数据。
+- `OuterCircumference`：外环周长。
+- `SegmentArcLength`：每段外环弧长。
 
-| 参数 | 说明 |
-|------|------|
-| **bShowFlanges** | 显示连接法兰 |
-| **bShowDiagonals** | 显示斜撑 |
+## 使用注意
 
----
-
-## 4. ISM 组件
-
-| 组件 | 构件 |
-|------|------|
-| OuterChordISM | 外环弦杆 |
-| OuterDiagonalISM | 外环斜撑 |
-| InnerChordISM | 内环弦杆 |
-| InnerDiagonalISM | 内环斜撑 |
-| RadialBraceISM | 辐射撑 |
-| FlangeISM | 连接法兰 |
-
----
-
-## 5. 使用提示
-
-- 完整圆环设 ArcAngle=360°，半圆设 180°
-- 分段数越多越圆滑，但构件数也越多
-- 内环半径必须小于外环半径
-- 辐射撑仅在双环模式下可用
+- 需要半圆或任意弧线时，请使用 Super Curved Truss。
+- `InnerRadius` 应小于 `OuterRadius`，否则内外环会重叠或生成异常。
+- 载荷和挠度只用于快速预估，不可替代结构工程计算或现场验算。

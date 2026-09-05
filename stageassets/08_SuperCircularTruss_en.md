@@ -1,82 +1,42 @@
-# Super Circular Truss — User Manual
+# Super Circular Truss User Manual
 
-## 1. Overview
+## Purpose
 
-**Super Circular Truss** is a procedural circular truss generation tool provided by SuperStage. It uses polar coordinate positioning and segment-based assembly to generate complete ring truss structures.
+Super Circular Truss generates a complete circular truss or dual-ring truss. It is not an arbitrary arc tool; the current implementation builds a full 360-degree ring and uses `SegmentCount` to control how many segments the ring is split into.
 
-### Core Features
+Use it for circular lighting rigs, central stage rings, and round suspended structures in visualization scenes.
 
-- **Outer/inner ring** — Supports single-ring or dual-ring structure
-- **Radial braces** — Radial support between inner and outer rings
-- **Connection flanges** — Connectors between segments
-- **Section selection** — Box (square) / Triangle / Flat sections
-- **Segment control** — Controls arc shape via arc angle and segment count
-- **Multiple sizes** — S290 / S400 / S520
-
-### Use Cases
-
-- Circular lighting rigs (e.g., concert center lighting rig)
-- Arc-shaped stage ceiling structures
-- Semi-circle/quarter-circle arc truss structures
-
----
-
-## 2. Differences from Super Truss Gantry
-
-| Feature | Super Truss Gantry | Super Circular Truss |
-|------|--------------------|-----------------------|
-| Shape | Straight segment combinations (goal post/T-shape, etc.) | Arc/complete circle |
-| Positioning | Cartesian coordinates | Polar coordinates (radius + angle) |
-| Dual-layer | No | Supports outer + inner ring |
-| Radial braces | No | Supported |
-
----
-
-## 3. Main Parameters
-
-### 3.1 Arc Parameters
+## Main Parameters
 
 | Parameter | Description |
-|------|------|
-| **Radius** | Outer ring radius (cm) |
-| **ArcAngle** | Arc angle (360° = complete circle) |
-| **SegmentCount** | Number of segments |
-| **SectionType** | Section type: Box / Triangle / Flat |
-| **TrussSize** | Size: S290 / S400 / S520 |
+| --- | --- |
+| `OuterRadius` | Outer ring radius in centimeters. |
+| `InnerRadius` | Inner ring radius in centimeters. Set it to 0 for a single ring. |
+| `SegmentCount` | Number of ring segments. Higher values create more pieces. |
+| `SectionType` | Section type: Box, Triangle, or Flat. |
+| `SectionRotation` | Section rotation about the ring direction, −180 to 180 degrees, default 0. **Added in 26H2.5** |
+| `TrussSize` | Truss size: S290, S400, or S520. |
+| `BracePattern` | Brace pattern: Warren or Cross. |
+| `SuspendedLoad` | Suspended load used by the simplified statistics. |
+| `bShowInnerRing` | Shows the inner ring. This only has visible effect when `InnerRadius` is greater than 0. |
+| `bShowRadialBraces` | Shows radial braces between the inner and outer rings. Requires the inner ring. |
+| `bShowConnectionFlanges` | Shows segment connection flanges. |
+| `ChordMaterial` | Material for chord members. |
+| `BraceMaterial` | Material for brace members. |
+| `FlangeMaterial` | Material for flanges. |
 
-### 3.2 Dual-Ring Parameters
+## Statistics
 
-| Parameter | Description |
-|------|------|
-| **bInnerRing** | Enable inner ring |
-| **InnerRadius** | Inner ring radius (cm) |
-| **bRadialBraces** | Show radial braces |
+The Actor updates these values from the current parameters:
 
-### 3.3 Component Visibility
+- `PartCounts`: instance counts for chords, braces, flanges, and related parts.
+- `WeightStats`: simplified estimates for self weight, suspended load, maximum point load, maximum distributed load, deflection, and reaction per upright.
+- `CurrentProfile`: profile data for the selected section and truss size.
+- `OuterCircumference`: outer ring circumference.
+- `SegmentArcLength`: outer arc length per segment.
 
-| Parameter | Description |
-|------|------|
-| **bShowFlanges** | Show connection flanges |
-| **bShowDiagonals** | Show diagonal braces |
+## Notes
 
----
-
-## 4. ISM Components
-
-| Component | Elements |
-|------|------|
-| OuterChordISM | Outer ring chords |
-| OuterDiagonalISM | Outer ring diagonals |
-| InnerChordISM | Inner ring chords |
-| InnerDiagonalISM | Inner ring diagonals |
-| RadialBraceISM | Radial braces |
-| FlangeISM | Connection flanges |
-
----
-
-## 5. Usage Tips
-
-- Set ArcAngle=360° for complete circle, 180° for semi-circle
-- More segments = smoother but more components
-- Inner radius must be smaller than outer radius
-- Radial braces only available in dual-ring mode
+- Use Super Curved Truss when you need a half ring or a free-form arc.
+- `InnerRadius` should be smaller than `OuterRadius`.
+- Load and deflection values are quick estimates only. They do not replace structural engineering calculations or site approval.

@@ -1,429 +1,162 @@
 # 10 - Stage Machinery
 
-> **Module**: SuperStage Runtime (ASuperLiftingMachinery / ASuperRailMachinery)  
+> **Module**: SuperAssets  
 > **Target Users**: Stage designers, machinery control technicians  
-> **Prerequisites**: [03 - DMX Fixture Base](/docs/stage-core/dmx-actor-base)  
+> **Prerequisites**: [03 - DMX Fixture Base](./03_DMX_Actor_Base_en.md)  
 > **Last Updated**: 2026-04-14
 
 ---
 
 ## 1. Overview
 
-SuperStage provides two DMX-controlled stage machinery Actors for simulating the movement of stage lifts, rotating platforms, rail cars, and other mechanical equipment in virtual scenes:
+SuperStage currently provides two DMX-controlled stage machinery Actors:
 
-| Type | Class Name | Axis Count | Description |
-|------|------|---------|------|
-| **Lifting Machinery** | SuperLiftingMachinery | **6 axes** | 3-axis translation + 3-axis rotation, suitable for lift platforms, rotating stages, boom bars |
-| **Rail Machinery** | SuperRailMachinery | **7 axes** | Movement along spline curve rail + 6-axis local offset/rotation, suitable for rail cars, hanging trolley |
+| Type | Display Name | Default Library Tag | Purpose |
+|------|--------------|---------------------|---------|
+| Lifting Machinery | `SuperLiftingMachinery` | `12CH` | Controls a platform, bar, or rotating structure with XYZ translation and XYZ rotation |
+| Rail Machinery | `SuperRailMachinery` | `14CH` | Moves along a spline rail and adds local offset/rotation at the mount point |
 
-Both inherit from SuperDmxActorBase with full DMX receiving capability.
-
-### Class Inheritance Chain
-
-```
-AActor (UE5 Engine Base Class)
-  │
-  └── ASuperBaseActor ·············· SuperStage Root Class (L1)
-        │                           ├ SceneBase / ForwardArrow / UpArrow
-        │                           └ AssetMetaData
-        │
-        └── ASuperDmxActorBase ····· DMX Fixture Base Class (L2)
-              │                      ├ DMX Address / Fixture Library / Channel Reading
-              │                      └ SuperDMXTick / Address Label
-              │
-              ├── ASuperLiftingMachinery ·· Lifting Machinery (L3)
-              │     ├ 6 DOF (3 translation + 3 rotation)
-              │     ├ Boot Refresh initialization
-              │     ├ Absolute rotation / Infinite rotation mode
-              │     └ PosSpeed / RotSpeed interpolation smoothing
-              │
-              └── ASuperRailMachinery ···· Rail Machinery (L3)
-                    ├ 7 DOF (rail position + 3 offset + 3 rotation)
-                    ├ USplineComponent spline curve rail
-                    ├ RailMountPoint mount point → OffsetComponent
-                    ├ Closed loop + shortest arc interpolation
-                    └ Orientation lock to rail tangent
-```
-
-> **Design Note**: Both machineries directly inherit `ASuperDmxActorBase` rather than `ASuperLightBase`, because they don't need the Pan/Tilt rotation axis structure. They use their own multi-axis free motion system, more suitable for stage machinery control requirements.
-
-### Use Cases
-
-- **Lift Platform** — Stage floor up/down lifting (Z-axis translation)
-- **Rotating Stage** — Entire stage area horizontal rotation (Yaw infinite rotation)
-- **Boom Bar / Light Rack** — Up/down lift + forward/backward movement
-- **Mechanical Arm** — Multi-axis coordinated motion
-- **Rail Car** — Light/camera trolley moving along a preset path
-- **Hanging Trolley** — Fixture mount point moving along Truss rails
-- **Circular Rail** — Cyclic motion on a closed loop
+Both use SuperDMX fixture settings, so they need Universe, Start Address, Fixture Library, and ControlMode settings. Motion works only when the fixture library attributes match the expected names.
 
 ---
 
-# Part 1: Lifting Machinery (SuperLiftingMachinery)
+## 2. Lifting Machinery
 
-## 2. Basic Principles
+Lifting Machinery moves and rotates the Actor itself. `BeginPlay` calls **BootRefresh** once at runtime, and you can also click it manually in the editor.
 
-Lifting machinery provides **6 degrees of freedom**:
+### Main Parameters
 
-```
-3-Axis Translation               3-Axis Rotation
-┌─────────────┐               ┌─────────────┐
-│ PosX (L/R)  │               │ RotX (Pitch) │
-│ PosY (F/B)  │               │ RotY (Yaw)   │
-│ PosZ (U/D)  │               │ RotZ (Roll)  │
-└─────────────┘               └─────────────┘
-```
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| **Start** | False | When False, DMX motion is ignored |
+| **MovingRange** | (0, 0, 0) | End-position offset from the start position, in centimeters |
+| **InitialPosition** | Auto | Start position captured by BootRefresh |
+| **EndPosition** | Auto | `InitialPosition + MovingRange` |
+| **RotRange** | (360, 360, 360) | Total rotation range in absolute rotation mode |
+| **InitialRotation** | Auto | Current rotation - `RotRange * 0.5` |
+| **EndRotation** | Auto | Current rotation + `RotRange * 0.5` |
+| **PositionInterpolation** | False | Enables interpolation for position |
+| **RotationInterpolation** | False | Enables interpolation for rotation in absolute mode |
+| **PosSpeed** | 1.0 | Visible only when PositionInterpolation is enabled, range 0-10 |
+| **RotSpeed** | 1.0 | Visible only when RotationInterpolation is enabled and PolarRotation is off, range 0-10 |
+| **PolarRotation** | False | Enables continuous rotation mode |
+| **PolarRotationSpeed** | 1.0 | Visible when PolarRotation is enabled, range 0-10 |
 
-Each axis is controlled by a DMX attribute (0.0 ~ 1.0 normalized value), mapped to a preset motion range.
+### DMX Attributes
 
----
+In DMX control mode, Lifting Machinery reads these fixture library attributes as 16-bit Fine values:
 
-## 3. Property Details
+| Attribute | Controls |
+|-----------|----------|
+| `XPos` | X position |
+| `YPos` | Y position |
+| `ZPos` | Z position |
+| `XRot` | Pitch |
+| `YRot` | Yaw |
+| `ZRot` | Roll |
 
-### 3.1 Start Switch
+Position maps to `Lerp(InitialPosition, EndPosition, DMX value)`. Absolute rotation maps to `Lerp(InitialRotation, EndRotation, DMX value)`.
 
-| Parameter | Location | Description | Default |
-|------|------|------|--------|
-| **Start** | B.DefaultParameter | Machinery start switch. When set to True, begins responding to DMX signals | **False** |
+In continuous rotation mode, `XRot`/`YRot`/`ZRot` map to rotation speeds from `-PolarRotationSpeed` to `+PolarRotationSpeed` and accumulate local rotation using DeltaTime.
 
-> **Important**: After placing in the scene, you must set Start to **True** to begin movement. This is a safety design — preventing sudden machinery movement from misoperation.
+### Property Mode
 
-### 3.2 Initialization Button
-
-| Operation | Description |
-|------|------|
-| **Boot Refresh** | Click this button to auto-calculate motion range start/end points based on the current Actor position and rotation |
-
-**BootRefresh Operations**:
-1. Records current world position as **InitialPosition**
-2. Calculates **EndPosition** = InitialPosition + MovingRange
-3. Calculates **InitialRotation** = Current Rotation - RotRange × 0.5
-4. Calculates **EndRotation** = Current Rotation + RotRange × 0.5
-5. Synchronizes all cached values
-
-> **Usage Steps**: First place machinery at the correct starting position → Set MovingRange/RotRange → Click BootRefresh.
-
-### 3.3 Translation Parameters
-
-| Parameter | Editable | Description | Default | Unit |
-|------|--------|------|--------|------|
-| **MovingRange** | ✅ | X/Y/Z three-axis displacement amount (offset from InitialPosition to EndPosition) | (0, 0, 0) | cm |
-| **InitialPosition** | ❌ Read-only | Start point of translation range (BootRefresh calculated) | — | cm |
-| **EndPosition** | ❌ Read-only | End point of translation range (BootRefresh calculated) | — | cm |
-
-**Translation Mapping**:
-```
-Target Position = Lerp(InitialPosition, EndPosition, DMX Value)
-```
-- DMX Value = 0.0 → Actor at InitialPosition (starting position)
-- DMX Value = 0.5 → Actor at midpoint between InitialPosition and EndPosition
-- DMX Value = 1.0 → Actor at EndPosition (end position)
-
-**Example**: Lift platform only moves up/down
-- Place lift at lowest position
-- Set MovingRange = (0, 0, 300) (Z-axis rises 300cm = 3 meters)
-- Click BootRefresh
-- DMX PosZ = 0.0 → lowest position; DMX PosZ = 1.0 → raised 3 meters
-
-### 3.4 Rotation Parameters (Absolute Mode)
-
-The following parameters are only shown when **PolarRotation = False** (absolute rotation mode):
-
-| Parameter | Editable | Description | Default | Unit |
-|------|--------|------|--------|------|
-| **RotRange** | ✅ | Pitch/Yaw/Roll three-axis total rotation range | (360, 360, 360) | degrees |
-| **InitialRotation** | ❌ Read-only | Start angle of rotation range (BootRefresh calculated) | — | degrees |
-| **EndRotation** | ❌ Read-only | End angle of rotation range (BootRefresh calculated) | — | degrees |
-
-**Rotation Mapping**:
-```
-Target Rotation = Lerp(InitialRotation, EndRotation, DMX Value)
-```
-
-### 3.5 Speed Parameters
-
-| Parameter | Condition | Description | Range | Default |
-|------|------|------|------|--------|
-| **PosSpeed** | Always visible | Translation interpolation speed | 0.0 - 10.0 | 1.0 |
-| **RotSpeed** | PolarRotation = False | Rotation interpolation speed (absolute mode) | 0.0 - 10.0 | 1.0 |
-| **PolarRotationSpeed** | PolarRotation = True | Infinite rotation max speed | 0.0 - 10.0 | 1.0 |
-
-**Parameter Tuning Suggestions**:
-
-| Scenario | Recommended PosSpeed | Recommended RotSpeed | Description |
-|------|--------------|--------------|------|
-| Large lift platform (dignified slow) | 0.5 - 1.5 | 0.5 - 1.5 | Simulating hydraulic lift's steady motion |
-| Standard boom lift | 1.0 - 3.0 | — | Light rack up/down, medium speed |
-| Quick pop-up effect | 5.0 - 10.0 | — | Sudden pop-up visual effect (pyro/personnel) |
-| Rotating stage (slow) | — | 0.3 - 1.0 | Slow rotation display |
-| Rotating stage (quick switch) | — | 3.0 - 8.0 | Fast scene transition |
-| Mechanical arm multi-axis | 2.0 - 5.0 | 2.0 - 5.0 | Multi-axis coordinated motion |
-
-### 3.6 Infinite Rotation Mode
-
-| Parameter | Description | Default |
-|------|------|--------|
-| **PolarRotation** | Infinite rotation mode toggle | **False** |
-
-- **False (Absolute Mode)**: DMX value maps to a fixed angle range (InitialRotation ~ EndRotation)
-- **True (Infinite Mode)**: DMX value controls rotation speed; machinery can **rotate continuously without stopping**
-
-**Infinite Rotation DMX Mapping**:
-
-| DMX Value (Normalized) | Rotation Behavior |
-|-----------------|---------|
-| 0.0 | Counter-clockwise at **max speed** |
-| 0.5 | **Stop** rotation |
-| 1.0 | Clockwise at **max speed** |
-| 0.0 ~ 0.5 | Counter-clockwise, decreasing speed |
-| 0.5 ~ 1.0 | Clockwise, increasing speed |
-
-### 3.7 Control Parameters (Runtime Values)
-
-| Parameter | Description | Range | Default |
-|------|------|------|--------|
-| **PosX** | X-axis translation control | 0.0 - 1.0 | 0.5 |
-| **PosY** | Y-axis translation control | 0.0 - 1.0 | 0.5 |
-| **PosZ** | Z-axis translation control | 0.0 - 1.0 | 0.5 |
-| **RotX** | Pitch rotation control | 0.0 - 1.0 | 0.5 |
-| **RotY** | Yaw rotation control | 0.0 - 1.0 | 0.5 |
-| **RotZ** | Roll rotation control | 0.0 - 1.0 | 0.5 |
-
-### 3.8 Cache Information (Read-Only)
-
-| Parameter | Description | Unit |
-|------|------|------|
-| **CurrentPosX/Y/Z** | Current actual world position (after interpolation smoothing) | cm |
-| **CurrentRotX/Y/Z** | Current actual rotation angle (after interpolation smoothing) | degrees |
+**Drive lifting machinery in DMX mode.** Setting **ControlMode** to Property exposes the six manual controls in the **C.ControlParameter** group (PosX / PosY / PosZ, RotX / RotY / RotZ — the position three run 0~100, the rotation three −100~100), but **the current implementation does not move the device in Property mode**: the read-and-apply step returns immediately.
 
 ---
 
-## 4. Blueprint Control
+## 3. Rail Machinery
 
-### 4.1 LiftingMachinery Function
+Rail Machinery contains three components:
 
-Main control function for lifting machinery, called in the blueprint's **SuperDMXTick** event:
+| Component | Purpose |
+|-----------|---------|
+| **RailSpline** | Spline path that defines the rail shape |
+| **RailMountPoint** | Mount point that moves along the spline |
+| **OffsetComponent** | Adds local offset and rotation under the mount point; child Actors should normally attach here |
 
-| Input Parameter | Description |
-|---------|------|
-| **DmxXPos** | DMX attribute for X-axis translation |
-| **DmxYPos** | DMX attribute for Y-axis translation |
-| **DmxZPos** | DMX attribute for Z-axis translation |
-| **DmxXRot** | DMX attribute for Pitch rotation |
-| **DmxYRot** | DMX attribute for Yaw rotation |
-| **DmxZRot** | DMX attribute for Roll rotation |
+Rail Machinery also ticks in editor viewports so RailPos changes can be previewed outside Play mode.
 
-### 4.2 Typical Blueprint
+### Main Parameters
 
-```
-Event SuperDMXTick(DeltaTime)
-  │
-  └─ LiftingMachinery(PosX, PosY, PosZ, RotX, RotY, RotZ)
-```
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| **Start** | False | When False, DMX motion is ignored |
+| **LockOrientationToRail** | False | Makes RailMountPoint orientation follow the spline tangent |
+| **ClosedLoop** | False | Closes the spline rail |
+| **OffsetRange** | (0, 0, 0) | Local offset range for OffsetComponent, in centimeters |
+| **InitialOffset** | Auto | Calculated from the current OffsetComponent location by BootRefresh |
+| **EndOffset** | Auto | Calculated from OffsetRange by BootRefresh |
+| **RotRange** | (360, 360, 360) | Total rotation range in absolute mode |
+| **PositionInterpolation** | False | Enables interpolation for rail position and offset |
+| **RotationInterpolation** | False | Enables interpolation for rotation in absolute mode |
+| **RailSpeed** | 1.0 | Visible only when PositionInterpolation is enabled |
+| **OffsetSpeed** | 1.0 | Visible only when PositionInterpolation is enabled |
+| **RotSpeed** | 1.0 | Visible only when RotationInterpolation is enabled and PolarRotation is off |
+| **PolarRotation** | False | Makes OffsetComponent use continuous rotation |
+| **PolarRotationSpeed** | 1.0 | Visible when PolarRotation is enabled |
 
----
+When the rail is closed and position interpolation is enabled, the rail uses the shortest wrapped path between 0 and 1. For example, 0.9 to 0.1 crosses 1.0/0.0 instead of traveling the long way around.
 
-## 5. Usage Steps Summary (Lifting Machinery)
+### DMX Attributes
 
-1. **Place Machinery** — Drag SuperLiftingMachinery blueprint into the scene at the starting position
-2. **Set Translation Range** — MovingRange, e.g., (0, 0, 300) for Z-axis lifting 3 meters
-3. **Set Rotation Range** — RotRange (or enable PolarRotation for infinite rotation)
-4. **Set Speed** — PosSpeed / RotSpeed / PolarRotationSpeed
-5. **Click BootRefresh** — Auto-calculate start/end ranges
-6. **Configure DMX** — Set Universe, Start Address, Fixture Library
-7. **Enable** — Start = True
-8. **Control from Console** — Push corresponding channel faders
+In DMX control mode, Rail Machinery reads these fixture library attributes as 16-bit Fine values:
 
----
+| Attribute | Controls |
+|-----------|----------|
+| `Dimmer` | Rail position, equivalent to RailPos in the UI |
+| `XPos` | OffsetComponent local X offset |
+| `YPos` | OffsetComponent local Y offset |
+| `ZPos` | OffsetComponent local Z offset |
+| `XRot` | OffsetComponent Pitch |
+| `YRot` | OffsetComponent Yaw |
+| `ZRot` | OffsetComponent Roll |
 
-# Part 2: Rail Machinery (SuperRailMachinery)
-
-## 6. Basic Principles
-
-Rail machinery adds a **rail movement axis** on top of lifting machinery, totaling **7 DOF**:
-
-```
-Rail Layer (Level 1)              Offset Layer (Level 2)
-┌─────────────────┐               ┌─────────────────┐
-│ RailPos          │               │ PosX / PosY / PosZ│
-│ Move along spline │      +        │ RotX / RotY / RotZ│
-│                  │               │ In mount point local│
-└────────┬────────┘               └────────┬────────┘
-         │                                 │
-    Move along rail path               Apply local offset/rotation
-    (global motion)                    on top of rail position
-```
-
-**Component Hierarchy**:
-```
-Actor Root
-  └── RailSpline (spline curve — defines rail path)
-        └── RailMountPoint (mount point — moves along spline)
-              └── OffsetComponent (offset component — 6-axis local transform)
-                    └── Child Actor/Light/Camera (mounted here)
-```
-
-## 7. Rail Components
-
-### 7.1 RailSpline
-
-| Parameter | Description |
-|------|------|
-| **Type** | USplineComponent |
-| **Location** | A.RailComponents group |
-| **Editing Method** | Select Actor in scene viewport → Select spline component → Drag control points |
-
-### 7.2 RailMountPoint
-
-| Parameter | Description |
-|------|------|
-| **Type** | USceneComponent |
-| **Location** | A.RailComponents group |
-| **Behavior** | Automatically moves along spline curve, position determined by RailPos DMX value |
-
-### 7.3 OffsetComponent
-
-| Parameter | Description |
-|------|------|
-| **Type** | USceneComponent |
-| **Location** | A.RailComponents group |
-| **Behavior** | Performs 6-axis offset/rotation in the mount point's local coordinate system |
-
-> **Important**: Any child Actor (fixtures, cameras, etc.) that needs to follow rail motion should be **mounted to OffsetComponent**, not the Actor root component.
+> **Note**: The current implementation uses `Dimmer` as the rail-position attribute name, not `RailPos`. Configure custom fixture libraries accordingly.
 
 ---
 
-## 8. Property Details
+## 4. Workflow
 
-### 8.1 Start & Initialization
+### Lifting Machinery
 
-| Parameter | Description | Default |
-|------|------|--------|
-| **Start** | Start switch | False |
-| **Boot Refresh** | Initialize range calculation (button) | — |
+1. Place `SuperLiftingMachinery` in the level.
+2. Set MovingRange and RotRange.
+3. Click **BootRefresh**, or let runtime BeginPlay initialize it.
+4. Configure DMX address and fixture library.
+5. Set **Start** to True.
+6. Send console data for `XPos/YPos/ZPos/XRot/YRot/ZRot`.
 
-### 8.2 Rail Parameters
+### Rail Machinery
 
-| Parameter | Description | Default |
-|------|------|--------|
-| **LockOrientationToRail** | Lock orientation to rail tangent direction | False |
-| **ClosedLoop** | Whether the rail is closed (ends connected) | False |
-
-### 8.3 Offset Parameters
-
-| Parameter | Editable | Description | Default | Unit |
-|------|--------|------|--------|------|
-| **OffsetRange** | ✅ | Offset range in mount point local coordinates | (0, 0, 0) | cm |
-| **InitialOffset** | ❌ Read-only | Start value of offset range | — | cm |
-| **EndOffset** | ❌ Read-only | End value of offset range | — | cm |
-
-### 8.4 Speed Parameters
-
-| Parameter | Description | Range | Default |
-|------|------|------|--------|
-| **RailSpeed** | Rail movement interpolation speed | 0.0 - 10.0 | 1.0 |
-| **OffsetSpeed** | Offset movement interpolation speed | 0.0 - 10.0 | 1.0 |
-| **RotSpeed** | Rotation interpolation speed (absolute mode) | 0.0 - 10.0 | 1.0 |
-| **PolarRotationSpeed** | Infinite rotation speed | 0.0 - 10.0 | 1.0 |
-
-### 8.5 Control Parameters
-
-| Parameter | Description | Range | Default |
-|------|------|------|--------|
-| **RailPos** | Rail position (0=start, 1=end) | 0.0 - 1.0 | 0.0 |
-| **PosX** | X-axis local offset | 0.0 - 1.0 | 0.5 |
-| **PosY** | Y-axis local offset | 0.0 - 1.0 | 0.5 |
-| **PosZ** | Z-axis local offset | 0.0 - 1.0 | 0.5 |
-| **RotX** | Pitch rotation | 0.0 - 1.0 | 0.5 |
-| **RotY** | Yaw rotation | 0.0 - 1.0 | 0.5 |
-| **RotZ** | Roll rotation | 0.0 - 1.0 | 0.5 |
+1. Place `SuperRailMachinery` in the level.
+2. Edit RailSpline control points.
+3. Set ClosedLoop and LockOrientationToRail as needed.
+4. Attach child Actors that should follow the rail to **OffsetComponent**.
+5. Set OffsetRange and RotRange, then click **BootRefresh**.
+6. Configure DMX address and fixture library.
+7. Set **Start** to True.
+8. Send console data for `Dimmer/XPos/YPos/ZPos/XRot/YRot/ZRot`.
 
 ---
 
-## 9. Blueprint Control
+## 5. FAQ
 
-### 9.1 RailMachinery Function (7-axis full control)
+### Q: Machinery does not move.
+Check that **Start** is True, ControlMode allows DMX reading, the fixture library contains the expected attribute names, and DMX input is reaching the configured Universe/Address.
 
-| Input Parameter | Description |
-|---------|------|
-| **DmxRailPos** | DMX attribute for rail position |
-| **DmxXPos** | DMX attribute for X-axis offset |
-| **DmxYPos** | DMX attribute for Y-axis offset |
-| **DmxZPos** | DMX attribute for Z-axis offset |
-| **DmxXRot** | DMX attribute for Pitch rotation |
-| **DmxYRot** | DMX attribute for Yaw rotation |
-| **DmxZRot** | DMX attribute for Roll rotation |
+### Q: PosSpeed or RotSpeed has no effect.
+These speeds only apply when the matching **PositionInterpolation** or **RotationInterpolation** option is enabled. With interpolation off, the value jumps directly to the target.
 
-### 9.2 RailPositionOnly Function (rail position only)
+### Q: Should the rail-position channel be named RailPos?
+The current implementation reads `Dimmer` for rail position. The fixture library needs a `Dimmer` attribute for rail position to update from DMX.
 
-| Input Parameter | Description |
-|---------|------|
-| **DmxRailPos** | DMX attribute for rail position |
+### Q: Child Actor does not follow the rail.
+Attach it to **OffsetComponent**. `SuperRailMachinery` returns OffsetComponent as its default attachment component.
 
-### 9.3 Typical Blueprint
-
-```
-Event SuperDMXTick(DeltaTime)
-  │
-  └─ RailMachinery(RailPos, PosX, PosY, PosZ, RotX, RotY, RotZ)
-```
-
-Or simplified:
-
-```
-Event SuperDMXTick(DeltaTime)
-  │
-  └─ RailPositionOnly(RailPos)
-```
+### Q: RailPos previews in the editor, but Lifting Machinery does not.
+Rail Machinery implements editor viewport Tick and construction/property updates. Lifting Machinery does not currently have the same editor-preview path and mainly applies motion at runtime or during DMX Tick.
 
 ---
 
-## 10. DMX Channel Planning Suggestions
-
-### Lifting Machinery (6 axes)
-
-| Channel | Attribute | Precision | Description |
-|------|------|------|------|
-| 1-2 | PosX | 16-bit | X-axis translation |
-| 3-4 | PosY | 16-bit | Y-axis translation |
-| 5-6 | PosZ | 16-bit | Z-axis translation |
-| 7-8 | RotX | 16-bit | Pitch rotation |
-| 9-10 | RotY | 16-bit | Yaw rotation |
-| 11-12 | RotZ | 16-bit | Roll rotation |
-
-### Rail Machinery (7 axes)
-
-| Channel | Attribute | Precision | Description |
-|------|------|------|------|
-| 1-2 | RailPos | 16-bit | Rail position |
-| 3-4 | PosX | 16-bit | X offset |
-| 5-6 | PosY | 16-bit | Y offset |
-| 7-8 | PosZ | 16-bit | Z offset |
-| 9-10 | RotX | 16-bit | Pitch |
-| 11-12 | RotY | 16-bit | Yaw |
-| 13-14 | RotZ | 16-bit | Roll |
-
-> **Tip**: If not all axes are needed, define only the required attributes in the fixture library to save channels.
-
----
-
-## 11. FAQ
-
-### Q: Machinery won't move?
-1. Check if **Start** is True
-2. Check if **BootRefresh** was clicked
-3. Confirm DMX network configuration is correct
-4. Confirm corresponding attributes are defined in the fixture library
-
-### Q: Movement direction reversed?
-Adjust the positive/negative sign of the corresponding axis in MovingRange / OffsetRange. For example, changing (0, 0, 300) to (0, 0, -300) reverses the Z-axis direction.
-
-### Q: Movement jittery?
-Lower PosSpeed / RotSpeed / RailSpeed values (makes interpolation smoother), or use 16-bit precision DMX attributes.
-
-### Q: Rail machinery's child Actor not following?
-Confirm the child Actor is mounted to **OffsetComponent** rather than the Actor root component. OffsetComponent is the default attachment point returned by GetDefaultAttachComponent.
-
----
-
-> **Next Steps**: Read [11 - Laser System](/docs/stage-core/laser-system) to learn about Beyond laser visualization.
+> **Next Steps**: Read [12 - Lift Matrix](./12_Lift_Matrix_en.md).

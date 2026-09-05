@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The Batch Patch Tool (Super Patch Tool) is used to batch assign DMX addresses to multiple selected fixtures in the scene. It can automatically calculate each fixture's Universe and starting channel address, supports preview and one-click application, and includes undo functionality.
+The Batch Patch Tool (Super Patch Tool) is used to batch assign DMX addresses to multiple selected fixtures in the scene. It can automatically calculate each fixture's Universe and starting channel address, supports preview, apply, and undo.
 
 ---
 
@@ -42,7 +42,7 @@ The Batch Patch Tool (Super Patch Tool) is used to batch assign DMX addresses to
 
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
-| **Start Universe** | Universe number assigned to the first fixture | 1 - 256 | 1 |
+| **Start Universe** | Universe number assigned to the first fixture | 1 - 512 | 1 |
 | **Start Address** | Starting channel address for the first fixture in that Universe | 1 - 512 | 1 |
 | **Start Fixture ID** | Fixture ID number for the first fixture; subsequent fixtures auto-increment | 1 - 9999 | 1 |
 
@@ -65,7 +65,7 @@ The tool automatically calculates subsequent fixture addresses using the followi
 | Column | Description |
 |--------|-------------|
 | **Fixture Name** | The label name of the fixture in the scene |
-| **Model** | The Blueprint class name of the fixture |
+| **Model** | The fixture model/type name |
 | **Universe** | The assigned Universe number |
 | **Start Address** | The assigned starting channel address |
 | **Channels** | The number of channels this fixture occupies |
@@ -79,13 +79,24 @@ The fixture list is displayed in natural sort order. For example:
 
 ---
 
-## 6. Operation Buttons
+## 6. Panel Controls
 
-| Button | Function | Description |
-|--------|----------|-------------|
-| **Refresh Selection** | Re-fetch the fixtures selected in the scene | Click this button to refresh the list after changing selections |
-| **Preview** | Calculate and display address assignment preview | Does not actually modify fixtures; only shows the projected assignment results |
-| **Apply** | Write the previewed address assignments to fixtures | Actually modifies the DMX address configuration of all listed fixtures |
+The panel always acts on the fixtures **currently selected in the level**, and follows that selection — pick a different batch in the viewport or the outliner and the plan is recalculated for them. There is **no separate Preview button**: the list always shows a plan that has not been written yet, and **Apply** is what commits it.
+
+| Control | Type | What it does |
+|---------|------|--------------|
+| **Start Universe** | Field | Starting universe |
+| **Start Address** | Field | Starting address |
+| **Start Fixture ID** | Field | Starting fixture number |
+| **SelectAllDevices** | Button | Selects every fixture in the level — useful when starting from scratch |
+| **RenameID** | Checkbox | Also renames the selected fixtures so the outliner name matches the number they were just given. Untick it if you have named fixtures deliberately and want those names kept |
+| **Apply** | Button | Writes the plan to the fixtures |
+| **ClearPatch** | Button | Resets the selected fixtures to universe 1, address 1. **Fixture numbers are left alone** — the address is about to be rewritten anyway, while the number is how a console identifies the fixture and is not worth throwing away |
+| **Refresh** | Button | Re-reads both the current selection and the level, for when fixtures were added or changed elsewhere while the panel was open |
+
+After each Apply the three start values move on to the next free slot, so patching a whole rig is just **select, Apply, select, Apply** — you never have to touch the numbers in between.
+
+**Ctrl+Z undoes the whole batch.**
 
 ---
 
@@ -104,25 +115,54 @@ Open the tool panel via the main menu.
 - Set **Start Universe** (e.g., Universe 1)
 - Set **Start Address** (e.g., starting from channel 1)
 
-### Step 4: Refresh and Preview
+### Step 4: Check the Plan
 
-- Click **"Refresh Selection"** to ensure the list shows the fixtures you want to patch
-- Click **"Preview"** to see the address assignment results
+- The list already shows the plan that has not been written yet, and it updates live with the selection — nothing needs to be pressed to generate it;
+- If fixtures were added or changed elsewhere while the panel was open, press **Refresh** to re-read them;
+- Read the summary line under the toolbar — it says how many fixtures are about to be patched, and **hovering it** shows the exact range of universes, addresses and fixture numbers they would land on.
 
-### Step 5: Confirm and Apply
+> An **orange** summary line means some fixtures cannot be patched. Apply skips them and patches everything else. Hover it to see which ones and why:
+> **Span>512** — the fixture needs more channels than a single universe holds, so it cannot be patched anywhere; check that it is on the right DMX mode.
+> **Universe overflow** — the run went past the last universe; start lower, or patch fewer fixtures in one pass.
+> Check this line before pressing Apply, rather than discovering afterwards that part of the rig was left out.
 
-- Check whether each fixture's Universe and address in the preview list match expectations
-- Click **"Apply"** to write the addresses to the fixtures
+### Step 5: Apply
+
+- Press **Apply** to write the addresses to the fixtures;
+- The three start values then move on to the next free slot, so you can select the next batch and press Apply again straight away.
 
 ---
 
-## 8. Undo
+## 8. The Channel Chart
+
+The lower half of the panel lays out each universe's 512 slots as a grid (32 columns × 16 rows), with each patched fixture drawn as a coloured block over the addresses it occupies. It is the quickest way to spot a gap worth filling or a clash worth fixing.
+
+**Every universe in use is stacked vertically**, each block under a `Universe N` header row, and you scroll through them — there is no paging control.
+
+### 8.1 Patching Directly on the Chart
+
+The chart is not read-only — you can patch on it:
+
+- **Drag a fixture block** to a new slot to change its address, or drag it down onto another universe to move it there;
+- When several fixtures are selected, **dragging any one of them moves the whole selection together**, each keeping its own offset — fixtures spread across two universes stay one universe apart;
+- **A drop that would land on top of another fixture turns red and is refused.** Nothing is overwritten by accident; move to a free run and the colour comes back.
+
+### 8.2 Dragging Fixtures In from the Outliner
+
+Fixtures dragged in from the World Outliner drop onto the **first free run of channels from where you let go**, stepping over anything already patched.
+
+- Fixtures that already have a number **keep it** — only ones that have never been numbered are given one;
+- If some do not fit, a message tells you how many were left out.
+
+---
+
+## 9. Undo
 
 Apply operations support **Ctrl+Z undo**. If you find errors in the assignment, you can undo to restore the previous state.
 
 ---
 
-## 9. Notes
+## 10. Notes
 
 - Only SuperStage DMX fixtures (subclasses of SuperDmxActorBase) appear in the list
 - Regular UE lights or other types of Actors are not recognized
@@ -132,7 +172,7 @@ Apply operations support **Ctrl+Z undo**. If you find errors in the assignment, 
 
 ---
 
-## 10. FAQ
+## 11. FAQ
 
 | Issue | Solution |
 |-------|----------|

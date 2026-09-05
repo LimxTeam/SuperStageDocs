@@ -2,16 +2,16 @@
 
 ## 1. Overview
 
-**Super Scaffold** is a procedural scaffold generation tool provided by the SuperStage plugin. It can **realtime** generate scaffold systems with rectangular grid structures in the Unreal Engine editor, including complete components such as vertical posts, horizontal ledgers, diagonal braces, base plates, top deck panels, and counterweights.
+**Super Scaffold** is a procedural scaffold generation tool provided by the SuperStage plugin. It can generate scaffold systems with rectangular grid structures in the Unreal Engine editor, including components such as vertical posts, horizontal ledgers, diagonal braces, base plates, top deck panels, and counterweights.
 
-After dragging this Actor into the scene, adjust parameters in the **Details Panel** to **instantly preview** scaffold structures of different sizes and configurations. Built-in **EN 12811** (European scaffold standard) load calculation system automatically calculates self-weight, load-bearing capacity and required counterweight.
+After dragging this Actor into the scene, adjust parameters in the **Details Panel** to preview scaffold structures of different sizes and configurations. The statistics panel estimates self-weight, load, and required counterweight from built-in parameters. Results are for pre-visualization reference only.
 
 ### Use Cases
 
 - Performance stage lift/audience platform construction preview
 - Temporary grandstand planning for outdoor events
 - Lighting/sound platform construction visualization
-- Scaffold safety assessment and counterweight calculation
+- Scaffold weight and counterweight estimate reference
 
 ---
 
@@ -32,7 +32,7 @@ This group of parameters defines the overall frame layout of the scaffold.
 #### 3.1.1 Span Count X
 
 - **Meaning**: The number of **spans** in the X-axis direction (usually the stage front direction)
-- **Range**: 1 ~ 50
+- **Range**: 1 ~ 500 (slider 1 ~ 60)
 - **Default**: 3
 
 > **Note**: "Span count" refers to the number of intervals between adjacent uprights. If set to 3, there will be 4 uprights (span count + 1 = node count) in the X direction.
@@ -40,13 +40,13 @@ This group of parameters defines the overall frame layout of the scaffold.
 #### 3.1.2 Span Count Y
 
 - **Meaning**: The number of **spans** in the Y-axis direction (usually the stage depth direction)
-- **Range**: 1 ~ 50
+- **Range**: 1 ~ 500 (slider 1 ~ 60)
 - **Default**: 2
 
 #### 3.1.3 Layer Count
 
 - **Meaning**: The number of **layers** (vertical intervals of horizontal ledgers)
-- **Range**: 1 ~ 20
+- **Range**: 1 ~ 100 (slider 1 ~ 25)
 - **Default**: 3
 
 > **Note**: Each "layer" consists of a set of horizontal ledgers. If set to 3 layers, starting from the bottom base height, there will be 4 ledger levels going upward (layer count + 1 = ledger level count).
@@ -55,23 +55,23 @@ This group of parameters defines the overall frame layout of the scaffold.
 
 - **Meaning**: The **distance** between two adjacent uprights in the X direction
 - **Unit**: centimeters (cm)
-- **Range**: 50 ~ 500 cm
-- **Default**: 207 cm (Layher Allround standard bay)
+- **Range**: 30 ~ 3000 cm (slider 50 ~ 600)
+- **Default**: 207 cm (built-in reference bay)
 
-> **Design Tip**: Industry-standard scaffold commonly uses bays of 73/109/140/157/207/257/307cm (Layher Allround series).
+> **Reference**: Common scaffold products use bay sizes such as 73/109/140/157/207/257/307cm. These values are modeling references only.
 
 #### 3.1.5 Bay Size Y
 
 - **Meaning**: The **distance** between two adjacent uprights in the Y direction
 - **Unit**: centimeters (cm)
 - **Range**: 50 ~ 500 cm
-- **Default**: 207 cm (Layher Allround standard bay)
+- **Default**: 207 cm (built-in reference bay)
 
 #### 3.1.6 Layer Height
 
 - **Meaning**: The **vertical spacing** between each layer of ledgers
 - **Unit**: centimeters (cm)
-- **Range**: 50 ~ 400 cm
+- **Range**: 30 ~ 2000 cm (slider 50 ~ 500)
 - **Default**: 200 cm (2m)
 
 > **Note**: Total scaffold height = Base Height + Layer Count × Layer Height. E.g., base height 30cm, 3 layers, each 200cm → total height = 30 + 600 = 630cm.
@@ -84,32 +84,32 @@ This group of parameters defines the overall frame layout of the scaffold.
 
 - **Meaning**: The **outer diameter** of the steel tubes used for uprights and ledgers
 - **Unit**: centimeters (cm)
-- **Range**: 3 ~ 10 cm
-- **Default**: 4.83 cm (i.e., 48.3mm, EN 12811 standard tube diameter)
+- **Range**: 0.5 ~ 100 cm (slider 1 ~ 25)
+- **Default**: 4.83 cm (48.3mm built-in reference tube diameter)
 
-> **Industry Reference**: 48.3mm (Ø48.3) is the most commonly used tube diameter standard in the global scaffold industry (corresponding to BS 1139 / EN 12811 standards).
+> **Reference**: 48.3mm (Ø48.3) is a common scaffold tube diameter. The plugin only uses this value for modeling and weight estimates.
 
 #### 3.2.2 Brace Tube Diameter
 
 - **Meaning**: The **outer diameter** of diagonal brace tubes
 - **Unit**: centimeters (cm)
-- **Range**: 1 ~ 20 cm
-- **Default**: 4.83 cm (i.e., 48.3mm, Layher Allround standard)
+- **Range**: 0.5 ~ 100 cm (slider 1 ~ 25)
+- **Default**: 4.83 cm (48.3mm built-in reference value)
 
-> **Note**: The default brace tube diameter is the same as the main tube (Layher Allround standard) and can be adjusted as needed.
+> **Note**: The default brace tube diameter is the same as the main tube and can be adjusted as needed.
 
 #### 3.2.3 Base Plate Size
 
 - **Meaning**: The **diameter** of the circular base plate at the bottom of each upright
 - **Unit**: centimeters (cm)
-- **Range**: 10 ~ 40 cm
+- **Range**: 5 ~ 300 cm (slider 5 ~ 80)
 - **Default**: 15 cm
 
 #### 3.2.4 Base Height
 
 - **Meaning**: The **vertical distance** from the ground to the first layer of ledgers. Simulates scaffold base height or adjustable leg height
 - **Unit**: centimeters (cm)
-- **Range**: 0 ~ 200 cm
+- **Range**: 0 ~ 2000 cm (slider 0 ~ 300)
 - **Default**: 30 cm
 
 > **Note**: This value corresponds to the height of a scaffold adjustable base (Screw Jack). In actual construction, it is typically set to 20~40cm to accommodate uneven ground.
@@ -118,8 +118,8 @@ This group of parameters defines the overall frame layout of the scaffold.
 
 - **Meaning**: The **thickness** of the top deck panels
 - **Unit**: centimeters (cm)
-- **Range**: 1 ~ 10 cm
-- **Default**: 3.2 cm (32mm standard plywood)
+- **Range**: 0.5 ~ 50 cm (slider 1 ~ 15)
+- **Default**: 3.2 cm (built-in reference thickness)
 
 ---
 
@@ -135,9 +135,9 @@ Controls the display of diagonal brace tubes on the scaffold.
 | **Exterior Only** | Diagonal braces (X-shaped cross braces) displayed only on the **outer four faces** of the scaffold, no braces in internal bays |
 | **All Faces** | Diagonal braces displayed on **all faces**, including every face of every internal bay |
 
-> **Design Tip**:
-> - For visual display purposes only, choose **Exterior Only**, which most closely resembles the appearance of an actual scaffold
-> - Choosing **All Faces** will significantly increase the component count, suitable for displaying high-rigidity structures
+> **Usage Tip**:
+> - For visual display purposes, choose **Exterior Only** for an appearance close to common scaffold layouts
+> - Choosing **All Faces** significantly increases the component count and shows more brace members
 > - Choosing **None** gives the cleanest appearance
 
 #### 3.3.2 Show Base Plates
@@ -153,11 +153,11 @@ Controls the display of diagonal brace tubes on the scaffold.
 #### 3.3.4 Show Counterweights
 
 - **Default**: Enabled ✅
-- **Description**: Stacks concrete counterweight blocks next to each base plate. Counterweight blocks are automatically calculated according to EN 12811 standard and offset in the X direction
-- **Counterweight Specifications**: Standard concrete block 40×20×12cm, 25kg each
+- **Description**: Stacks concrete counterweight blocks next to each base plate. The block count is estimated by the built-in formula and offset in the X direction
+- **Counterweight Specifications**: Built-in concrete block size 40×20×12cm, 25kg each
 - **Stacking Method**: Vertical stacking, each block 12cm high
 
-> **Important**: The number of counterweight blocks is automatically calculated by the system (based on EN 12811 safety factor 1.5) and cannot be manually set. If the calculated result is 0 blocks, no counterweight blocks will be displayed even if this toggle is enabled.
+> **Important**: The number of counterweight blocks is estimated by the built-in formula and cannot be manually set. If the calculated result is 0 blocks, no counterweight blocks will be displayed even if this toggle is enabled. This result is for previz reference only.
 
 #### 3.3.5 Centered
 
@@ -172,24 +172,24 @@ Controls the display of diagonal brace tubes on the scaffold.
 
 #### 3.4.1 Load Class
 
-Select the **design load class** of the scaffold according to the **EN 12811-1** standard. The load class determines the maximum uniformly distributed surface load the deck panels can bear.
+Select the built-in scaffold load class. The values reference **EN 12811-1** uniformly distributed load classes and are used for statistics estimates; they are not proof of real structural capacity.
 
 | Option | Uniform Surface Load | Use Cases |
 |------|-----------|----------|
 | **Class 1** | 0.75 kN/m² (≈76 kg/m²) | Inspection only |
 | **Class 2** | 1.50 kN/m² (≈153 kg/m²) | Light work platform |
-| **Class 3** | 2.00 kN/m² (≈204 kg/m²) | Standard work platform. **Default option** |
+| **Class 3** | 2.00 kN/m² (≈204 kg/m²) | Built-in default option |
 | **Class 4** | 3.00 kN/m² (≈306 kg/m²) | Heavy storage platform |
 | **Class 5** | 4.50 kN/m² (≈459 kg/m²) | Masonry work platform |
 | **Class 6** | 6.00 kN/m² (≈612 kg/m²) | Heavy masonry platform |
 
-> **Performance Industry Recommendation**: Performance stage platforms typically choose **Class 3** or **Class 4**. Audience grandstands should be at least **Class 4**.
+> **Usage Tip**: Use **Class 3** or **Class 4** to compare stage platform or audience platform previews. Real builds must follow manufacturer data and structural review.
 
 #### 3.4.2 Additional Load
 
 - **Meaning**: **Additional load** applied to the structure beyond the self-weight (e.g., equipment, personnel, etc.)
 - **Unit**: kilograms (kg)
-- **Range**: 0 ~ unlimited
+- **Range**: 0 ~ 5,000,000 kg
 - **Default**: 0 kg
 
 > **Note**: This value participates in counterweight calculation. Counterweight requirement = (Safety Factor - 1) × (SelfWeight + Additional Load). Increasing additional load directly increases the required counterweight.
@@ -207,7 +207,7 @@ Assign separate materials for different scaffold components. Leave empty to use 
 | **Base Plate Material** | Base plates |
 | **Counterweight Material** | Counterweight blocks |
 
-> **Tip**: It is recommended to use gray/silver metal materials for steel tubes, wood grain or anti-slip materials for deck panels, and concrete materials for counterweight blocks.
+> **Tip**: Gray/silver metal, wood or anti-slip deck, and concrete-style materials are useful visual matches for these components.
 
 ---
 
@@ -231,8 +231,8 @@ Assign separate materials for different scaffold components. Leave empty to use 
 | Field | Description |
 |------|------|
 | **SelfWeight (kg)** | Total scaffold self-weight, including all steel tubes, base plates and deck panels |
-| **MaxLoadCapacity (kg)** | Maximum load-bearing capacity calculated from load class and platform area |
-| **RequiredCounterweight (kg)** | Total counterweight required by EN 12811 standard (safety factor 1.5) |
+| **MaxLoadCapacity (kg)** | Estimated load reference calculated from load class and platform area |
+| **RequiredCounterweight (kg)** | Total counterweight estimated by the built-in formula (using safety factor parameter 1.5) |
 | **CounterweightPerBase (kg)** | Counterweight allocated per base = Total counterweight ÷ Number of uprights |
 | **BlocksPerBase** | Number of counterweight blocks needed per base (rounded up, 25kg each) |
 
@@ -242,18 +242,18 @@ Assign separate materials for different scaffold components. Leave empty to use 
 
 ### 4.1 Self-Weight Calculation
 
-The system calculates scaffold self-weight based on **EN 12811** standard parameters:
+The system estimates scaffold self-weight from built-in parameters:
 
-- **Steel Tube Material**: Standard construction steel, density 7850 kg/m³ (i.e., 0.00785 g/mm³)
-- **Wall Thickness**: 3.2mm (EN 10210 standard hot-finished structural hollow sections)
+- **Steel Tube Material**: Estimated with steel density 7850 kg/m³ (i.e., 0.00785 g/mm³)
+- **Wall Thickness**: 3.2mm (fixed built-in value, referencing common hollow-section specs)
 - **Tube Cross-Sectional Area**: π × (OuterDiameter²/4 - InnerDiameter²/4), where InnerDiameter = OuterDiameter - 2×WallThickness
 - **Per Tube Weight**: Length × Cross-Sectional Area × Steel Density
-- **Base Plate**: 2.5 kg each (Layher Allround standard base)
-- **Deck Panel**: 15 kg/m² (aluminum alloy standard platform panel)
+- **Base Plate**: 2.5 kg each (built-in reference value)
+- **Deck Panel**: 15 kg/m² (built-in reference value)
 
 ### 4.2 Counterweight Calculation
 
-Counterweight calculation follows the EN 12811 standard:
+Counterweight calculation uses the built-in safety factor 1.5 and this simplified formula:
 
 ```
 Required Counterweight = (Safety Factor - 1) × (SelfWeight + Additional Load)
@@ -302,8 +302,8 @@ Counterweight is evenly distributed to each base, then rounded up at 25kg per bl
 
 1. **Parameters take effect immediately** — The scaffold model is rebuilt and previewed immediately after any parameter change
 2. **Watch performance with large structures** — With very large span counts and layer counts (e.g., exceeding 20×20×10), the total component count can reach tens of thousands; monitor editor performance
-3. **Counterweight blocks are auto-calculated** — Cannot manually specify the number of counterweight blocks, completely determined by the EN 12811 standard formula
-4. **Steel tube wall thickness is fixed** — Wall thickness is uniformly calculated at 3.2mm, cannot be manually modified (EN 10210 standard)
+3. **Counterweight blocks are estimated by the built-in formula** — The number cannot be manually specified and is not a construction or safety review result
+4. **Steel tube wall thickness is fixed** — Wall thickness is uniformly calculated at 3.2mm and cannot be manually modified
 5. **Diagonal braces are X-shaped cross** — Diagonal braces on each face are always arranged as two crossing tubes
 6. **Centering mode affects coordinates** — Enabling/disabling centered mode changes the position of the scaffold relative to the Actor origin
 

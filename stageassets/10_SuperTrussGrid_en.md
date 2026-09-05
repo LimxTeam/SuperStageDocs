@@ -1,66 +1,45 @@
-# Super Truss Grid — User Manual
+# Super Truss Grid User Manual
 
-## 1. Overview
+## Purpose
 
-**Super Truss Grid** is a procedural horizontal double-layer grid truss generation tool provided by SuperStage. It simulates large-scale lighting rigging systems — upper and lower horizontal grids connected by vertical tie rods, used for large-area lighting suspension.
+Super Truss Grid generates a horizontal truss grid. The Actor calculates the X/Y grid counts from width, depth, and spacing, then creates main chords, secondary chords, diagonal braces, and node plates.
 
-### Core Features
+Use it for large lighting grids, exhibition hall overhead structures, and stage roof matrix layouts in visualization scenes.
 
-- **Double-layer grid structure** — Upper + lower horizontal grid, vertically connected
-- **Main chords + secondary chords** — Perimeter frame (main chords) and internal grid (secondary chords)
-- **Diagonal bracing system** — Bottom diagonals + top diagonals + vertical diagonals
-- **Node plates** — Connection plates at grid intersections
-
-### Use Cases
-
-- Large performance venue ceiling lighting rigs
-- Exhibition hall lighting suspension systems
-- Large-area fixture installation platforms
-- Sports arena/auditorium ceiling lighting grids
-
----
-
-## 2. Main Parameters
-
-### 2.1 Grid Dimensions
+## Main Parameters
 
 | Parameter | Description |
-|------|------|
-| **GridSizeX** | Number of spans in X direction |
-| **GridSizeY** | Number of spans in Y direction |
-| **GridSpacing** | Grid spacing (cm) |
-| **GridDepth** | Distance between upper and lower layers (cm) |
+| --- | --- |
+| `GridWidthX` | Total grid width on X, in centimeters. |
+| `GridDepthY` | Total grid depth on Y, in centimeters. |
+| `GridSpacing` | Target grid spacing in centimeters. Actual spacing is recalculated from the final grid count. |
+| `GridHeightZ` | Height between the upper and lower layers, in centimeters. |
+| `TrussSize` | Truss size: S290, S400, or S520. |
+| `BracePattern` | Brace pattern: Warren or Cross. |
+| `DistributedLoad` | Distributed load used by the simplified statistics. |
+| `PointLoadCount` | Number of point loads. |
+| `WeightPerPoint` | Weight for each point load. |
+| `bShowDiagonalBraces` | Shows diagonal braces. |
+| `bShowNodePlates` | Shows node plates. |
+| `bCentered` | Centers the grid around the Actor origin. |
+| `ChordMaterial` | Material for chords. |
+| `BraceMaterial` | Material for braces. |
+| `PlateMaterial` | Material for node plates. |
 
-### 2.2 Section Parameters
+## Statistics
 
-| Parameter | Description |
-|------|------|
-| **MainChordDiameter** | Main chord diameter (cm) |
-| **SecondaryChordDiameter** | Secondary chord diameter (cm) |
-| **DiagonalDiameter** | Diagonal brace diameter (cm) |
+The Actor updates these values from the current parameters:
 
-### 2.3 Component Visibility
+- `GridCountX` and `GridCountY`: actual grid counts on X/Y.
+- `GridStats.MainChords`: main chord count.
+- `GridStats.SecondaryChords`: secondary chord count.
+- `GridStats.DiagonalBraces`: diagonal brace count.
+- `GridStats.NodePlates`: node plate count.
+- `GridStats.TotalInstances`: total instance count.
+- `GridStats.SelfWeight`, `TotalLoad`, and `MaxDeflection`: simplified estimate values.
 
-| Parameter | Description |
-|------|------|
-| **bShowDiagonals** | Show diagonal braces |
-| **bShowNodePlates** | Show node plates |
+## Notes
 
----
-
-## 3. ISM Components
-
-| Component | Elements |
-|------|------|
-| MainChordISM | Main chords (perimeter frame) |
-| SecondaryChordISM | Secondary chords (internal grid + Z-direction connections) |
-| DiagonalISM | Diagonal braces (bottom/top/vertical) |
-| NodePlateISM | Node plates |
-
----
-
-## 4. Usage Tips
-
-- Grid spacing is typically set to 100~200cm, depending on fixture dimensions
-- GridDepth affects structural rigidity — deeper is more stable
-- Large venues can pair with Super Truss Tower as column supports
+- The current component derives X/Y grid counts from dimensions and spacing instead of asking for direct span counts.
+- Total point load is calculated from `PointLoadCount * WeightPerPoint`.
+- Load and deflection values are quick estimates only. They do not replace structural engineering calculations or site approval.

@@ -1,79 +1,46 @@
-# Super Curved Truss 弧形桁架 — 用户手册
+# Super Curved Truss 用户手册
 
-## 1. 概述
+## 功能定位
 
-**Super Curved Truss**（弧形桁架）是 SuperStage 提供的样条驱动弧形桁架生成工具。通过 UE 样条组件（Spline Component）控制桁架路径，可实现任意自由曲线形状的桁架结构。
+Super Curved Truss 使用样条线生成弯曲桁架。选择 Actor 后可以在视口编辑样条点，桁架会沿样条路径生成。
 
-### 核心功能
+适合用于自由曲线灯架、波浪形吊挂结构、非标准路径桁架等预演场景。
 
-- **样条驱动** — 通过编辑样条控制点定义桁架路径
-- **截面垂直于切线** — 桁架截面始终自动垂直于样条切线方向
-- **截面旋转** — SectionRotation 参数控制截面绕切线轴的旋转
-- **端板** — 两端的封板/法兰
-- **多种截面** — Box / Triangle / Flat 三种截面类型
-- **多种规格** — S290 / S400 / S520
-
-### 适用场景
-
-- 自由曲线形舞台桁架
-- S 形或波浪形灯架
-- 异形顶棚结构
-- 需要沿任意路径布置的桁架系统
-
-### 与 Circular Truss 的区别
-
-| 特性 | Circular Truss | Curved Truss |
-|------|---------------|--------------|
-| 路径控制 | 固定圆弧（半径+角度） | 自由样条曲线 |
-| 形状灵活性 | 仅圆弧 | 任意曲线 |
-| 双层结构 | 支持内外环 | 否 |
-| 编辑方式 | 参数调节 | 样条控制点拖拽 |
-
----
-
-## 2. 主要参数
-
-### 2.1 桁架参数
+## 主要参数
 
 | 参数 | 说明 |
-|------|------|
-| **SectionType** | 截面类型：Box / Triangle / Flat |
-| **TrussSize** | 规格：S290 / S400 / S520 |
-| **SectionRotation** | 截面绕切线轴的旋转角度 |
+| --- | --- |
+| `SectionType` | 截面类型，可选 Box、Triangle、Flat。 |
+| `TrussSize` | 桁架规格，可选 S290、S400、S520。 |
+| `BracePattern` | 支撑样式，可选 Warren、Cross。 |
+| `SpanCountAlongSpline` | 沿样条划分的跨数。数值越大，路径分段越细。 |
+| `SectionRotation` | 截面绕样条方向的旋转角度。 |
+| `SuspendedLoad` | 悬挂载荷，用于统计面板的简化估算。 |
+| `DistributedLoad` | 均布载荷，用于统计面板的简化估算。 |
+| `bShowHorizontalBraces` | 显示水平支撑。 |
+| `bShowEndPlates` | 显示两端端板。 |
+| `ChordMaterial` | 主弦杆材质。 |
+| `BraceMaterial` | 支撑杆材质。 |
+| `EndPlateMaterial` | 端板材质。 |
 
-### 2.2 样条编辑
+## 样条编辑
 
-选中 Actor 后，在视口中可以看到样条控制点：
+- 选中 Actor 后，在视口移动样条控制点可改变桁架路径。
+- 增加控制点可以让路径更贴合复杂曲线。
+- `SectionRotation` 用于调整截面朝向，例如三角截面朝上或朝侧面。
 
-1. **拖拽控制点** — 修改桁架路径
-2. **Alt + 点击样条** — 添加新控制点
-3. **选中控制点 + Delete** — 删除控制点
-4. **调整切线手柄** — 控制曲线弧度
+## 统计信息
 
-### 2.3 构件可见性
+组件会根据当前样条和参数更新：
 
-| 参数 | 说明 |
-|------|------|
-| **bShowDiagonals** | 显示斜撑 |
-| **bShowHorizontalBraces** | 显示水平撑 |
-| **bShowEndPlates** | 显示端板 |
+- `PartCounts`：主弦杆、支撑杆、端板等实例数量。
+- `WeightStats`：自重、悬挂载荷、最大点载荷、最大均布载荷、挠度、立柱反力等简化估算。
+- `CurrentProfile`：当前截面和规格对应的桁架型材数据。
+- `BaySizeAlongSpline`：沿样条每跨长度。
+- `SplineTotalLength`：样条总长度。
 
----
+## 使用注意
 
-## 3. ISM 组件
-
-| 组件 | 构件 |
-|------|------|
-| ChordISM | 弦杆 |
-| DiagonalISM | 斜撑 |
-| HorizontalBraceISM | 水平撑 |
-| EndPlateISM | 端板 |
-
----
-
-## 4. 使用提示
-
-- 样条最少需要 2 个控制点
-- 控制点越密集，桁架越精细，但构件数也越多
-- SectionRotation 用于调整截面朝向，例如三角截面的尖角朝上或朝下
-- 弧形桁架不支持载荷计算（因路径不规则）
+- 样条至少需要两个有效点。
+- 分段越多，形状越细，但实例数量也会增加。
+- 载荷和挠度只用于快速预估，不可替代结构工程计算或现场验算。

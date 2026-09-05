@@ -1,19 +1,19 @@
 # 06 - DMX Activity Monitor
 
-> **Module**: SuperStageEditor (SDmxActivityMonitor)  
+> **Module**: SuperTools — DMX Activity Monitor  
 > **Target Users**: Lighting programmers, technical staff  
-> **Prerequisites**: [01 - DMX Network Configuration](/docs/stage-core/dmx-network)  
+> **Prerequisites**: [01 - DMX Network Configuration](./01_DMX_Network_Configuration_en.md)  
 > **Last Updated**: 2026-04-14
 
 ---
 
 ## 1. Overview
 
-The **DMX Activity Monitor** is a debugging tool that displays DMX channel values in real-time. It visually shows the current values of 512 channels in each Universe, helping you:
+The **DMX Activity Monitor** is a debugging tool for viewing SuperStage's internal DMX buffers. It shows channel value snapshots by Universe, helping you:
 
 - **Verify Network Connection** — Confirm DMX signals from the console are being received successfully
 - **Troubleshoot Address Issues** — Check if specific channel values are correct
-- **Monitor Signal Status** — Observe DMX data changes in real-time
+- **Monitor Signal Status** — Observe whether DMX data is changing
 
 ---
 
@@ -22,7 +22,7 @@ The **DMX Activity Monitor** is a debugging tool that displays DMX channel value
 The Activity Monitor is **embedded in the lower area of the DMX Configuration Panel**. Open the DMX Configuration Panel to see it.
 
 Specific steps:
-1. Click the **DMX** button in the SuperStage toolbar
+1. Click the **SuperDMX** button in the editor status bar at the bottom
 2. After the DMX Configuration Panel opens, the upper section has Input/Output settings, and **the lower section is the Activity Monitor**
 
 ---
@@ -37,9 +37,13 @@ Located at the top of the monitor, containing the following controls:
 
 | Control | Description |
 |------|------|
-| **Monitor All** checkbox | When checked, displays all active Universes (Universes with data appear automatically) |
-| **Universe** number input | When Monitor All is unchecked, specifies a single Universe number to monitor |
-| **Clear** button | Clears DMX buffer data for all Universes (resets all channel values to zero) |
+| **All Universes** checkbox | When checked, displays all Universes that contain non-zero channel values |
+| **Universe** number input | When All Universes is unchecked, specifies a single Universe number to monitor, range 1-512 |
+| **Clear** button | Clears DMX buffer data for the current monitoring scope |
+
+**The refresh rate is fixed at once every 0.1 s** and does not follow the engine frame rate — it shows a buffer snapshot, not a per-frame live value.
+
+With nothing received at all, the panel shows `No DMX data yet. Check Input Enable and source.`
 
 ### 3.2 Channel Display Area
 
@@ -59,50 +63,51 @@ Universe 1
 
 ## 4. Channel Value Display
 
-Each channel is represented by a **grayscale bar**:
+Each channel is represented by a fixed-height grayscale block and a numeric value:
 
-| Channel Value | Bar Height | Color |
+| Channel Value | Grayscale Block | Number |
 |--------|-----------|------|
-| 0 | None (blank) | — |
-| 1 - 127 | Low to medium | Dark gray to medium gray |
-| 128 - 254 | Medium to high | Medium gray to light gray |
-| 255 | Max (full) | White |
+| 0 | Black | 0 |
+| 1 - 127 | Dark gray to medium gray | Current channel value |
+| 128 - 254 | Medium gray to light gray | Current channel value |
+| 255 | White | 255 |
 
-**Bar Color Rules**:
-- Higher channel value → taller bar, brighter color
-- Channel value = 0 → no bar displayed
-- Channel value = 255 → full-height white bar
+**Display Rules**:
+- Higher channel values appear brighter
+- The block height is fixed and does not represent value
+- The numeric value below each channel shows the 0-255 value directly
 
 ---
 
 ## 5. Monitoring Modes
 
-### 5.1 Monitor All Universes (Monitor All = On)
+### 5.1 Monitor All Universes (All Universes = On)
 
-- Automatically displays all Universes with **active data**
+- Automatically displays all Universes with **non-zero channel values**
 - Each Universe occupies one row with the Universe number labeled above
 - New Universes are automatically added as they receive data
 - Suitable for quickly overviewing all DMX signal statuses
 
-### 5.2 Monitor Single Universe (Monitor All = Off)
+### 5.2 Monitor Single Universe (All Universes = Off)
 
-- Only displays the single specified Universe number
+- Only queries the specified single Universe number
 - Enter the Universe number to monitor in the **Universe** number input box
+- If the selected Universe currently contains only zeros, the panel shows the no-data hint
 - Suitable for focused debugging of a specific Universe's channels
 
 ---
 
 ## 6. Data Refresh
 
-The Activity Monitor **automatically refreshes periodically**, reading the latest channel data from the SuperDMX subsystem.
+The Activity Monitor **automatically refreshes periodically**, reading the latest channel data snapshot from the SuperDMX subsystem.
 
 | Feature | Description |
 |------|------|
-| **Refresh Rate** | Automatic (follows editor Tick) |
-| **Data Source** | USuperDMXSubsystem's DMX buffers |
-| **Latency** | Very low (typically < 1 frame) |
+| **Refresh Rate** | About once every 0.1 seconds |
+| **Data Source** | The DMX subsystem's receive buffers |
+| **Displayed Range** | 1-512 channels by default |
 
-> **Note**: The monitor displays values from SuperStage's internal buffers. If configured correctly, these values should exactly match those sent by the console.
+> **Note**: The monitor displays values from SuperStage's internal buffers after protocol input and Universe offset handling. It is useful for confirming that SuperStage is receiving values, but it does not replace console-side or packet-level network diagnostics.
 
 ---
 
@@ -110,10 +115,10 @@ The Activity Monitor **automatically refreshes periodically**, reading the lates
 
 Clicking the **Clear** button:
 
-1. Clears **all Universe** buffers in the SuperDMX subsystem
-2. Resets all channel values to zero
+1. With All Universes enabled, clears buffers for all Universes
+2. With All Universes disabled, clears only the currently selected Universe buffer
 3. Monitor display becomes blank
-4. Scene fixtures also return to default states as channel values become 0
+4. Scene fixtures reading those channels may change as the buffer values become 0
 
 **Use Cases**:
 - Clear residual data before testing
@@ -128,9 +133,9 @@ Clicking the **Clear** button:
 
 ### Quick Connection Verification
 
-1. On the console, push all channels of Universe 1 to max (Dimmer = 255)
-2. Check if Universe 1 in the monitor shows all full-height white bars
-3. If display is correct → network connection is normal
+1. On the console, raise a known channel
+2. Check whether the matching Universe and channel value changes in the monitor
+3. If it changes, SuperStage is receiving data for that channel
 
 ### Locate Channel Addresses
 
@@ -141,10 +146,10 @@ Clicking the **Clear** button:
 
 ### Check Channel Conflicts
 
-1. Set Monitor All to On
+1. Set All Universes to On
 2. Push different fixture channels on the console separately
 3. Observe if multiple fixtures' channel ranges overlap
-4. Overlap = address conflict, needs re-Patch
+4. If the same channel range is used by multiple fixtures, check whether that patch is intentional for your show
 
 ---
 
@@ -152,22 +157,22 @@ Clicking the **Clear** button:
 
 ### Q: Monitor is completely blank, nothing shows?
 1. Check if "Input" is enabled in the DMX Configuration Panel
-2. Confirm the console is sending Art-Net signals
+2. Confirm the console is sending Art-Net or sACN and that the protocol matches the input settings
 3. Confirm local IP is correctly selected
 4. Check firewall settings
 
 ### Q: Only seeing data for some Universes?
-- In Monitor All mode, only Universes with **active data** are displayed
-- If the console isn't sending data for a certain Universe, that Universe won't appear in the monitor
+- In All Universes mode, only Universes with **non-zero channel values** are displayed
+- If a Universe currently contains only zeros, it will not appear in the monitor
 
 ### Q: Data looks wrong (values don't match)?
 - Check if the Start Universe offset is correctly set
 - There may be a Universe number offset causing incorrect correspondence between displayed Universes and the console
 
 ### Q: Bars flickering?
-- This is normal, indicating the console is sending data at a certain frequency
-- DMX signals typically update at 30-44 Hz
+- The display may change when channel values are changing or the sender is refreshing continuously
+- The monitor itself refreshes about once every 0.1 seconds; the sender's actual refresh rate depends on the console, protocol, and network
 
 ---
 
-> **Next Steps**: Read [07 - Patch Tools](/docs/stage-core/patch-tools) to learn how to batch assign DMX addresses.
+> **Next Steps**: Read [07 - Patch Tools](./07_Patch_Tools_en.md) to learn how to batch assign DMX addresses.

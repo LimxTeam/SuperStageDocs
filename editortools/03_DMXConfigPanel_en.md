@@ -1,122 +1,63 @@
-# SuperStage DMX Config Panel — User Manual
+# SuperStage DMX Config Panel User Manual
 
-## 1. Overview
+## Purpose
 
-The DMX Config Panel (Super DMX Config Panel) is used to configure SuperStage's DMX signal input and output parameters. Here you can select the DMX protocol type, bind a network interface, configure the Universe range, and view DMX data activity status in real time.
+The DMX Config Panel edits SuperStage DMX input and output network settings and applies them immediately to the running DMX subsystem. The bottom of the panel embeds the DMX Activity Monitor so you can inspect Universe channel values currently in the buffer.
 
----
+## Opening The Panel
 
-## 2. Access
+Open the panel from the **SuperDMX** entry in the editor.
 
-**Access**: Editor bottom status bar → Click the **SuperDMX** button
+## Controls
 
----
+| Control | Description |
+| --- | --- |
+| Protocol | Selects the protocol. Input and output share the same protocol setting. |
+| Input Local IP | Local IP used by input. Choose `0.0.0.0` or one of the network adapter addresses found by the system. |
+| Input Enable | Enables or disables DMX input. |
+| Input Start Universe | Input start Universe. |
+| Output Local IP | Local IP used by output. Choose `0.0.0.0` or one of the network adapter addresses found by the system. |
+| Output Enable | Enables or disables DMX output. |
+| Output Start Universe | Output start Universe. |
 
-## 3. Interface Description
+## Protocol Rules
 
-The panel is divided into two main areas: **Input Configuration** and **Output Configuration**, along with a **Activity Monitor** area at the bottom.
+| Protocol | Port | Start Universe Range | Remote Address Rule |
+| --- | --- | --- | --- |
+| Art-Net | 6454 | 0-32767 | Default broadcast `255.255.255.255`. |
+| sACN (E1.31) | 5568 | 1-63999 | No fixed remote address by default. Send uses the Universe multicast address `239.255.{hi}.{lo}`. |
 
----
+When the protocol changes, the panel resets port and remote address to the protocol defaults and clamps Start Universe to the valid range.
 
-## 4. Input Configuration (DMX Input)
+## Local IP
 
-Controls how SuperStage receives external DMX signals (e.g., data sent from a lighting console).
+- `0.0.0.0` means any local address.
+- Other options come from the system network adapter list.
+- Art-Net input binds to the selected local IP.
+- sACN input binds to `0.0.0.0` in the subsystem; the selected local IP is used as the multicast interface reference.
 
-### 4.1 Protocol Selection
+## sACN Universes
 
-| Option | Description |
-|--------|-------------|
-| **Art-Net** | Receive DMX data using the Art-Net protocol (UDP-based, port 6454) |
-| **sACN (E1.31)** | Receive DMX data using the sACN protocol (UDP-based multicast) |
+This value controls how many continuous sACN multicast Universe groups are joined by default for input. The source range is 1-512. The first Universe comes from Input Start Universe.
 
-Click the dropdown to select the desired protocol type.
+## The Channel Value Grid
 
-### 4.2 Local IP Address
+Below the settings is a continuously refreshed grid showing the channel values arriving right now. It is the fastest way to answer "is anything coming in at all?" — confirm the signal before you start suspecting the fixtures.
 
-| Parameter | Description |
-|-----------|-------------|
-| **Local IP** | Select the network interface for receiving DMX data |
+| Control | Description |
+| --- | --- |
+| **All Universes** | Lists every universe that has been seen. Untick it and set a **Universe** number to watch just one |
+| **Universe** | The universe to watch on its own; requires All Universes to be unticked |
+| **Clear** | Forgets what has been received so far — useful for confirming that new data is still flowing rather than looking at a stale picture |
 
-The dropdown list automatically lists all available network interface IP addresses on the local machine. If your computer has multiple network adapters (e.g., wired and wireless), select the IP of the adapter on the same subnet as the DMX device.
+The same grid can also be opened on its own; see [DMX Activity Monitor](15_DMXActivityMonitor_en.md).
 
-> **Tip**: If you don't see the expected IP address in the list, check your network connection and reopen the panel.
+## Saving And Applying
 
-### 4.3 Starting Universe
+Any change to protocol, IP, Enable, or Start Universe is saved and applied to the running DMX subsystem immediately — there is no separate save step and no editor restart. Settings persist with the project and are still in effect the next time it is opened.
 
-| Parameter | Description | Range |
-|-----------|-------------|-------|
-| **Starting Universe** | Starting Universe number for receiving DMX data | 1 - 256 |
+## Notes
 
-SuperStage will begin monitoring from this Universe and cover all Universes with assigned fixtures.
-
----
-
-## 5. Output Configuration (DMX Output)
-
-Controls how SuperStage sends DMX signals outward (e.g., for preview or controlling physical fixtures).
-
-### 5.1 Protocol Selection
-
-Same as input configuration; supports both **Art-Net** and **sACN** protocols.
-
-### 5.2 Target IP / Multicast Address
-
-| Parameter | Description |
-|-----------|-------------|
-| **Target IP** | Target broadcast/unicast address in Art-Net mode |
-| **Multicast Address** | Multicast address in sACN mode (auto-generated by default) |
-
-- **Art-Net**: Default `255.255.255.255` (full network broadcast); can also be set to the specific IP of a fixture/node or a subnet broadcast address
-- **sACN**: Leave blank; the subsystem will automatically calculate the multicast address based on the Universe number (`239.255.{hi}.{lo}`, where hi/lo are the high/low bytes of the Universe number)
-
-### 5.3 Starting Universe
-
-| Parameter | Description | Range |
-|-----------|-------------|-------|
-| **Starting Universe** | Starting Universe number for outputting DMX data | 1 - 256 |
-
----
-
-## 6. Activity Monitor
-
-A simplified DMX activity indicator is embedded at the bottom of the panel, showing which Universe(s) are currently receiving or transmitting data.
-
----
-
-## 7. Configuration Saving
-
-- All configuration changes are **automatically saved** to project settings
-- Configuration is automatically restored when the project is reopened
-- Configuration is stored in the project's `Config` directory
-
----
-
-## 8. Typical Usage Scenarios
-
-### Scenario 1: Receiving Lighting Console Signals
-
-1. Connect the computer and lighting console to the same local network
-2. Open the DMX Config Panel
-3. Set **Input Protocol** to match the console (Art-Net or sACN)
-4. Set **Local IP** to the adapter IP on the same subnet as the console
-5. Set **Starting Universe** to the first Universe output by the console
-6. Fixtures in the scene will automatically respond to console signals
-
-### Scenario 2: Outputting SuperStage Signals to Physical Fixtures
-
-1. Ensure the computer is on the same network as the DMX nodes/fixtures
-2. Set **Output Protocol** to Art-Net
-3. Set **Target IP** to the DMX node's IP or broadcast address
-4. Set **Starting Universe** to match the physical fixtures' Universe
-
----
-
-## 9. Troubleshooting
-
-| Issue | Possible Cause | Solution |
-|-------|----------------|----------|
-| Fixtures not responding to console signals | IP addresses not on the same subnet | Check if Local IP selection is correct |
-| Fixtures not responding to console signals | Protocol mismatch | Confirm whether the console uses Art-Net or sACN |
-| Fixtures not responding to console signals | Universe mismatch | Check the Starting Universe setting |
-| IP dropdown list is empty | Network interface not ready | Check network connection, reopen the panel |
-| Signal latency | Network congestion | Use a wired network connection |
+- Input and output cannot use different protocols from this panel.
+- The panel does not provide a manual target IP text field; Art-Net and sACN remote addresses come from protocol defaults.
+- Fixture response also depends on scene fixture Universe, Start Address, DMX mode, and the external console output settings.

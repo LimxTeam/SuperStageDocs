@@ -1,116 +1,89 @@
-# SuperStage 主菜单与工具栏 用户手册
+# SuperStage 主菜单与工具栏
 
-## 1. 概述
+> 适用版本：SuperStage 26H2.6 起
 
-SuperStage 工具栏是插件的核心导航入口，位于 Unreal Engine 编辑器顶部的主工具栏中。通过工具栏上的 **SuperStage** 按钮，可以打开下拉菜单，访问所有功能模块。
+本文档说明当前 SuperStage 主插件在 Unreal Editor 中注册的用户入口。菜单内容以当前实现为准。
 
----
+## 1. 打开方式
 
-## 2. 打开方式
+启用 SuperStage 后，Unreal Editor 顶部工具栏会出现 **SuperStage** 按钮。点击该按钮会展开 SuperStage 下拉菜单。
 
-在 Unreal Engine 编辑器的主工具栏中，找到 **SuperStage** 按钮（带有插件图标），点击即可展开功能菜单。
+## 2. 顶级入口
 
----
+| 菜单项 | 功能 |
+| --- | --- |
+| PluginAuth | 打开插件认证窗口，用于登录、查看授权和离线激活相关操作。 |
+| OfflineActivation | 离线激活入口。 |
+| SuperBrowser | 打开 SuperStage 资产浏览器，用于浏览并放置灯具和舞台资产。 |
+| AssetDemo | 资产示例列表。 |
 
-## 3. SuperStage 下拉菜单结构
+## 3. SuperDMXTool 子菜单
 
-点击工具栏上的 **SuperStage** 按钮后，展开的下拉菜单包含以下项目（从上到下）：
+| 菜单项 | 功能 | 文档 |
+| --- | --- | --- |
+| PatchTool | 打开 DMX 批量配接工具。 | [07 - Patch 工具](../stagecore/07_Patch_Tools_zh.md) |
+| DMXToMa | 打开 DMX 到 grandMA 的离线导出工具。 | [07 DMXExportMA](07_DMXExportMA_zh.md) |
+| GrandMALink | 打开 grandMA2 / grandMA3 配接连接面板。 | [11 GrandMALink](../stagecore/11_GrandMA_Link_zh.md) |
+| MVR | 打开 MVR 导入和导出工具面板。 | [08 MVR 导入导出](08_MVRImport_zh.md) |
+| **GDTF Batch Import** | 一次导入一批 GDTF 包，批量生成灯具定义。**26H2.6 新增** | [GDTF 导入](../fixture/02_GdtfImport_zh.md) |
 
-### 3.1 顶级菜单项
+## 4. SuperConsole（一级菜单）
 
-| 菜单项 | 功能 | 说明 |
-|--------|------|------|
-| **PluginAuth** | 打开插件认证窗口 | 登录账户、查看订阅状态、管理许可证 |
-| **SuperBrowser** | 打开资产浏览器 | 浏览、搜索、拖放所有 SuperStage 灯具资产到场景中 |
+**26H2.6 新增**，排在 `SuperDMXTool` 下方。打开编辑器内置灯光控台。
 
-### 3.2 Modules 子菜单
+26H2.6 起 SuperConsole 是主插件的编辑器模块，不再是独立插件，也不再位于引擎的 `窗口` 菜单中。
 
-| 菜单项 | 功能 | 说明 |
-|--------|------|------|
-| **SuperCAD** | 打开 SuperCAD 施工图窗口 | 在正交视口中绘制灯光施工图 |
-| **SuperConsolePro** | 打开 SuperConsolePro 控台窗口 | DMX 灯光控台模拟器 |
+详见 [控台总览](../console/00_Console_Overview_zh.md)。
 
-### 3.3 SuperDMXTool 子菜单
+## 5. Documentation 子菜单
 
-| 菜单项 | 功能 | 说明 |
-|--------|------|------|
-| **PatchTool** | 打开批量 Patch 工具 | 为选中的灯具批量分配 DMX 地址 |
-| **PatchPreview** | 打开 Patch 预览面板 | 查看和编辑场景中所有灯具的 DMX 地址信息 |
-| **DMXToMa** | 打开 MA 导出工具 | 将灯具配置导出为 grandMA2/MA3 宏脚本和灯位图 XML |
-| **MVRImport** | 打开 MVR 导入面板 | 从 .mvr 文件导入灯具布局 |
-| **SuperDataImport** | 打开 SuperData 同步面板 | 通过局域网与其他客户端同步灯具数据 |
+| 菜单项 | 功能 |
+| --- | --- |
+| QuickStart | 打开 SuperStage 快速入门网页。 |
+| ProductDocs | 打开 SuperStage 产品文档网页。 |
+| SuperLaser | 打开激光相关文档。 |
+| ModuleManuals | 打开模块手册子菜单。 |
+| SystemReference | 打开编辑器工具、灯光组件、舞台资产和 DMX 核心系统参考链接（EditorTools / LightComponents / StageAssets / DMXCoreSystem）。 |
+| DevDocs | 打开开发/API 文档网页。普通用户通常不需要阅读。 |
+| Changelog | 打开版本更新日志网页。 |
 
-### 3.4 Documentation 文档中心子菜单
+## 6. 其他入口
 
-| 菜单项 | 层级 | 说明 |
-|--------|------|------|
-| **QuickStart** | 一级 | 打开快速入门指南网页 |
-| **ProductDocs** | 一级 | 打开完整产品文档网页 |
-| **ModuleManuals** | 子菜单 | 各模块独立手册 |
-| ├ SuperConsolePro | — | DMX 灯光控台手册 |
-| ├ SuperLaser | — | 激光系统手册 |
-| ├ SuperNDI | — | NDI 视频系统手册 |
-| ├ SuperDroneLink | — | 无人机编队手册 |
-| └ SuperCAD | — | 灯光施工图手册 |
-| **SystemReference** | 子菜单 | 系统参考文档 |
-| ├ EditorTools | — | 17 个编辑器工具参考 |
-| ├ LightComponents | — | 9 种灯光组件参考 |
-| ├ StageAssets | — | 6 种舞台资产参考 |
-| └ DMXCoreSystem | — | DMX 核心系统参考 |
-| **SuperDataProtocol** | 子菜单 | SuperData 协议文档 |
-| ├ QuickStart | — | 协议快速入门 |
-| └ ProtocolSpec | — | 协议规范 |
-| **DevDocs** | 一级 | 开发者文档（API 与架构） |
-| **Changelog** | 一级 | 版本更新日志 |
+| 菜单项 | 功能 |
+| --- | --- |
+| Social Media | 教程与社媒子菜单：Bilibili、抖音、YouTube、Instagram、Facebook。 |
+| Website | 打开官网。 |
+| ContactUs | 打开联系页面。 |
+| UserAgreement | 打开用户协议页面。 |
 
-### 3.5 底部菜单项
+## 7. 底部状态栏
 
-| 菜单项 | 功能 | 说明 |
-|--------|------|------|
-| **OnlineTutorial** | 在线教程子菜单 | 包含 Bilibili、Douyin、YouTube、Instagram 四个链接 |
-| **Website** | 打开浏览器跳转官网 | 访问 SuperStage 官方网站 (yunsio.com) |
-| **ContactUs** | 打开联系我们页面 | 访问联系方式页面 |
-| **UserAgreement** | 打开用户协议页面 | 查看用户协议条款 |
+SuperStage 会在编辑器底部状态栏注册以下按钮：
 
----
+| 按钮 | 功能 |
+| --- | --- |
+| SuperStage: 版本号 | 显示当前插件版本，点击打开官网。 |
+| SuperDMX | 打开 SuperDMX 配置面板（含 DMX 活动监看）。 |
 
-## 4. 底部状态栏按钮
+> DMX 配置面板的入口在**底部状态栏**，不在 SuperStage 下拉菜单里。
 
-编辑器底部状态栏中还注册了以下快捷按钮：
+## 8. UE Tools 主菜单
 
-| 按钮 | 功能 | 说明 |
-|------|------|------|
-| **SuperStage: {版本号}** | 打开官网 | 显示当前插件版本号，点击跳转官网 |
-| **SuperDMX** | 打开 DMX 配置面板 | 设置 DMX 协议、IP 地址、Universe 范围 |
-| **SuperNDI** | 打开 NDI 配置面板 | 管理 NDI 视频输入源的映射关系 |
-| **LDLink** | 打开无人机活动监控器 | 实时查看无人机连接状态、位置和 LED 颜色 |
+SuperStage 在 Unreal Editor 顶部 **Tools** 菜单中注册以下工具：
 
----
+| 菜单项 | 功能 |
+| --- | --- |
+| GOBO Atlas Builder | 从通道库属性中提取图案纹理并生成 GOBO 图集。 |
+| Color Atlas Builder | 从通道库属性中提取颜色并生成颜色图集纹理。 |
 
-## 5. UE 主菜单 Tools 扩展
+## 9. 面板帮助按钮
 
-以下工具注册在 Unreal Engine 编辑器顶部的 **Tools** 主菜单中（SuperStageTools 分区下）：
+**26H2.6 新增**：14 个工具面板右上角都有帮助按钮，弹出该面板的使用说明，内容已纳入本地化字典。
 
-| 菜单项 | 功能 | 说明 |
-|--------|------|------|
-| **GOBO Atlas Builder** | 打开 GOBO 图集构建工具 | 从灯库属性中提取图案纹理并生成 GOBO 图集 |
-| **Color Atlas Builder** | 打开颜色图集构建工具 | 从灯库属性中提取颜色并生成颜色图集纹理 |
+带帮助按钮的面板：资产浏览器、配接工具、DMX 配置、NDI 配置、灯具编辑器、通道库编辑器、棱镜预设编辑器、GDTF 批量导入、MVR、DMXToMa、GrandMALink、GOBO 图集生成器、颜色图集生成器、VAT 角色生成器。
 
----
+## 10. 使用提示
 
-## 6. SuperStage 编辑模式工具
-
-以下工具在切换到 **SuperStage 编辑模式** 后，通过模式工具栏访问：
-
-| 工具 | 功能 | 说明 |
-|------|------|------|
-| **灯具阵列工具** | 批量排列灯具 | 将选中的灯具按线性、网格或环形模式复制排列 |
-| **样条线分布工具** | 沿路径排列灯具 | 沿样条线路径均匀分布灯具 |
-
----
-
-## 7. 快速提示
-
-- 所有工具窗口都可以独立拖放、停靠到编辑器的任意位置
-- 大部分面板支持同时打开多个实例
-- 如果工具栏按钮未显示，请检查插件是否已启用（编辑 → 插件 → 搜索 "SuperStage"）
+- 如果工具栏没有出现，请确认 SuperStage 插件已启用并重启编辑器。
+- 如果点击菜单没有反应，请查看 Output Log 中是否有模块加载或授权相关错误。
+- 如果此前单独安装过 SuperConsole 插件，升级到 26H2.6 前请将其从项目的 `Plugins` 目录移除，避免与主插件中的同名模块冲突。

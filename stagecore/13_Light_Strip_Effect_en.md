@@ -1,325 +1,109 @@
-# 13 - LED Strip Effect (Light Strip Effect)
+# 13 - LED Strip Effect
 
-> **Module**: SuperStage Runtime (ASuperLightStripEffect)  
-> **Target Users**: Lighting designers, LED programmers  
-> **Prerequisites**: [03 - DMX Fixture Base](/docs/stage-core/dmx-actor-base)  
-> **Last Updated**: 2026-04-14
+> **Module**: SuperAssets  
+> **Target Users**: Lighting designers and stage technicians  
+> **Prerequisites**: [03 - DMX Actor Basics](03_DMX_Actor_Base_en.md)  
+> **Last Verified**: 2026-06-28
 
 ---
 
 ## 1. Overview
 
-**SuperLightStripEffect** is a DMX-controlled LED strip effect Actor. It implements multiple programmable strip effects (chase, flow, breathing, etc.) via GPU material (MI_Effect_Inst) and can **batch-apply the same material effect to multiple static meshes in the scene**.
+**SuperLightStripEffect** is a 9-channel DMX Actor for strip-style emissive material control in the **SuperAssets** module inside the SuperStage plugin.
 
-### Class Inheritance Chain
-
-```
-AActor (UE5 Engine Base Class)
-  │
-  └── ASuperBaseActor ·············· SuperStage Root Class (L1)
-        │                           ├ SceneBase / ForwardArrow / UpArrow
-        │                           └ AssetMetaData
-        │
-        └── ASuperDmxActorBase ····· DMX Fixture Base Class (L2)
-              │                      ├ DMX Address / Fixture Library / Channel Reading
-              │                      └ SuperDMXTick / Address Label
-              │
-              └── ASuperLightStripEffect · LED Strip Effect (L3) ← This document
-                    ├ TargetMeshActors[] → Batch material application
-                    ├ MI_Effect_Inst dynamic material instance
-                    ├ 9-channel DMX control (Dimmer/Strobe/Effect/Speed/Width/Direction/RGB)
-                    ├ 10 built-in GPU effects
-                    └ MaxLightIntensity / MaterialIndex
-```
-
-> **Design Note**: `ASuperLightStripEffect` inherits directly from `ASuperDmxActorBase` (not `ASuperLightBase`) because LED strips **don't need Pan/Tilt rotation axes**. Its core function is driving GPU material parameters via DMX to produce visual effects, rather than controlling physical light head movement.
-
-### Core Features
-
-- **10 Built-in Effects** — Chase, flow, breathing, gradient and other GPU material effects
-- **9-Channel DMX Control** — Dimmer, Strobe, Effect selection, Speed, Width, Direction, RGB color
-- **Multi-Target Application** — One strip Actor can simultaneously drive materials on multiple static meshes in the scene
-- **Material Sharing** — All target meshes share the same dynamic material instance (unified control, memory saving)
-- **8 Strobe Modes** — Closed, On, Linear, Pulse, RampUp, RampDown, Sine, Random
-
-### Use Cases
-
-- LED bar/strip effect control
-- Building contour lights / wall washer lights
-- Stage background LED decoration
-- Truss light strips / floor light strips
-- Any linear fixtures requiring unified material effect control
+It creates its own mesh component and can also apply one shared dynamic material instance to multiple `StaticMeshActor` targets in the level. One set of DMX channels can therefore drive brightness, strobe, color, and effect material parameters across a group of strip meshes.
 
 ---
 
-## 2. Basic Principles
+## 2. Placement And Model Binding
 
-How SuperLightStripEffect works:
+1. Place **SuperLightStripEffect** from the SuperStage asset list.
+2. To show the effect on the Actor itself, assign a static mesh to **StaticMeshEffect**.
+3. To control existing meshes in the level, add `StaticMeshActor` targets to **TargetMeshActors**.
+4. Set **MaterialIndex** to choose which material slot is replaced.
+5. Set **Universe** and **Start Address**, reserving 9 channels.
 
-```
-DMX Signal → Read 9 channel values → Update dynamic material parameters → GPU renders effects
-                                    │
-                                    ├─→ Own YStaticMeshEffect mesh
-                                    └─→ TargetMeshActors[] meshes in scene
-```
-
-**Key**: All target meshes share **the same dynamic material instance**. This means:
-- Modifying material parameters updates all targets simultaneously (unified effect)
-- Only one set of DMX channels needed to control all targets
-- For independent control of different strips, use multiple SuperLightStripEffect Actors
+The editor also provides a context-menu binding workflow. Select static mesh Actors, then use the SuperStage context menu to append them to a LightStripEffect target list. The tool removes duplicates and refreshes the material after binding.
 
 ---
 
-## 3. Property Details
+## 3. Editable Parameters
 
-### 3.1 Target Settings (A.ModelTargets)
+| Parameter | Category | Default | Range | Description |
+| --- | --- | ---: | --- | --- |
+| **TargetMeshActors** | A.ModelTargets | Empty | — | `StaticMeshActor` targets that receive the strip material. **Editable on a placed instance only**, not on class defaults |
+| **StaticMeshEffect** | A.ModelTargets | Empty | — | Static mesh used by the Actor's own mesh component |
+| **MaxLightIntensity** | B.DefaultParameter | 1.0 | 0–1000 | Written to the material parameter `MaxBrightness` |
+| **MaterialIndex** | B.DefaultParameter | 0 | 0–255 | Material slot index. The tool checks that the slot exists before assigning the material |
+| **Dimmer** | C.ControlParameter | 0.0 | 0–1 | Normalized brightness value |
+| **Strobe** | C.ControlParameter | 0.0 | 0–1 | Normalized strobe speed value |
+| **Effect** | C.ControlParameter | 0.0 | 0–1 | Written to `Effect` after mapping to 0–10 |
+| **Speed** | C.ControlParameter | **0.5** | 0–1 | Written to `Speed` after mapping to −10–10. **0.5 is stationary** |
+| **Width** | C.ControlParameter | 0.0 | 0–1 | Written to `Width` after mapping to 0–10 |
+| **Direction** | C.ControlParameter | 0.0 | 0–1 | Written to `EffectDirection` |
+| **Color** | C.ControlParameter | White | — | Written to `LightColor` |
 
-| Parameter | Description | Default |
-|------|------|--------|
-| **TargetMeshActors** | Array of StaticMeshActors in the scene to apply effects to | Empty |
-| **StaticMeshEffect** | Static mesh asset used by the actor's own mesh component | None |
-
-#### TargetMeshActors
-
-This is the **core configuration** of the strip effect — you need to select the static meshes in the scene to be controlled by this strip:
-
-1. In the Details panel, expand **A.ModelTargets** → **TargetMeshActors**
-2. Click the **+** button to add elements
-3. Use the eyedropper tool or dropdown menu to select StaticMeshActors in the scene
-4. Can add **multiple** targets; they share the same effect
-
-> **Tip**: Target Actors must be **StaticMeshActor** type. Regular Actors or Blueprint Actors are not supported.
-
-### 3.2 Default Parameters (B.DefaultParameter)
-
-| Parameter | Description | Range | Default |
-|------|------|------|--------|
-| **MaxLightIntensity** | Maximum light intensity (material brightness cap) | 0 - 1000 | 1.0 |
-| **MaterialIndex** | Material slot index (which material slot on target meshes to apply to) | 0 - 255 | 0 |
-
-#### MaxLightIntensity
-
-Controls the maximum brightness value of the material. This value is set to the material's `MaxBrightness` parameter during initialization:
-- Larger value → higher maximum strip brightness
-- Typically set to 1.0 ~ 10.0 (depending on scene needs)
-- Actual brightness = MaxLightIntensity × Dimmer
-
-#### MaterialIndex
-
-Specifies which **material slot** on the target mesh the effect material is applied to:
-- **0** (default) → Apply to the first material slot
-- If the target mesh has multiple material slots, a specific slot can be specified
-- System automatically checks if the index is within valid range (prevents out-of-bounds)
-
-#### Parameter Tuning Suggestions
-
-| Scenario | MaxLightIntensity | Description |
-|------|-------------------|------|
-| Close decorative strip (< 3m) | 0.5 - 2.0 | Avoid overexposure and glare |
-| Stage strip (3-10m) | 2.0 - 5.0 | Standard brightness |
-| Large venue (10m+) | 5.0 - 15.0 | Long distance needs higher brightness |
-| Building facade wall wash | 3.0 - 10.0 | Needs to penetrate ambient light |
-| Ambient background | 0.3 - 1.0 | Low-key soft effect |
-
-### 3.3 Control Parameters (C.ControlParameter)
-
-| Parameter | Description | Range | Default |
-|------|------|------|--------|
-| **Dimmer** | Total brightness (dimmer) | 0.0 - 1.0 | 0.0 |
-| **Strobe** | Strobe frequency | 0.0 - 1.0 | 0.0 |
-| **Effect** | Effect selection | 0.0 - 1.0 | 0.0 |
-| **Speed** | Effect movement speed | 0.0 - 1.0 | 0.5 |
-| **Width** | Effect width/size | 0.0 - 1.0 | 0.0 |
-| **Direction** | Effect movement direction | 0.0 - 1.0 | 0.0 |
-| **Color** | RGB color | Per channel 0.0 - 1.0 | White (1,1,1) |
+> **Use DMX mode for normal operation.** The `C.ControlParameter` group is only shown when ControlMode is `Property`, and **in Property mode the current implementation writes nothing to the material**: the read-and-apply step returns immediately. (The one exception is the strobe: the per-frame brightness recalculation does not check the control mode, but the `Dimmer` it multiplies is still whatever DMX last wrote.)
 
 ---
 
-## 4. Control Parameter Details
+## 4. DMX Channels
 
-### 4.1 Dimmer
+The Actor asset data marks this fixture as **9CH**, and it reads these coarse attributes:
 
-Total brightness control, multiplied by MaxLightIntensity for final brightness:
+| Channel | Attribute | Material / Behavior |
+| ---: | --- | --- |
+| 1 | `Dimmer` | Used when writing `Brightness`. |
+| 2 | `Strobe` | Enables the strobe multiplier when above 0, affecting `Brightness`. |
+| 3 | `Effect` | Written to `Effect` as `Lerp(0, 10, Effect)`. |
+| 4 | `Speed` | Written to `Speed` as `Lerp(-10, 10, Speed)`. |
+| 5 | `Width` | Written to `Width` as `Lerp(0, 10, Width)`. |
+| 6 | `Direction` | Written to `EffectDirection`. |
+| 7 | `Red` | RGB red component. |
+| 8 | `Green` | RGB green component. |
+| 9 | `Blue` | RGB blue component. |
 
-| DMX Value | Material Parameter | Effect |
-|--------|---------|------|
-| 0.0 | Brightness = 0 | Completely off |
-| 0.5 | Brightness = 0.5 | Half bright |
-| 1.0 | Brightness = 1.0 | Max brightness |
-
-### 4.2 Strobe
-
-DMX value mapped to strobe frequency (0~255):
-
-```
-Material Strobe Parameter = DMX Value × 255
-```
-
-Strobe mode controlled by the material's internal StrobeMode parameter:
-
-| StrobeMode | Name | Description |
-|-----------|------|------|
-| 0 | Closed | Off (always dark) |
-| 1 | Open | Always on (no strobe) |
-| 2 | Linear | Linear flash |
-| 3 | Pulse | Pulse flash |
-| 4 | RampUp | Fade-in flash |
-| 5 | RampDown | Fade-out flash |
-| 6 | Sine | Sine wave flash |
-| 7 | Random | Random flash |
-
-### 4.3 Effect
-
-DMX value mapped to 10 effects (0~10):
-
-```
-Material Effect Parameter = Lerp(0, 10, DMX Value)
-```
-
-| DMX Value Range | Effect Index | Typical Effect |
-|-----------|---------|---------|
-| 0.0 ~ 0.1 | 0 ~ 1 | Static/solid color |
-| 0.1 ~ 0.2 | 1 ~ 2 | Flow |
-| 0.2 ~ 0.3 | 2 ~ 3 | Chase |
-| 0.3 ~ 0.4 | 3 ~ 4 | Gradient |
-| ... | ... | ... |
-| 0.9 ~ 1.0 | 9 ~ 10 | Complex combined effects |
-
-> **Note**: Specific effect appearance depends on the MI_Effect_Inst material implementation. Visual performance of different effects is determined by the shader logic inside the material.
-
-### 4.4 Speed
-
-DMX value mapped to speed range (-10 ~ +10):
-
-```
-Material Speed Parameter = Lerp(-10, 10, DMX Value)
-```
-
-| DMX Value | Speed | Effect |
-|--------|------|------|
-| 0.0 | -10 | Fastest **reverse** movement |
-| 0.25 | -5 | Medium reverse |
-| 0.5 | 0 | **Stop** movement |
-| 0.75 | +5 | Medium forward |
-| 1.0 | +10 | Fastest forward movement |
-
-> **Tip**: Speed supports negative values, which can reverse the effect's movement direction. DMX value = 0.5 means effect is stationary.
-
-### 4.5 Width
-
-DMX value mapped to width range (0 ~ 10):
-
-```
-Material Width Parameter = Lerp(0, 10, DMX Value)
-```
-
-- Smaller value → narrower/denser effect pattern
-- Larger value → wider/sparser effect pattern
-
-### 4.6 Direction
-
-Directly mapped to material's EffectDirection parameter (0 ~ 1):
-
-- Controls the movement direction or scanning direction of the effect
-- Specific behavior depends on the selected effect
-
-### 4.7 Color (RGB)
-
-Three DMX channels independently control red, green, and blue components:
-
-| Channel | DMX Value 0.0 | DMX Value 1.0 |
-|------|-----------|-----------|
-| Red | No red | Max red |
-| Green | No green | Max green |
-| Blue | No blue | Max blue |
-
-Color values are directly set to the material's `LightColor` vector parameter.
+The actual visual result is defined by `/SuperStage/SuperCore/LightMaterial/MainMaterial/M_Effect`. The current implementation writes the parameters above; this manual does not promise fixed effect names or a fixed visual list.
 
 ---
 
-## 5. Blueprint Control
+## 5. Strobe Behavior
 
-### 5.1 Control Functions
+The current implementation no longer writes `Strobe` and `StrobeMode` into the material. Strobe is calculated by the fixture logic:
 
-#### SetLightStripDefault (Initialization)
+- `Strobe > 0` enables strobing.
+- The cached strobe speed is `Strobe * 255`.
+- Each frame calculates a linear triangle-wave multiplier with smoothing.
+- The material receives `Brightness = Dimmer * StrobeMultiplier`.
 
-Initializes strip material and applies to all target meshes. **Must be called once before starting control**.
-
-Execution content:
-1. Set StaticMeshEffect asset for own mesh
-2. Create dynamic material instance (if not yet created)
-3. Set MaxBrightness parameter
-4. Apply material to own mesh's MaterialIndex slot
-5. Iterate through TargetMeshActors, apply material to each target's MaterialIndex slot
-
-#### SetLightStripEffect (9-Channel Control)
-
-Main control function, called per frame in SuperDMXTick:
-
-| Input Parameter | Control |
-|---------|---------|
-| **DmxDimmer** | Brightness |
-| **DmxStrobe** | Strobe |
-| **DmxEffect** | Effect selection |
-| **DmxSpeed** | Speed |
-| **DmxWidth** | Width |
-| **DmxDirection** | Direction |
-| **DmxRed** | Red |
-| **DmxGreen** | Green |
-| **DmxBlue** | Blue |
-
-### 5.2 Typical Blueprint Implementation
-
-```
-Event BeginPlay
-  │
-  └─ SetLightStripDefault()    ← Initialize material
-
-Event SuperDMXTick(DeltaTime)
-  │
-  └─ SetLightStripEffect(Dimmer, Strobe, Effect, Speed, Width, Direction, R, G, B)
-```
+For that reason, this manual no longer describes multiple strobe modes. The visible result depends on `Dimmer`, `Strobe`, frame rate, and material response.
 
 ---
 
-## 6. DMX Channel Planning
+## 6. FAQ
 
-| Channel | Attribute | Description |
-|------|------|------|
-| 1 | Dimmer | Brightness |
-| 2 | Strobe | Strobe |
-| 3 | Effect | Effect selection |
-| 4 | Speed | Speed |
-| 5 | Width | Width |
-| 6 | Direction | Direction |
-| 7 | Red | Red |
-| 8 | Green | Green |
-| 9 | Blue | Blue |
+### Target meshes do not show the strip material
 
-> **Total 9 channels**. If using 16-bit precision, assign Fine channels to key attributes as needed.
+Check these items:
 
----
+- The target is a `StaticMeshActor`.
+- `MaterialIndex` is within the target mesh's actual material slot range.
+- `MaxLightIntensity` is above 0.
+- DMX reaches the configured Universe and 9-channel range.
+- The strip material has been refreshed; context-menu binding refreshes it, while other workflows may require reinitializing the fixture.
 
-## 7. FAQ
+### Can multiple meshes be controlled independently?
 
-### Q: Target mesh doesn't show effects?
-1. Confirm **SetLightStripDefault** has been called to initialize material
-2. Check if **MaterialIndex** is correct (starts from 0)
-3. Confirm target Actor is **StaticMeshActor** type
-4. Confirm **Dimmer** DMX value > 0
+One SuperLightStripEffect applies one shared dynamic material instance to all targets, so those targets change together. For independent control, place multiple SuperLightStripEffect Actors and give them different addresses.
 
-### Q: Can effects be seen in editor?
-Yes. SetLightStripDefault is called both in OnConstruction (when placed/modified) and BeginPlay (at runtime). After configuring TargetMeshActors in the editor, the material is applied.
+### Where are effect names configured?
 
-### Q: How to change the effect material?
-Default uses MI_Effect_Inst material. For custom materials, create a new material instance ensuring it contains the same parameter names (MaxBrightness, Brightness, Strobe, LightColor, Effect, Speed, Width, EffectDirection).
-
-### Q: Effect not applied after adding new target Actors?
-After modifying TargetMeshActors, you need to **re-trigger initialization**. In the editor, moving the strip Actor triggers OnConstruction; at runtime, re-call SetLightStripDefault.
-
-### Q: Effect speed is wrong?
-Speed DMX value = 0.5 means speed is 0 (stopped), not half speed. < 0.5 is reverse, > 0.5 is forward.
+The current implementation only writes the numeric `Effect` value to the material parameter. The visual meaning of 0-10 is defined by the `M_Effect` material, not by a fixed table in the Actor.
 
 ---
 
-> **Next Steps**: Read [14 - Stage VFX](/docs/stage-core/stage-vfx) to learn about Niagara particle effect control.
+## 7. Related Documents
+
+- [03 - DMX Actor Basics](03_DMX_Actor_Base_en.md)
+- [07 - Patch Tools](07_Patch_Tools_en.md)
+- [10 - Stage Machinery](10_Stage_Machinery_en.md)

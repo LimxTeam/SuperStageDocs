@@ -1,10 +1,14 @@
 # 02 - Fixture Library
 
-> **Module**: SuperFixtureLibrary (USuperFixtureLibrary)  
+> **Module**: SuperFixtureLibrary  
 > **Target Users**: Lighting designers, fixture blueprint creators  
-> **Prerequisites**: [00 - DMX System Overview](/docs/stage-core/overview)  
+> **Prerequisites**: [00 - DMX System Overview](00_DMX_System_Overview_en.md)
 > **Last Updated**: 2026-04-14
 
+
+> **Terminology change in 26H2.6**: this asset is called the **channel library** throughout the documentation (asset prefix `CL_`). It describes only "which channels one DMX mode of this fixture has". What describes "what this fixture is" — body, mechanics, emitters, optics — is the **fixture definition** (its asset name is the model name, with no prefix).
+>
+> One fixture definition can have several DMX modes, each pointing at one channel library; one channel library can be shared by several definitions. **Bindings** (which channel drives which capability) live in the definition, not in the channel library. See [Fixture System Overview](../fixture/00_FixtureSystem_Overview_en.md).
 ---
 
 ## 1. What is a Fixture Library
@@ -26,37 +30,43 @@ In simple terms, the fixture library is the fixture's "manual" — it tells Supe
 
 ### Steps
 
-1. In Content Browser, **right-click** → **Miscellaneous** → **Data Asset**
-2. In the class selection window that appears, select **SuperFixtureLibrary**
-3. Name the asset (recommend using the fixture model name, e.g., `FL_ClayPaky_Sharpy`)
-4. Double-click to open the asset for editing
+1. In the Content Browser, **right-click** and create a Super Fixture Library
+2. Name the asset (the shipped library convention is `CL_<Model>_<ModeName>`)
+3. Double-click to open the asset for editing
+
+> Most of the time you do not need to create one by hand: importing a fixture from GDTF generates a channel library for each of its DMX modes. See [GDTF Import](../fixture/02_GdtfImport_en.md).
 
 ### Naming Conventions
 
 | Prefix | Example | Description |
 |------|------|------|
-| `FL_` | `FL_Robe_MegaPointe` | Abbreviation of Fixture Library |
-| `FL_Manufacturer_Model` | `FL_Chauvet_MaverickMK3` | Easy identification |
+| `CL_` | `CL_MegaPointe_Standard` | The shipped library's convention: `CL_<Model>_<ModeName>` |
+| no prefix | `MegaPointe` | The fixture definition, not a channel library |
+| `LTC_` | `LTC_MegaPointe` | That model's thumbnail in the Content Browser |
+| `SP_` | `SP_MegaPointe_Prism` | Prism preset |
 
 ---
 
 ## 3. Fixture Library Properties Detail
 
-After opening the fixture library asset, you can see the following properties in the Details panel:
+Double-click the channel library asset to open its dedicated editor. **It is not the UE Details panel** — it is a four-level list editor.
 
-### 3.1 Basic Information
+### 3.1 Header Fields
 
-| Property | Description | Example |
+Across the top of the editor:
+
+| Field | Description | Example |
 |------|------|------|
 | **Fixture Name** | Fixture model name | `MegaPointe` |
 | **Manufacturer** | Manufacturer | `Robe` |
-| **Source** | Data source | `Custom`, `GDTF`, `MA2`, `MA3` |
-| **Power** | Rated power (watts) | `1700` |
-| **Weight** | Weight (kilograms) | `36.8` |
+| **Power (W)** | Rated power (watts) | `1700` |
+| **Weight (kg)** | Weight (kilograms) | `36.8` |
+| **Channel Count** | Read-only channel span of the current mode | `35` |
+| **GDTF Library** | Bound GDTF file path | `FixtureLibrary/GDTF/...` |
 
-This information is mainly used for CAD construction drawings and report statistics, and does not affect DMX control logic.
+There is also a help button at the right of the header. This information is used for reports and external delivery material; it does not affect DMX control logic.
 
-### 3.2 Module Instance List (Modules)
+### 3.2 DMX Modes
 
 The core part of the fixture library is the **Modules (module instance list)**.
 
@@ -69,7 +79,7 @@ Click the **+** button next to **Modules** to add a module instance.
 | Property | Description | Example |
 |------|------|------|
 | **Module Name** | Module name (optional, for identification) | `Main` or `Pixel_1` |
-| **Patch** | Channel offset relative to StartAddress (0-based). Absolute base = StartAddress + Patch. For single-module fixtures, typically set to **0** or **1**. Matrix lights have different Patch values for each pixel module | `1` |
+| **Patch** | Module start offset relative to StartAddress. Runtime computes the module base as `StartAddress + max(0, Patch - 1)`. Single-module fixtures usually use **1**. Matrix fixtures use different Patch values for each pixel module | `1` |
 | **Attribute Defs** | Attribute definition list for this module (see details below) | — |
 
 ---
@@ -78,18 +88,18 @@ Click the **+** button next to **Modules** to add a module instance.
 
 Each module instance can contain multiple **attribute definitions (Attribute Def)**, each corresponding to a controllable function of the fixture.
 
-Click the **+** button next to **Attribute Defs** to add an attribute.
+Adding is done with the **+ Add** button on the bottom toolbar: it adds one entry at whatever level is currently selected — a mode when a mode is selected, an attribute when an attribute is selected, and so on.
 
 ### 4.1 Basic Attribute Parameters
 
 | Parameter | Description | Detailed Explanation |
 |------|------|---------|
-| **Attrib Name** | Attribute name (FName) | Must be unique. This is the identifier used to reference this attribute in blueprints. Recommended standard names: `Dimmer`, `Pan`, `Tilt`, `Red`, `Green`, `Blue`, `White`, `Gobo`, `Prism`, `Focus`, `Zoom`, `Shutter`, `ColorWheel`, etc. |
+| **Attrib Name** | Attribute name | Must be unique. Bindings use this name to connect the channel to one of the fixture's capabilities. Recommended standard names: `Dimmer`, `Pan`, `Tilt`, `Red`, `Green`, `Blue`, `White`, `Gobo`, `Prism`, `Focus`, `Zoom`, `Shutter`, `ColorWheel`, etc. |
 | **Coarse** | Coarse channel offset (1-based) | **Required**. The main channel offset of this attribute within the module. For example, Coarse=5 means this attribute starts from the 5th channel of the module |
 | **Fine** | Fine channel offset (1-based) | **Optional**. Set to 0 for no fine channel. Used for 16-bit precision control (e.g., Pan/Tilt) |
 | **Ultra** | Ultra channel offset (1-based) | **Optional**. Set to 0 for no ultra channel. Used for 24-bit precision control (rarely used) |
-| **Category** | Attribute category (EDMXAttributeCategory) | Used for console UI grouping, does not affect functional logic |
-| **DefaultValue** | Default DMX value (0-100) | Used for console Default preset |
+| **Category** | Attribute category | Used for console UI grouping, does not affect functional logic |
+| **DefaultValue** | Default value, as a percentage (0-100) | The idle value — where this channel sits with no DMX input. On GDTF import it is taken from the initial value declared in the package |
 | **HighlightValue** | Highlight DMX value (0-100) | Used for console Highlight function |
 
 ### 4.2 Channel Offset Details
@@ -112,15 +122,19 @@ Absolute Channel Address = Fixture StartAddress + Module Offset (Patch - 1) + At
 | Gobo 1 | 7 | 8 | 107-108 |
 | Prism | 9 | 0 | 109 |
 
-### 4.3 Channel Precision Types
+### 4.3 Bit Depth
 
-| Type | Bit Depth | Channels Used | Value Range | Applicable Scenarios |
-|------|------|-----------|--------|---------|
-| **Coarse** | 8-bit | Coarse channel only | 0 - 255 | On/off functions (Gobo, Prism, Color Wheel, etc.) |
-| **Fine** | 16-bit | Coarse + Fine channels | 0 - 65,535 | Functions requiring smooth movement (Pan, Tilt, Zoom, etc.) |
-| **Ultra** | 24-bit | Coarse + Fine + Ultra channels | 0 - 16,777,215 | Extremely high precision needs (rarely used) |
+**There is no separate bit-depth setting** — it follows from how many offsets you fill in:
 
-> **Important**: Channel Type determines the normalization method when reading this attribute in blueprints:
+| Offsets filled | Bit depth | Value range | Applicable scenarios |
+|------|------|--------|---------|
+| **Coarse** only | 8-bit | 0 - 255 | On/off functions (Gobo, Prism, Color Wheel, etc.) |
+| **Coarse + Fine** | 16-bit | 0 - 65,535 | Functions requiring smooth movement (Pan, Tilt, Zoom, etc.) |
+| **Coarse + Fine + Ultra** | 24-bit | 0 - 16,777,215 | Extremely high precision needs (rarely used) |
+
+Leaving Fine / Ultra at 0 means that level does not exist.
+
+> **Important**: When fixture attributes are read, the system normalizes values according to the 8-bit, 16-bit, or 24-bit path:
 > - Coarse → Raw value ÷ 255 = 0.0 ~ 1.0
 > - Fine → Raw value ÷ 65,535 = 0.0 ~ 1.0
 > - Ultra → Raw value ÷ 16,777,215 = 0.0 ~ 1.0
@@ -142,7 +156,7 @@ Absolute Channel Address = Fixture StartAddress + Module Offset (Patch - 1) + At
 | **CTO / CTB** | Coarse (8-bit) | Color temperature adjustment usually sufficient at 8-bit |
 | **Control Channels (Reset/Lamp)** | Coarse (8-bit) | Command-type channels, no fine adjustment needed |
 
-> **Rule of Thumb**: If the fixture manual allocates 2 channels (Coarse + Fine) for an attribute, use Fine. If only 1 channel is allocated, use Coarse. Configure strictly according to the fixture manual.
+> **Rule of Thumb**: If the fixture manual allocates 2 channels (Coarse + Fine) for an attribute, fill in the Fine channel. If only 1 channel is allocated, fill in Coarse only. Configure strictly according to the fixture manual.
 
 ### 4.4 Attribute Categories
 
@@ -170,15 +184,18 @@ Each attribute definition can contain **sub-attributes (Sub-Attributes)** for de
 
 ### 5.1 Sub-Attribute Parameters
 
-| Parameter | Description | Example |
+Columns at the sub-attribute level:
+
+| Column | Description | Example |
 |------|------|------|
-| **WheelName** | Sub-attribute name (Wheel identifier) | `Open White`, `Gobo 1`, `Strobe Slow-Fast` |
-| **StrobeMode** | Strobe mode (Dimmer/Strobe type attributes only) | Closed / Open / Linear / Pulse / RampUp / RampDown / Sine / Random |
-| **RotationMode** | Rotation mode (Position type attributes only) | Off / Stop / Position / Infinite |
-| **DMX Range Min** | Minimum DMX value range (0-255) | `0` |
-| **DMX Range Max** | Maximum DMX value range (0-255) | `255` |
-| **Physical Range** | Physical value range (real units, FVector2D) | (0.0, 540.0) (degrees/meters/percent etc.) |
-| **Channel Sets** | Embedded slot list (see Section 6) | Array of FChannelSet |
+| **DMX Start** | Minimum DMX value of the range (0-255) | `0` |
+| **DMX End** | Maximum DMX value of the range (0-255) | `255` |
+| **Physical Range** | Physical value range (real units, min / max) | (0.0, 540.0) (degrees/metres/percent etc.) |
+| **Channel Sets** | How many slots hang under this segment (see Section 6) | One or more slots per sub-attribute |
+| **Strobe Mode** | Strobe mode. **Only appears under Dimmer / Strobe category attributes** | Closed / Open / Linear / Pulse / Ramp Up / Ramp Down / Sine / Random |
+| **Rotation Mode** | Rotation mode. **Only appears under Position category attributes** | Off / Position / Infinite. **Stop was removed in 26H2.6**; its meaning folded into Off, and existing assets are redirected automatically |
+
+> There is **no name column at the sub-attribute level** — names live one level down, on the slots. The "sub-attribute name" in the examples below is for readability; in practice it goes in the slot's Name column.
 
 ### 5.2 Sub-Attribute Examples
 
@@ -205,19 +222,22 @@ Each attribute definition can contain **sub-attributes (Sub-Attributes)** for de
 
 **Channel Sets** are a shortcut, similar to MA2's Channel Set function. They provide preset named values for attribute definitions.
 
-### 6.1 Channel Set Parameters (FChannelSet)
+### 6.1 Slot Parameters
 
-| Parameter | Description | Example |
-|------|------|------|
-| **Name** | Slot name | `Open`, `Gobo 1`, `Red` |
-| **GoboMode** | Gobo mode | Static / Scrolling / Shake |
-| **DmxMin** | DMX value range minimum | `0` |
-| **DmxMax** | DMX value range maximum | `15` |
-| **PhysicalRange** | Physical value range (FVector2D) | (0.0, 360.0) |
-| **Texture** | Gobo texture (UTexture2D, Gobo-specific) | Pattern texture asset |
-| **Color** | Color value (FLinearColor, ColorWheel-specific) | (1,0,0,1) |
-| **ColorIndex** | Color index value (for ColorWheel positioning) | `0.5` |
-| **PrismSelection** | Prism selection (EPrismLayerSelect) | None / Prism1 / Prism2 / Prism3 |
+Columns at the slot level (**the later columns change with the attribute's category**):
+
+| Column | Default | Appears when | Description |
+|------|---|---|------|
+| **Name** | empty | Always | Slot name, e.g. `Open`, `Gobo 1`, `Red` |
+| **DMX Start** / **DMX End** | 0 / 0 | Always | The DMX value range this segment occupies |
+| **Physical Range** | (0, 0) | Always | Physical value range (min / max) |
+| **Gobo Mode** | Static | Gobo category | Gobo mode: Static / Scroll / Shake |
+| **Texture** | empty | Gobo category | Gobo texture |
+| **Color** | white | Color category | Colour value |
+| **Color Index** | 0.0 | Color category | Colour index, used to position the colour wheel |
+| **Prism Selection** | Off | Prism category | Prism layer: Off / Prism 1 / Prism 2 / Prism 3. **Attaching a prism preset in the fixture definition is not enough** — without selecting a layer for some DMX range here, no segment ever actually selects the prism |
+
+> **When Physical Range is left empty (both ends 0), the segment inherits the range declared on its parent sub-attribute**; fill it in and the filled value wins. Assets imported from GDTF preserve whatever the package wrote, including single-point calibrations like `6000..6000` — that is not "empty", so do not clear it to 0 by hand.
 
 ### 6.2 Use Cases
 
@@ -255,7 +275,7 @@ For LED matrix lights (e.g., Robe Spiider, Ayrton MagicPanel, etc.), each bead/p
 
 ### 7.2 Matrix Attribute Reading
 
-After configuring the matrix, blueprints can use matrix reading functions to retrieve same-named attribute values for all pixels at once (e.g., get Red values for all pixels), returning an array. See the matrix control section in [04 - Moving Light](/docs/stage-core/computer-light) for details.
+After configuring the matrix, the system can iterate modules and return same-named attribute values as an array, such as all `Red` values across pixel modules. Actual response depends on whether the fixture actor or blueprint uses the matrix read path.
 
 ---
 
@@ -273,24 +293,33 @@ After creating a fixture library, you need to associate it with the fixture Acto
 
 ## 9. Built-in Fixture Libraries
 
-SuperStage provides pre-made fixture libraries for multiple brands in the `Content/LightingLibrary/` directory:
+SuperStage organises pre-made fixture libraries by manufacturer under `Content/Library/Lighting/`. In 26H2.6 that covers 54 manufacturers and 807 models, all generated by GDTF import:
 
-| Brand | Directory | Description |
-|------|------|------|
-| **Acme** | `LightingLibrary/Acme/` | Acme fixture series |
-| **Chauvet** | `LightingLibrary/Chauvet/` | Chauvet fixture series |
-| **ClayPaky** | `LightingLibrary/ClayPaky/` | Clay Paky fixture series |
-| Others | `LightingLibrary/...` | More brands |
+| Manufacturer folder | Models |
+|------|------:|
+| `ChauvetProfessional` | 71 |
+| `Prolights` | 69 |
+| `Robe_Lighting` | 68 |
+| `CKC_Lighting` | 60 |
+| `Elation` | 58 |
+| `Ayrton` | 42 |
+| `Terbly` | 38 |
+| `Acme` | 38 |
+| `MartinProfessional` | 35 |
+| `Cameo` | 35 |
+| The other 44 manufacturers | See the shipped content directory |
+
+Folder names are manufacturer names as declared in the GDTF packages.
 
 You can use these pre-made fixture libraries directly, or duplicate one as a starting point for a custom fixture library.
 
 ---
 
-## 10. Best Practices
+## 10. Usage Notes
 
-### Fixture Library Naming
-- Use `FL_Brand_Model_Mode` format, e.g., `FL_Robe_MegaPointe_Standard`
-- Different DMX modes of the same fixture should have different fixture libraries
+### Channel Library Naming
+- Use the `CL_<Model>_<ModeName>` format, e.g. `CL_MegaPointe_Standard`
+- Different DMX modes of the same fixture need different channel libraries
 
 ### Channel Offsets
 - Fill in strictly according to the fixture manual's channel table
@@ -299,7 +328,7 @@ You can use these pre-made fixture libraries directly, or duplicate one as a sta
 
 ### Attribute Naming
 - Use standardized names (Dimmer, Pan, Tilt, Red, Green, Blue...)
-- Keep naming consistent within the same project for blueprint reusability
+- Keep naming consistent within the same project so fixture assets can reuse the same attribute names
 - Attribute names are case-sensitive
 
 ### Verification
@@ -315,14 +344,14 @@ You can use these pre-made fixture libraries directly, or duplicate one as a sta
 Check if the Coarse offset value for that channel is correct. Note that offsets start from 1.
 
 ### Q: Pan/Tilt movement not smooth enough?
-Ensure Fine channels are correctly set and Channel Type is set to Fine (16-bit).
+Make sure the attribute has a Fine offset filled in — that is what makes it 16-bit.
 
 ### Q: Only the first pixel of the matrix light responds?
 Check if each pixel module instance's Patch value is correctly calculated.
 
 ### Q: How do I know how many channels a fixture occupies?
-The fixture's channel span is automatically calculated and displayed in the Patch tool and CAD view. It equals the maximum channel address across all modules - minimum channel address + 1.
+The **Channel Count** readout at the top of the editor is the channel span: only Coarse / Fine / Ultra offsets greater than 0 are counted, and the span is the highest valid channel address minus the lowest, plus one.
 
 ---
 
-> **Next Steps**: Read [03 - DMX Fixture Base](/docs/stage-core/dmx-actor-base) to learn how to configure fixture DMX addresses in the scene.
+> **Next Steps**: Read [03 - DMX Fixture Base](03_DMX_Actor_Base_en.md) to learn how to configure fixture DMX addresses in the scene.

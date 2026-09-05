@@ -2,44 +2,59 @@
 
 ## 1. Introduction
 
-**Stage Assets** is one of the core modules of the SuperStage plugin, providing a set of **procedural stage equipment generation tools**. These tools allow you to **instantly generate** 3D models of various stage structures and equipment in the Unreal Engine editor through simple parameter adjustments, for pre-visualization (Pre-Visualization) of performance design.
+**Stage Assets** is the stage asset module in the SuperStage plugin. It provides procedural stage equipment generation tools. Users can adjust parameters in the Unreal Engine editor to generate 3D models of stage structures and equipment for performance design pre-visualization.
 
-All Stage Assets are standard UE Actors that can be dragged directly into the scene, moved, rotated, scaled, and configured through parameters in the Details panel. Models are **rebuilt and previewed instantly** after parameter changes, without waiting for compilation or manual refresh.
+Stage Assets are UE Actors that can be placed in a scene, moved, rotated, scaled, and configured through the Details panel. Most parameter changes trigger an editor rebuild or preview update; update time for complex assets and large scenes depends on project scale and machine performance.
 
-> **Compatibility**: The Stage Assets module supports **Unreal Engine 5.7 ~ 5.8**.
+> **Compatibility**: Use the UE version stated by the current branch and plugin descriptor.
 
 ---
 
 ## 2. Asset Overview
 
-The Stage Assets module includes the following 12 available Actors:
+The Stage Assets module includes the following 19 available Actors (including the 7 programmatic objects added in 26H2.5).
+
+> The content library no longer ships the former Band, AudioSystem, AircraftCase or console model. **Crowd characters and StageVFX effect assets are still shipped** (13 VAT characters, and Niagara systems plus matching fixture libraries for 7 effect categories) — see [Super Crowd](12_SuperCrowd_en.md) and [Stage VFX](../stagecore/14_Stage_VFX_en.md). The table below lists the procedurally generated structural Actors.
 
 ### 2.1 Structural Assets
 
 | Actor | Name | Brief Description |
 |-------|------|----------|
-| **Super Truss Gantry** | [Truss Gantry](01_SuperTruss.md) | Procedural truss gantry, supporting multiple sections (Box/Triangle/Flat), sizes (290/400/520mm) and shapes (Goal Post/T-Shape/Portal/Double Span), with built-in DIN 4113 load calculation |
-| **Super Circular Truss** | [Circular Truss](08_SuperCircularTruss.md) | Polar-coordinate circular/ring truss, supporting dual-ring structure + radial braces + connection flanges |
-| **Super Curved Truss** | [Curved Truss](09_SuperCurvedTruss.md) | Spline-driven free-form curved truss, with sections always perpendicular to the tangent direction |
-| **Super Truss Grid** | [Truss Grid](10_SuperTrussGrid.md) | Horizontal double-layer grid truss for large-area lighting rigging systems |
-| **Super Truss Tower** | [Truss Tower](11_SuperTrussTower.md) | Vertical truss column, with Euler critical load calculation |
-| **Super Scaffold** | [Straight Scaffold](02_SuperScaffold.md) | Procedural rectangular scaffold system, including vertical posts, horizontal ledgers, diagonal braces, base plates, deck panels and counterweights, with built-in EN 12811 load and counterweight calculation |
-| **Super Curved Scaffold** | [Curved Scaffold](03_SuperCurvedScaffold.md) | Spline-driven curved scaffold system, achieving any curvature through editable spline curves, with all other features identical to straight scaffold |
-| **Super Stage Floor** | [Stage Floor](07_SuperStageFloor.md) | Procedural stage floor system, including panels/legs/cross braces/skirt/steps, with ANSI E1.21 load-bearing calculation |
+| **Super Truss Gantry** | [Truss Gantry](01_SuperTruss_en.md) | Procedural truss gantry, supporting multiple sections (Box/Triangle/Flat), sizes (290/400/520mm) and shapes (Goal Post/T-Shape/Portal/Double Span), with simplified load and deflection estimates |
+| **Super Circular Truss** | [Circular Truss](08_SuperCircularTruss_en.md) | Polar-coordinate circular/ring truss, supporting dual-ring structure + radial braces + connection flanges |
+| **Super Curved Truss** | [Curved Truss](09_SuperCurvedTruss_en.md) | Spline-driven free-form curved truss, with sections always perpendicular to the tangent direction |
+| **Super Truss Grid** | [Truss Grid](10_SuperTrussGrid_en.md) | Horizontal double-layer grid truss for large-area lighting rigging systems |
+| **Super Truss Tower** | [Truss Tower](11_SuperTrussTower_en.md) | Vertical truss column with simplified load statistics |
+| **Super Scaffold** | [Straight Scaffold](02_SuperScaffold_en.md) | Procedural rectangular scaffold system, including vertical posts, horizontal ledgers, diagonal braces, base plates, deck panels and counterweights, with load and counterweight estimates |
+| **Super Curved Scaffold** | [Curved Scaffold](03_SuperCurvedScaffold_en.md) | Spline-driven curved scaffold system that generates curved scaffold layouts from editable spline curves, with behavior close to the straight scaffold |
+| **Super Stage Floor** | [Stage Floor](07_SuperStageFloor_en.md) | Procedural stage floor system, including panels/legs/cross braces/skirt/steps, with weight and load estimates |
 
 ### 2.2 Soft Furnishing Assets
 
 | Actor | Name | Brief Description |
 |-------|------|----------|
-| **Super Drape** | [Stage Curtain](04_SuperDrape.md) | Procedural stage drape/curtain, supporting 6 drape types, 5 fabric types, 4 pleat patterns and 4 opening methods, with pipe and tie lines, built-in fabric weight calculation |
-| **Super Crowd** | [Procedural Crowd](12_SuperCrowd.md) | Poisson disk sampling crowd generation, spline-defined area, multi-character weight distribution, terrain snapping |
+| **Super Drape** | [Stage Curtain](04_SuperDrape_en.md) | Procedural stage drape/curtain, supporting 6 drape types, 5 fabric types, 4 pleat patterns and 4 opening methods, with pipe and tie lines, built-in fabric weight calculation |
+| **Super Crowd** | [Procedural Crowd](12_SuperCrowd_en.md) | Poisson disk sampling crowd generation, spline-defined area, multi-character weight distribution, terrain snapping; requires user-assigned character Static Meshes |
 
 ### 2.3 Video/Projection Assets
 
 | Actor | Name | Brief Description |
 |-------|------|----------|
-| **Super Projector** | [Projector](05_SuperProjector.md) | Projection mapping simulation tool, single white spotlight light function projection, supporting NDI video stream and static texture, with keystone correction |
-| **Super Screen** | [Media Screen](06_SuperScreen.md) | Media source display tool (NDI video stream/static texture), supporting multi-screen sync, transparency mode and color adjustment |
+| **Super Projector** | [Projector](05_SuperProjector_en.md) | Projection mapping simulation tool, single white spotlight light function projection, supporting static textures and director cameras, with keystone correction |
+| **Super Screen** | [Media Screen](06_SuperScreen_en.md) | Media source display tool (static texture/director camera), supporting multi-screen sync, transparency mode and color adjustment |
+
+### 2.4 Stage Programmatic Objects (added in 26H2.5)
+
+| Actor | Name | Summary |
+|-------|------|----------|
+| **Super Barrier** | [Barrier](13_StageProgramObjects_en.md#1-super-barrier) | Spline-driven barrier with front-of-stage, crowd-control and site-fence forms; can conform to terrain |
+| **Super Stage Roof** | [Stage Roof](13_StageProgramObjects_en.md#2-super-stage-roof) | Flat, gable and arch roof profiles, with corner towers, roof trusses, skin, PA wings and a backdrop frame |
+| **Super Grandstand** | [Grandstand](13_StageProgramObjects_en.md#3-super-grandstand) | Tiered grandstand with automatic aisle splitting and sightline clearance readout |
+| **Super Stair Tower** | [Stair Tower](13_StageProgramObjects_en.md#4-super-stair-tower) | Single-flight or double-return, showing step and slope figures |
+| **Super Trackway** | [Trackway](13_StageProgramObjects_en.md#5-super-trackway) | Spline-driven ground panels, multi-lane with optional staggered joints; can conform to terrain |
+| **Super Cable Run** | [Cable Run](13_StageProgramObjects_en.md#6-super-cable-run) | Suspended sagging spans or ground cable ramps |
+| **Super Ballast** | [Ballast](13_StageProgramObjects_en.md#7-super-ballast) | Ballast layout that reports the mass required for an entered overturning moment |
+
 
 ---
 
@@ -50,14 +65,14 @@ The Stage Assets module includes the following 12 available Actors:
 All Stage Asset Actors can be placed in the scene through the following methods:
 
 1. **Place Actor Panel** — Search for the Actor name in the "Place Actor" panel on the left side of the editor and drag into the viewport
-2. **Content Browser** — Find the corresponding blueprint/class in the Content Browser and drag into the viewport
+2. **Content Browser** — Find the corresponding asset type in the Content Browser and drag into the viewport
 3. **Right-Click Menu** — Right-click in the viewport → Place Actor → Search for the corresponding name
 
 ### 3.2 Adjusting Parameters
 
 1. **Select** the Actor in the viewport
 2. View all adjustable parameters in the **Details Panel** on the right
-3. The model in the scene **updates immediately** after modifying parameters
+3. The model in the scene usually updates in the editor after modifying parameters
 4. Parameters are grouped by function (Structure, Materials, Visualization, Statistics, etc.), and groups can be collapsed/expanded
 
 ### 3.3 Material Assignment
@@ -71,44 +86,44 @@ All Stage Assets support assigning separate materials for different components:
 
 ### 3.4 Statistics
 
-Structural assets (truss, scaffold) and drape assets all provide read-only statistics panels:
+Some structural assets and drape assets provide read-only statistics panels:
 
 - **Component Count** — Instance counts and totals for each component type
-- **Weight Calculation** — Self-weight, load, counterweight and other calculations based on industry standards
+- **Weight/load statistics** — Self-weight, load, counterweight and other estimates based on built-in parameters
 - **Physical Parameters** — Detailed physical parameters of the currently selected material/fabric
 
 > ⚠️ **All statistics are for pre-visualization reference only and cannot replace professional engineering calculations.**
 
 ---
 
-## 4. Industry Standards Reference
+## 4. Reference Parameters
 
-The Stage Assets module references the following industry standards in its design:
+The Stage Assets module uses the following industry references for parameters and default values. They support pre-visualization statistics and do not mean the plugin produces engineering certification.
 
 | Standard | Applicable Assets | Description |
 |------|----------|------|
-| **DIN 4113** | Super Truss Series | German aluminum alloy structural design standard, used for truss load and deflection calculation |
-| **EN 12811-1** | Super Scaffold, Super Curved Scaffold | European scaffold standard, used for load class, counterweight and safety factor calculation |
-| **EN 10210** | Super Scaffold, Super Curved Scaffold | Hot-finished structural hollow section standard, providing steel tube wall thickness parameters |
+| **DIN 4113** | Super Truss Series | Reference source for truss material and deflection estimates |
+| **EN 12811-1** | Super Scaffold, Super Curved Scaffold | Reference source for scaffold load classes |
+| **EN 10210** | Super Scaffold, Super Curved Scaffold | Hot-finished structural hollow section standard, used as a tube wall thickness reference |
 | **BS 1139** | Super Scaffold | British scaffold tube standard, defining Ø48.3mm standard tube diameter |
-| **ANSI E1.21** | Super Stage Floor | American entertainment technology standard — temporary floor/stage load-bearing calculation |
+| **ANSI E1.21** | Super Stage Floor | Reference source for temporary floor/stage load estimates |
 
 ---
 
-## 5. Performance Considerations
+## 5. Scene Complexity Considerations
 
 ### 5.1 Instanced Rendering
 
 Structural assets (truss, scaffold) use **Instanced Static Mesh Component (ISM)** technology for rendering:
 
-- **Advantage**: Components of the same type share a single Draw Call, maintaining good performance even with thousands of tubes
+- **Purpose**: Components of the same type can share instanced rendering, reducing overhead from repeated meshes
 - **Note**: Total component count exceeding 10,000 may still affect editor frame rate
 
 ### 5.2 Procedural Mesh
 
 Drape assets use **Procedural Mesh Component** for rendering:
 
-- **Advantage**: Can generate arbitrarily shaped pleated surfaces
+- **Purpose**: Generates pleated surfaces from the current drape size, pleat type, and subdivision parameters
 - **Note**: Too many pleats (>100) or enabling double-sided rendering will increase triangle count
 
 ### 5.3 Recommendations
@@ -123,19 +138,20 @@ Drape assets use **Procedural Mesh Component** for rendering:
 
 | No. | Document Name | Content |
 |------|----------|------|
-| 00 | [Overview](00_StageAssets_Overview.md) | This document. Stage Assets module overview, general operation guide |
-| 01 | [Truss Gantry](01_SuperTruss.md) | Complete user manual for Super Truss Gantry |
-| 02 | [Straight Scaffold](02_SuperScaffold.md) | Complete user manual for Super Scaffold |
-| 03 | [Curved Scaffold](03_SuperCurvedScaffold.md) | Complete user manual for Super Curved Scaffold |
-| 04 | [Stage Curtain](04_SuperDrape.md) | Complete user manual for Super Drape |
-| 05 | [Projector](05_SuperProjector.md) | Complete user manual for Super Projector |
-| 06 | [Media Screen](06_SuperScreen.md) | Complete user manual for Super Screen |
-| 07 | [Stage Floor](07_SuperStageFloor.md) | Complete user manual for Super Stage Floor |
-| 08 | [Circular Truss](08_SuperCircularTruss.md) | Complete user manual for Super Circular Truss |
-| 09 | [Curved Truss](09_SuperCurvedTruss.md) | Complete user manual for Super Curved Truss |
-| 10 | [Truss Grid](10_SuperTrussGrid.md) | Complete user manual for Super Truss Grid |
-| 11 | [Truss Tower](11_SuperTrussTower.md) | Complete user manual for Super Truss Tower |
-| 12 | [Procedural Crowd](12_SuperCrowd.md) | Complete user manual for Super Crowd |
+| 00 | [Overview](00_StageAssets_Overview_en.md) | This document. Stage Assets module overview, general operation guide |
+| 01 | [Truss Gantry](01_SuperTruss_en.md) | Super Truss Gantry user notes |
+| 02 | [Straight Scaffold](02_SuperScaffold_en.md) | Super Scaffold user notes |
+| 03 | [Curved Scaffold](03_SuperCurvedScaffold_en.md) | Super Curved Scaffold user notes |
+| 04 | [Stage Curtain](04_SuperDrape_en.md) | Super Drape user notes |
+| 05 | [Projector](05_SuperProjector_en.md) | Super Projector user notes |
+| 06 | [Media Screen](06_SuperScreen_en.md) | Super Screen user notes |
+| 07 | [Stage Floor](07_SuperStageFloor_en.md) | Super Stage Floor user notes |
+| 08 | [Circular Truss](08_SuperCircularTruss_en.md) | Super Circular Truss user notes |
+| 09 | [Curved Truss](09_SuperCurvedTruss_en.md) | Super Curved Truss user notes |
+| 10 | [Truss Grid](10_SuperTrussGrid_en.md) | Super Truss Grid user notes |
+| 11 | [Truss Tower](11_SuperTrussTower_en.md) | Super Truss Tower user notes |
+| 12 | [Procedural Crowd](12_SuperCrowd_en.md) | Super Crowd user notes |
+| 13 | [Stage Programmatic Objects](13_StageProgramObjects_en.md) | Barrier / roof / grandstand / stair tower / trackway / cable run / ballast (added in 26H2.5) |
 
 ---
 
@@ -143,7 +159,7 @@ Drape assets use **Procedural Mesh Component** for rendering:
 
 - **Plugin Name**: SuperStage
 - **Module**: Stage Assets
-- **Compatible Engine**: Unreal Engine 5.7 ~ 5.8
+- **Compatible Engine**: Use the current branch and plugin descriptor as the source of truth
 - **Document Version**: 2.0
 - **Last Updated**: 2026-04
 - **Development Team**: LimxTeam

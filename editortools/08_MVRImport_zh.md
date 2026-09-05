@@ -1,157 +1,147 @@
-# SuperStage MVR 导入 用户手册
+# SuperStage MVR 导入 / 导出 用户手册
 
-## 1. 概述
+## 1. 功能范围
 
-MVR 导入工具（MVR Import）用于从 MVR（My Virtual Rig）文件中导入灯具布局数据。MVR 是由 GDTF 组织定义的开放标准文件格式（.mvr），广泛用于灯光设计软件之间的数据交换。通过此工具，你可以将 Vectorworks、Capture、WYSIWYG 等软件导出的灯位图直接导入到 SuperStage 场景中。
+MVR（My Virtual Rig）是灯光设计软件、可视化软件与控台之间交换整份图纸的标准格式。本面板按 **MVR 1.6** 规范实现读写：
 
-工具会按**灯具类型分组**显示解析结果，用户为每种类型指定本地 Actor Class 后一键导入。
+- **导入**：读取 `.mvr` 包，解析完整的场景描述（图层、分组、灯具、桁架、吊挂、道具、屏幕、投影机、挂位、类别、聚焦点、像素映射定义），在关卡中生成灯具与道具。
+- **导出**：把当前关卡写回成一份符合规范的 `.mvr`，并把每个型号的 GDTF 一并打进包里。
 
----
+包内的 `.gdtf` 不再被忽略：灯库里没有的型号可以直接用包里那份 GDTF 现场建出灯具定义资产。
 
-## 2. 打开方式
-
-**主菜单路径**：工具栏 **SuperStage** 下拉菜单 → **SuperDMXTool** → **MVRImport**
-
-打开后面板最小尺寸为 900 × 500 像素。
+打开方式：主菜单 **SuperStage** → **SuperDMXTool** → **MVR**，面板顶部有 **Import** / **Export** 两个页签。
 
 ---
 
-## 3. 界面说明
+## 2. 导入
+
+### 2.1 面板
+
+| 区域 | 用途 |
+| --- | --- |
+| MVR File / Browse | 选择 `.mvr`（也可直接选一份解出来的 `.xml`，排查互操作问题时很方便） |
+| 选项区 | 见 2.2 |
+| 摘要行 | 文件版本、导出方、图层数、各类对象数量 |
+| Select All / None | 批量勾选灯具型号 |
+| Re-match | 重新按灯库匹配一遍（新导入了灯具定义之后用） |
+| Import | 生成 Actor |
+| 列表 | 按「GDTF 型号 × DMX 模式」分组的灯具，每组在 **Target Fixture** 列指定目标 |
+
+列表按 **(GDTFSpec, GDTFMode)** 分组，而不是按灯具实例名 —— 同一支灯的 16CH 与 32CH 是两套通道布局，必须分开选目标，否则一半灯具补进去通道全错。
+
+### 2.2 选项
+
+| 选项 | 说明 |
+| --- | --- |
+| Create missing fixtures from packaged GDTF | 灯库里没有的型号，用包内 GDTF 现场建出灯具定义资产（默认开）。规范要求 MVR 包自带每支灯的 GDTF，所以这条几乎总能成立 |
+| Layers to outliner folders | 图层与分组还原成世界大纲文件夹（默认开）。导出时第一级文件夹会变回图层，其余变回分组 |
+| Keep MVR metadata | 给每支灯挂一个 `Super MVR Metadata` 组件，保存挂位、类别、聚焦点、控台编号、颜色、协议、网络地址等 UE 侧没有对应概念的数据（默认开）。**关掉它，导回 MVR 时这些信息就没了** |
+| Import trusses / supports / scenery | 从包内 `.glb` / `.3ds` 或 GDTF 里的模型生成静态网格并摆好位置（默认开） |
+| DMX address | 地址解读方式，见 2.4 |
+
+### 2.3 目标指定
+
+每一组灯具都要在 **Target Fixture** 列指定一个目标，下拉菜单里有三类来源：
+
+1. **From packaged GDTF** —— 用这份 MVR 自带的 GDTF 现场建一个灯具定义资产。
+2. **Fixture library** —— 按 厂商 → 型号 → DMX 模式 三级选择既有灯库型号。模式名只在真正展开到第三级时才加载对应资产，几千个型号的灯库也不会卡。
+3. **Legacy actor classes** —— SuperAssets 里的原生灯具类（16 支自研灯与机械），以及项目自己定义的蓝图灯具类（若有）。
+
+打开文件时会**自动匹配**一遍：GDTF 文件名遵循 `Manufacturer@Model@Revision` 约定，而灯具定义的 Identity 用的正是同一对值，按 `@` 切开即可精确对上。厂商对不上但型号在全库唯一时也接受；型号重名（"Beam 200" 这种）时留空由人来挑，不猜。
+
+新建的定义资产落在 `/Game/SuperStage/FixtureLibrary/<厂商>/<型号>/` 下，**导入后需要在内容浏览器里保存**（报告里会提醒）。
+
+### 2.4 DMX 地址
+
+MVR 的 `<Address>` 值是**跨宇宙的绝对地址**（宇宙 4 的 100 通道 = 3×512+100），`break` 属性是 GDTF 的 DMX break 编号，与宇宙无关。默认按规范读。
+
+极少数老文件把 `break` 当宇宙下标、值写成宇宙内通道。此时把选项切到 **Legacy (break = universe - 1)** 重新导入。解析器发现「全部地址都在一个宇宙内、却出现了多个不同 break」这种可疑组合时会在报告里提示。
+
+值写成 `"宇宙.通道"` 字符串的形式两种模式下都能正确识别。
+
+多 break 灯具（灯体与像素分开补的那种）在 UE 侧只补得下第一组地址，其余各组保存在元数据组件里，导出时原样写回；报告会逐支点名。
+
+### 2.5 导入结果
+
+| 信息 | 来源 |
+| --- | --- |
+| 位置 / 旋转 / 缩放 | `<Matrix>`，已完成毫米→厘米、右手→左手、灯头朝向三步换算 |
+| Universe / StartAddress | 主地址（break 最小的那条） |
+| FixtureID | `<FixtureIDNumeric>` → `<FixtureID>` 文本 → `<UnitNumber>` 三级兜底 |
+| Actor Label | `name` 属性；没有时用「型号 + 编号」 |
+| 大纲文件夹 | 图层 / 分组名 |
+| MVR 元数据组件 | 挂位、类别、聚焦点坐标、编号、颜色、Gobo、协议、网络地址、映射、接线、对齐、覆盖、自定义命令 |
+
+整个导入在一个 UE 事务里完成，可以直接 Ctrl+Z 撤销。**新建的灯具定义资产不在事务内**（资产创建不属于关卡撤销栈），撤销只会撤掉灯，资产仍在。
+
+导入结束会弹出报告：解析与导入两个阶段的全部错误、警告与提示都在里面，同时写进 `LogMvrImport`。
+
+---
+
+## 3. 导出
+
+切到 **Export** 页签，勾好下面的选项，选好输出路径，点 **Export MVR**。
+
+### 3.1 选项
+
+| 选项 | 说明 |
+| --- | --- |
+| Pack GDTF files | 把每个型号的 `.gdtf` 打进包里（默认开）。规范要求如此 —— 缺了它对方即使认得型号名也没有通道表 |
+| Outliner folders as layers | 第一级文件夹 → 图层，更深的层级 → 嵌套分组（默认开）。关掉则全部灯归入单一图层 |
+| Selected actors only | 只导出关卡里当前选中的灯具 |
+| Write MVR metadata back | 把导入时记下的挂位、类别、聚焦点、编号、颜色、协议等写回去（默认开） |
+| Compress scene description | 场景描述走 deflate（默认开）。一份大图纸大约能压到十分之一；`.gdtf` 本身已是压缩包，一律直存 |
+
+### 3.2 产出内容
 
 ```
-┌──────────────────────────────────────────────────────┐
-│  MVR File: [<Choose .mvr>                  ] [Browse]│
-│                                                      │
-│  [Select All] [Select None]              [Import]    │
-│                                                      │
-│  ┌──────────────────────────────────────────────┐    │
-│  │ Import │ Fixture Type   │ Count │ Actor Class │    │
-│  │   ☑   │ Spot380        │  24   │ BP_Spot  ▼  │    │
-│  │   ☑   │ WashLED600     │  16   │ BP_Wash  ▼  │    │
-│  │   ☑   │ BeamMoving     │   8   │ (None)   ▼  │    │
-│  └──────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────┘
+GeneralSceneDescription.xml     完整场景，子节点顺序严格按 MVR 1.6 的 xs:sequence
+Manufacturer@Model@Rev.gdtf     每个型号的灯库原包，文件名沿用源包原名
 ```
 
----
+写出的内容包括：图层与分组、灯具（矩阵、GDTFSpec/GDTFMode、Focus、CastShadow、DMXInvertPan/Tilt、Position、Function、FixtureID/FixtureIDNumeric/UnitNumber、ChildPosition、Addresses + Network、Protocols、Alignments、CustomCommands、Overwrites、Connections、Color、CustomId、Mappings、Gobo）、AUXData 里的挂位 / 类别 / 像素映射定义、以及被引用的聚焦点。
 
-## 4. 操作流程
+`<GDTFMode>` 取的是数据驱动灯具的 **ActiveMode**，不是通道库的模块名 —— 后者是像素组名，写错了灯补得进去但通道全错位。
 
-### 步骤 1：选择 MVR 文件
+### 3.3 落盘前后各查一遍
 
-点击 **"Browse"** 按钮，在弹出的文件对话框中选择一个 `.mvr` 文件。
+导出不是「写完就算」：
 
-支持的文件格式：
-- `.mvr` — 标准 MVR 文件（ZIP 压缩包，内含 `GeneralSceneDescription.xml`）
-- `.xml` — 直接选择 MVR XML 描述文件
+- **落盘前**逐条校验规范硬性要求：uuid 是否规范且唯一、FixtureIDNumeric 是否为正且全场唯一、UnitNumber、同一支灯的 break 是否重复、GDTF 文件名是否合法、Position / Class / Focus / MappingDefinition 的引用是否都有定义、multipatch 父对象是否存在。任何一条不过就中止并给出原因。
+- **落盘后**把刚写出的文件重新打开、重新解析，比对灯具数量。这一步逮的是「我们自己写出去、自己都读不回来」那类错误 —— 它们在下游只会表现为「控台打不开这个文件」。
 
-> **自动解析**：选择文件后，工具会**自动**读取并解析文件内容，无需点击额外按钮。解析结果按灯具类型分组显示在列表中。
-
-### 步骤 2：为每种类型指定 Actor Class
-
-解析完成后，列表中每一行代表一种灯具类型。你需要在 **Actor Class** 列的下拉菜单中为每种类型选择对应的 SuperStage 灯具蓝图类（`ASuperDmxActorBase` 的子类）。
-
-### 步骤 3：选择要导入的类型
-
-使用每行的 **Import** 勾选框选择需要导入的灯具类型。也可以使用工具栏的 **Select All** / **Select None** 按钮进行批量操作。
-
-### 步骤 4：导入
-
-点击 **"Import"** 按钮。工具会：
-1. 检查所有勾选类型是否都指定了 Actor Class（未指定会弹出提示）
-2. 在 UE Transaction 中创建所有灯具 Actor
-3. 设置每个灯具的位置、旋转、DMX 属性
-4. 导入完成后通过通知弹窗显示结果
+两步的结果都在导出报告里。
 
 ---
 
-## 5. 灯具列表字段
+## 4. 出问题时
 
-| 列名 | 宽度 | 说明 |
-|------|------|------|
-| **Import** | 70px | 勾选框，是否导入该类型的灯具 |
-| **Fixture Type** | 自适应 | MVR 文件中定义的灯具类型名称 |
-| **Count** | 80px | 该类型灯具的数量 |
-| **Actor Class** | 240px | 下拉选择本地对应的 SuperStage 灯具蓝图类 |
+**灯具进错了 Universe**
+把 **DMX address** 切到 **Legacy**，重新导一次。
 
-列表按灯具类型名称字母升序排列。
+**某个型号显示 "No fixture / no GDTF"**
+灯库里没有匹配的型号，包里也没带这支灯的 GDTF。手工指一个目标，或者先把 GDTF 导进灯库再来。
 
----
+**导出报 "Missing GDTF"**
+这支灯的通道库在磁盘上没有对应的 GDTF 文件。把这支灯从它的 GDTF 重新导入一次，路径才会被记下来。
 
-## 6. MVR 文件解析
+**桁架没出来**
+只有 `.glb` 与 `.3ds` 两种几何读得进来。GDTF 里只声明了占位基本体、没有真实模型文件的，不会生成网格——报告里会写明是哪些。
 
-### 6.1 解析流程
-
-1. 如果是 `.mvr` 文件（ZIP 格式），工具会从压缩包中提取 `GeneralSceneDescription.xml`
-2. 如果是 `.xml` 文件，直接读取 XML 内容
-3. 解析 XML 中的 `<Fixture>` 节点，提取类型名称、位置、旋转和 DMX 地址
-4. 按灯具类型分组统计
-
-### 6.2 ZIP 解压策略
-
-工具支持多种解压方式以保证兼容性：
-- **优先**：内存中直接解压（支持 Stored 和 Deflate 压缩方式）
-- **回退**：使用系统工具（Windows 上调用 PowerShell `Expand-Archive` 或 `tar.exe`）
-
-### 6.3 编码支持
-
-XML 文件支持以下编码：UTF-8、UTF-16 LE、UTF-16 BE。
+> 每次运行的完整报告都会写进输出日志，导入在 `LogMvrImport`、导出在 `LogMvrExport`。
 
 ---
 
-## 7. DMX 地址解析
+## 5. 兼容性说明
 
-MVR 文件中的 DMX 地址信息支持多种格式，工具会自动识别：
+- 包按 PKWARE 6.3.3 写，只用 STORE 与 DEFLATE 两种存储方式，无加密，全部文件在包根目录（规范要求扁平结构）。读取端额外容忍带子目录的第三方包，并在报告里提示。
+- 读取端对不规范的写法尽量宽容：标签大小写不敏感、uuid 接受大写/花括号/无连字符写法、对象直接挂在 `<Layers>` 下时收进一个合成图层、`Geometry3D` 的 `fileName` 缺扩展名时按 `.3ds` 处理、`ScaleHandeling` 与 `ScaleHandling` 两种拼写都认。
+- 写入端一律按规范：不写规范表里没有的节点（例如 `FixtureTypeId`，它读得进来但不写出去），必写节点即使值为 0 / 空也照写。
+- 场景描述支持 UTF-8 / UTF-8 BOM / UTF-16 LE / UTF-16 BE，也支持压成一行的 XML。
 
-| 格式 | 示例 | 说明 |
-|------|------|------|
-| **Break 属性** | `DMXBreakOverride` | 从 XML 节点属性中读取 |
-| **绝对地址** | `1025` | 自动计算为 Universe 3, Address 1 |
-| **U.A 格式** | `1.001` | Universe 1, Address 1 |
+## 6. 目前不做的事
 
----
-
-## 8. 导入后的操作
-
-灯具导入到场景后：
-- 灯具会放置在 MVR 文件记录的 3D 位置（自动坐标转换）
-- 灯具会使用 MVR 文件中的旋转信息
-- DMX 属性（Universe、StartAddress、FixtureID）会自动设置
-- 灯具使用 MVR 中的标签作为 Actor Label
-
-你可以在导入后使用 SuperStage 的其他工具（批量 Patch、Patch 预览等）进一步调整灯具配置。
-
----
-
-## 9. 支持的 MVR 版本
-
-| 版本 | 支持状态 |
-|------|----------|
-| MVR 1.0 | ✅ 完全支持 |
-| MVR 1.4 | ✅ 完全支持 |
-| MVR 1.5 | ✅ 完全支持 |
-| MVR 1.6 | ✅ 完全支持 |
-
----
-
-## 10. 注意事项
-
-- 选择文件后会自动解析，无需手动触发
-- 每种灯具类型**必须**指定 Actor Class 才能导入，否则会弹出错误提示
-- 同时支持 `.mvr`（ZIP）和 `.xml`（直接 XML）两种文件格式
-- MVR 中的 GDTF 灯具描述文件不会自动导入到 SuperStage 灯库
-- 大型 MVR 文件（包含数百个灯具）解析可能需要几秒钟
-- 导入操作支持 **Ctrl+Z 撤销**（在 UE Transaction 中执行）
-
----
-
-## 11. 常见问题
-
-| 问题 | 解决方法 |
-|------|----------|
-| 解析后列表为空 | 确认 MVR 文件中确实包含灯具数据 |
-| Actor Class 下拉为空 | 确认项目中有继承自 `ASuperDmxActorBase` 的蓝图类 |
-| 点击 Import 弹出提示 | 所有勾选的类型都必须指定 Actor Class |
-| 灯具位置全部在原点 | MVR 文件可能没有包含位置信息 |
-| 灯具方向不对 | 不同软件的坐标系可能不同，导入后手动调整旋转 |
-| 无法打开 .mvr 文件 | 确认文件未损坏，或尝试解压后选择内部的 .xml 文件 |
+- **不导出场景几何**：UE 侧没有把静态网格写成 `.3ds` / `.glb` 的通道，所以导出只包含灯具，桁架与道具不会出现在导出的包里。
+- **不支持 MVR-xchange**：那是 MVR 生态里另一套东西（mDNS 发现 + TCP/WebSocket 的实时同步协议），与本面板读写的文件格式是两件事，本版本未实现。
+- **不透传第三方 UserData**：导入时能读到其它软件写在根 `<UserData>` 下的私有数据块，但它不随关卡保存，因此导出时无法原样送回。导出会写入自己的一块出处信息（工程名、引擎版本、灯具数、导出时间）。
+- GDTF 里只有 `PrimitiveType` 占位、没有实际模型文件的道具不会生成网格，报告里会说明。

@@ -2,16 +2,16 @@
 
 ## 1. Overview
 
-**Super Truss Gantry** is a procedural truss generation tool provided by the SuperStage plugin. It can **realtime** generate truss gantry structures of various specifications within the Unreal Engine editor, for visualization of stage lighting and audio equipment rigging.
+**Super Truss Gantry** is a procedural truss generation tool provided by the SuperStage plugin. It generates truss gantry structures in the Unreal Engine editor for stage lighting and audio equipment rigging previews.
 
-After dragging this Actor into the scene, you can adjust all parameters in the **Details Panel**, and the truss model in the scene will **update instantly** without needing to manually trigger a rebuild.
+After dragging this Actor into the scene, you can adjust parameters in the Details panel. Most structural parameter changes trigger an editor rebuild or preview update.
 
 ### Use Cases
 
 - Performance stage lighting truss rigging preview
 - Exhibition/conference gantry layout planning
 - Pre-visualization of truss structures for large outdoor events
-- Load safety calculation and engineering assessment
+- Self-weight, load, and deflection estimates for pre-visualization reference
 
 ---
 
@@ -31,25 +31,25 @@ This group of parameters determines the cross-section shape, size specifications
 
 #### 3.1.1 Section Type
 
-Controls the cross-sectional shape of the truss, directly affecting load-bearing capacity and appearance.
+Controls the cross-sectional shape of the truss, affecting appearance and the built-in load estimates.
 
 | Option | Description | Use Cases |
 |------|------|----------|
-| **Box (4-Chord)** | Square section, 4 main chords + 4 faces of bracing. Highest load-bearing capacity, the most common performance truss section | Large performances, heavy lighting equipment suspension |
-| **Triangle (3-Chord)** | Triangular section, 3 main chords + 3 faces of bracing. Lighter than Box but slightly lower load-bearing capacity | Small to medium performances, exhibitions |
+| **Box (4-Chord)** | Square section, 4 main chords + 4 faces of bracing. Often used to represent larger spans or heavier fixture layouts in previz | Large performance or heavy lighting rig previz |
+| **Triangle (3-Chord)** | Triangular section, 3 main chords + 3 faces of bracing. Visually lighter than Box | Small to medium performance or exhibition previz |
 | **Flat / Ladder (2-Chord)** | Flat section, only 2 chords + single-face bracing. Lightest, ladder-like appearance | Light installations, small exhibitions, backdrop decoration |
 
-> **Design Tip**: If you need to hang a large number of heavy fixtures (such as wash lights, beam lights), it is recommended to choose the **Box** section. If only for decorative display or hanging a few lightweight devices, you can choose **Triangle** or **Flat**.
+> **Usage Note**: Section type affects appearance and the built-in estimate values. Real rigging decisions must use actual product data and structural review.
 
 #### 3.1.2 Truss Size
 
-Select the standard size series for the truss. These specifications correspond to actual product lines of industry-standard products (e.g., Prolyte, Global Truss).
+Select the size series for the truss. The built-in values reference common truss product specifications for previz modeling and estimates.
 
 | Option | Section Dimensions | Self-Weight | Use Cases |
 |------|----------|------|----------|
-| **290mm (Light)** | 29cm | Approx. 6 kg/m | Exhibitions, small performances, indoor events. Corresponds to Prolyte H30V series |
-| **400mm (Medium)** | 40cm | Approx. 9 kg/m | Regular performances, medium events. Corresponds to Prolyte H40V series. **Default option** |
-| **520mm (Heavy)** | 52cm | Approx. 16 kg/m | Large outdoor performances, touring events. Corresponds to Prolyte S52V series |
+| **290mm (Light)** | 29cm | Approx. 6 kg/m | Previz reference for exhibitions, small performances, and indoor events |
+| **400mm (Medium)** | 40cm | Approx. 9 kg/m | Previz reference for regular performances and medium events. **Default option** |
+| **520mm (Heavy)** | 52cm | Approx. 16 kg/m | Previz reference for large outdoor performances and touring events |
 
 Each specification includes the following physical parameters (read-only, auto-populated):
 
@@ -60,7 +60,7 @@ Each specification includes the following physical parameters (read-only, auto-p
 - **Standard Bay Spacing** — 290/400 is 50cm, 520 is 60cm
 - **Section Moment of Inertia** — Used for load calculation, 290=2500cm⁴, 400=5200cm⁴, 520=12800cm⁴
 
-> **Design Tip**: Specification selection should be based on **total suspended equipment weight** and **span**. If the span exceeds 12m with heavy suspended load, it is recommended to use 520mm heavy-duty truss.
+> **Usage Note**: Size affects visual dimensions and the estimate values in the statistics panel. Real project selection must follow actual product documentation and structural review.
 
 #### 3.1.3 Brace Pattern
 
@@ -69,7 +69,7 @@ Controls the arrangement of diagonal brace tubes on each face of the truss.
 | Option | Description | Visual Effect |
 |------|------|----------|
 | **Warren (V-Pattern)** | Alternating V-shaped arrangement, with brace directions alternating between adjacent bays. The most common performance truss brace pattern | Clean, symmetrical |
-| **Cross (X-Pattern)** | Two braces crossing in an X shape within each bay, providing higher structural rigidity | Dense, robust feel |
+| **Cross (X-Pattern)** | Two braces crossing in an X shape within each bay | Dense, robust feel |
 
 ---
 
@@ -83,30 +83,30 @@ This group of parameters controls the overall structural form of the gantry — 
 |------|----------|------|
 | **Goal Post** | Gate-shaped: 2 uprights + 1 beam. The most basic gantry shape | `┌──┐` |
 | **T-Shape** | T-shaped: Beam extends beyond the uprights on both ends, forming overhangs. Suitable for scenarios requiring wider beam coverage | `├──┤` with overhangs |
-| **Portal (with Outriggers)** | Reinforced portal: Adds bottom outrigger tubes and counterweight bases to the Goal Post, improving stability | `┌──┐` + bottom supports |
+| **Portal (with Outriggers)** | Reinforced portal: Adds bottom outrigger tubes and counterweight bases to the Goal Post | `┌──┐` + bottom supports |
 | **Double Span** | Double span: 3 uprights + 2 beams, covering a wider span | `┌──┬──┐` |
 
 #### 3.2.2 Span Length
 
 - **Meaning**: The inner distance between two uprights (effective length of the horizontal beam)
 - **Unit**: centimeters (cm)
-- **Range**: 100 ~ 3000 cm (i.e., 1m ~ 30m)
+- **Range**: 100 ~ 20000 cm (slider 100 ~ 6000; beyond that, type the value)
 - **Default**: 800 cm (8m)
 
-> **Usage Advice**: For standard stages, common spans are between 600~1200cm. For spans exceeding 1500cm, pay attention to load safety and check the deflection and maximum load data in the statistics panel.
+> **Usage Advice**: For standard stages, common spans are between 600~1200cm. For larger spans, check the deflection and maximum load estimates in the statistics panel and have the result reviewed by a qualified structural professional.
 
 #### 3.2.3 Upright Height
 
 - **Meaning**: The vertical height from the base plate to the top of the upright
 - **Unit**: centimeters (cm)
-- **Range**: 100 ~ 2000 cm (i.e., 1m ~ 20m)
+- **Range**: 100 ~ 10000 cm (slider 100 ~ 4000; beyond that, type the value)
 - **Default**: 600 cm (6m)
 
 #### 3.2.4 Overhang — T-Shape Only
 
 - **Meaning**: The distance the beam extends beyond the uprights on both ends. Only editable when the shape is **T-Shape**
 - **Unit**: centimeters (cm)
-- **Range**: 0 ~ 500 cm
+- **Range**: 0 ~ 5000 cm (slider 0 ~ 1000; beyond that, type the value)
 - **Default**: 100 cm (1m)
 
 > **Note**: Total beam length = Span + Overhang on both sides × 2. E.g., span 800cm + overhang 100cm = total beam length 1000cm.
@@ -115,7 +115,7 @@ This group of parameters controls the overall structural form of the gantry — 
 
 - **Meaning**: The span length of the second span in a double span configuration. Only editable when the shape is **Double Span**
 - **Unit**: centimeters (cm)
-- **Range**: 100 ~ 3000 cm
+- **Range**: 100 ~ 20000 cm (slider 100 ~ 6000; beyond that, type the value)
 - **Default**: 800 cm (8m)
 
 > **Note**: Total double span width = First span + Second span. The middle upright serves as a shared support point.
@@ -131,16 +131,16 @@ This group of parameters controls the overall structural form of the gantry — 
 - **Range**: 0 ~ (Upright Height - Section Size)
 - **Default**: 0 cm (beam at upright top position)
 
-> **How It Works**: Actual beam height = Upright Height - Lift Height. E.g., upright 600cm, lift 100cm → beam at 500cm height. The system automatically limits the lift height to stay within a safe range.
+> **How It Works**: Actual beam height = Upright Height - Lift Height. E.g., upright 600cm, lift 100cm -> beam at 500cm height. The system clamps the lift height to the range allowed by the current parameters.
 
 #### 3.3.2 Suspended Load
 
 - **Meaning**: The total weight of equipment the user expects to hang on the beam
 - **Unit**: kilograms (kg)
-- **Range**: 0 ~ unlimited
+- **Range**: 0 or higher
 - **Default**: 0 kg
 
-> **Important**: This parameter does not affect the appearance of the truss, but affects the **load safety calculation** in the statistics panel. The system calculates beam deflection, maximum allowable load and other safety indicators based on this value to help you evaluate structural safety.
+> **Important**: This parameter does not affect the appearance of the truss, but affects the load and deflection estimates in the statistics panel. The system calculates beam deflection, maximum load and other reference values from it.
 
 ---
 
@@ -157,7 +157,7 @@ These toggles control the display/hiding of gantry accessory components.
 
 - **Default**: Enabled ✅
 - **Description**: Extends support tubes (Ø48.3mm, length 120cm) in four directions (front/back/left/right) from the bottom of each upright. Only visible and editable when shape is **Portal**
-- **Purpose**: Outriggers increase the bottom stability of the gantry to prevent toppling
+- **Purpose**: Outriggers show bottom support structures in previz; they are not a real anti-toppling verification result.
 
 #### 3.4.3 Show Chain Hoists
 
@@ -187,13 +187,13 @@ Assign separate materials for different gantry components. If not specified (lef
 | **Base Plate Material** | Base plates |
 | **Chain Hoist Material** | Chain hoists |
 
-> **Tip**: It is recommended to use metallic materials (such as aluminum silver, black powder coating, etc.) for the best visual effect.
+> **Tip**: Metallic materials such as aluminum silver or black powder coating usually make the truss appearance easier to read in previz.
 
 ---
 
 ### 3.6 Statistics — Read-Only
 
-The statistics panel displays various engineering data for the gantry under the current configuration. All data is **automatically calculated** and cannot be manually edited.
+The statistics panel displays component, weight, and load estimates for the gantry under the current configuration. All data is automatically calculated and cannot be manually edited.
 
 #### 3.6.1 Component Count Statistics
 
@@ -212,34 +212,34 @@ The statistics panel displays various engineering data for the gantry under the 
 | Field | Description |
 |------|------|
 | **SelfWeight (kg)** | Truss self-weight, including the total weight of all components such as tubes, base plates, chain hoists |
-| **MaxPointLoad (kg)** | Maximum concentrated load at mid-span. The maximum weight that can be safely suspended at the center of the beam (based on DIN 4113 standard, allowable deflection L/300, safety factor 1.5) |
-| **MaxDistributedLoad (kg/m)** | Maximum uniformly distributed load. The maximum linear load when evenly distributed along the full length of the beam |
-| **MaxDeflection (cm)** | Maximum deflection (sag) at mid-span under the current suspended load. If this value approaches span/300, the load is near the safety limit |
+| **MaxPointLoad (kg)** | Concentrated mid-span load reference from the simplified model, based on the current span, material parameters, and deflection limit |
+| **MaxDistributedLoad (kg/m)** | Uniformly distributed load reference from the simplified model, calculated across the full beam length |
+| **MaxDeflection (cm)** | Estimated mid-span deflection under the current suspended load |
 | **SuspendedLoad (kg)** | The suspended load value you set (corresponding to "Suspended Load" in the lift parameters) |
 | **ReactionPerUpright (kg)** | Reaction force at the bottom of each upright (weight that the ground must support), = (SelfWeight + SuspendedLoad) ÷ Number of Uprights |
 
 #### 3.6.3 Current Specification Parameters
 
-Displays detailed physical parameters of the currently selected truss size (e.g., S400), including section dimensions, tube diameters, wall thicknesses, bay spacing, self-weight, moment of inertia, etc. These data originate from industry-standard product manuals (Prolyte / Global Truss) for reference verification.
+Displays detailed physical parameters of the currently selected truss size (e.g., S400), including section dimensions, tube diameters, wall thicknesses, bay spacing, self-weight, and moment of inertia. The built-in data references common product manuals and is only for previz and estimates.
 
 ---
 
-## 4. Safety Calculation Notes
+## 4. Load Estimate Notes
 
-Super Truss includes a load safety calculation model based on **DIN 4113** (German aluminum alloy structural design standard):
+Super Truss includes a simplified load estimate model for understanding the approximate effect of the current dimensions and loads during pre-visualization:
 
 ### Calculation Principles
 
 - **Structural Model**: Simply supported beam (beam supported at both ends on uprights)
 - **Material**: Aluminum alloy 6082-T6 (elastic modulus 70 GPa, yield strength 260 MPa)
-- **Safety Factor**: Variable load 1.5, permanent load 1.35
+- **Safety factor parameters**: Variable load 1.5, permanent load 1.35
 - **Allowable Deflection**: Span/300 (performance industry convention)
 
-### How to Judge Safety
+### How to Use These Values
 
-1. Check **MaxPointLoad**: Your suspended load should be **well below** this value
-2. Check **MaxDeflection**: Deflection should be less than span/300
-3. Check **ReactionPerUpright**: Ensure the ground/support point can bear this weight
+1. Check **MaxPointLoad** to estimate the mid-span concentrated load reference value for the current span
+2. Check **MaxDeflection** to understand the deflection trend under the current suspended load
+3. Check **ReactionPerUpright** to estimate the weight transferred to each upright
 
 > ⚠️ **Disclaimer**: This calculation is for pre-visualization reference only and cannot replace formal structural engineering calculations. Actual construction must be professionally calculated and reviewed by a qualified structural engineer.
 
@@ -287,6 +287,6 @@ Super Truss includes a load safety calculation model based on **DIN 4113** (Germ
 ## 6. Notes
 
 1. **Parameters take effect immediately** — The truss model is rebuilt immediately after any parameter change, no additional action required
-2. **Rebuild only when parameters actually change** — Simply dragging or rotating the Actor does not trigger a rebuild, performance-friendly
+2. **Rebuild only when parameters actually change** — Simply dragging or rotating the Actor does not trigger a structural rebuild
 3. **Lift height auto-limited** — The system ensures the beam does not go below the section size height to prevent clipping
 4. **Conditional editing** — Some parameters are only editable under specific shapes (e.g., "Overhang" only for T-Shape, "Outriggers" only for Portal)

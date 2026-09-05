@@ -1,144 +1,74 @@
-# SuperStage GOBO Atlas Builder — User Manual
+# Gobo Atlas Builder
 
-## 1. Overview
+To project a gobo wheel a fixture does not use the individual gobo image files — it uses a single **strip** with the images side by side. This tool builds that strip.
 
-The GOBO Atlas Builder is used to extract gobo textures associated with specified attributes from the SuperStage fixture library (SuperFixtureLibrary), automatically packing them into a horizontally arranged GOBO atlas texture. The generated atlas is used by the fixture's material system to simulate gobo wheel projection effects in real time in the 3D viewport.
+You need it when a gobo wheel was set up by hand, or when you have swapped an image and want the fixture to pick up the change.
 
----
-
-## 2. Access
-
-**Main Menu Path**: Unreal Engine editor top main menu → **Tools** → **GOBO Atlas Builder** (under the SuperStageTools section)
+The panel has a help button in its top-right corner; its content matches this document.
 
 ---
 
-## 3. Interface Description
+## 1. Opening the Tool
+
+SuperStage toolbar / tools menu → **GOBO Atlas Builder**.
+
+---
+
+## 2. Building an Atlas
+
+1. Pick the **Fixture Library** of the fixture you are working on;
+2. Type the **Attribute Name** of the wheel, **exactly as it is spelled in that library** — spelling and capitalisation have to match. For example `Gobo1`;
+3. Click **Search**. The status line reports how many images were found, and each one is listed below by slot;
+4. Click **Generate Atlas**.
+
+The finished texture is saved next to the fixture library, named after the library and the attribute so you can tell at a glance which wheel it came from:
 
 ```
-┌──────────────────────────────────────────────┐
-│  Fixture Library: [SuperFixtureLibrary Picker]│
-│                                              │
-│  Attribute Name: [Gobo1            ] [Search] │
-│                                              │
-│  Found 6 gobo textures                       │
-│                                              │
-│  ┌──────────────────────────────────────┐    │
-│  │ [0] GoboStar (256x256)               │    │
-│  │ [1] GoboCircle (256x256)             │    │
-│  │ [2] GoboGear (128x128)              │    │
-│  │ ...                                  │    │
-│  └──────────────────────────────────────┘    │
-│                                              │
-│                              [Generate Atlas] │
-└──────────────────────────────────────────────┘
+Library SL_Acme_XP-380Beamll  +  attribute Gobo1
+        ↓
+Texture LTA_Acme_XP-380Beamll_Gobo1
 ```
 
----
-
-## 4. Steps
-
-### Step 1: Select Fixture Library
-
-Select a `USuperFixtureLibrary` asset via the asset picker (SObjectPropertyEntryBox).
-
-### Step 2: Enter Attribute Name
-
-Enter the attribute name from which to extract gobos in the **"Attribute Name"** input field, e.g., `Gobo1`.
-
-### Step 3: Search Gobos
-
-Click the **"Search"** button (or press Enter in the input field). The tool traverses all Modules → AttributeDefs → SubAttributes → ChannelSets in the fixture library, extracting `UTexture2D*` texture references associated with matching attributes.
-
-Search results are displayed in the status area:
-- `Found N gobo textures` — Search successful
-- `Attribute 'XXX' not found or has no gobo textures` — No match found
-- `Please select a fixture library first` / `Please enter an attribute name` — Incomplete parameters
-
-### Step 4: Preview Gobo List
-
-The preview area displays all extracted texture information as a **text list**, including index, texture name, and original dimensions, in the format `[0] GoboStar (256x256)`.
-
-### Step 5: Generate Atlas
-
-Click the **"Generate Atlas"** button. The tool will:
-1. Read the source texture pixel data for each associated GOBO
-2. Scale each texture to the assigned cell size using nearest-neighbor sampling
-3. Arrange all textures **horizontally** into a **4096×256** pixel atlas
-4. Skip GOBOs without textures (shown as black areas)
-5. Automatically save as a UTexture2D asset
+Regenerating replaces the asset of the same name.
 
 ---
 
-## 5. Generated Result
+## 3. Reading the List
 
-### 5.1 Output Path and Naming
+- The number in brackets before the name is the **slot number, counting from zero** — the same order the console steps through the wheel;
+- The size in brackets after the name is the source image's **own resolution**.
 
-| Item | Description |
-|------|-------------|
-| **Output Directory** | Same directory as the selected fixture library asset |
-| **Naming Rule** | `LTA_{LibraryName}_{AttributeName}` |
-| **Prefix Handling** | If the library name starts with `SL_`, the prefix is automatically removed |
+The strip is a fixed width **shared evenly** between the slots, so a wheel with few gobos gives each one more pixels than a wheel with many. Source images are stretched to fit their share; **they do not all need to be the same size** to begin with.
 
-Example: Library `SL_Spot380`, Attribute `Gobo1` → Output `LTA_Spot380_Gobo1.uasset`
-
-### 5.2 Texture Properties
-
-| Property | Value |
-|----------|-------|
-| **Size** | 4096 × 256 pixels (fixed) |
-| **Format** | BGRA8 |
-| **sRGB** | Disabled (linear space) |
-| **Mipmap** | None |
-| **Compression** | Default |
-| **LOD Group** | UI |
+Only the **first group** of images on the attribute is read. If a wheel is split into several groups in the library, the atlas is built from the first one.
 
 ---
 
-## 6. Source Texture Format Support
+## 4. When Something Looks Wrong
 
-The tool supports the following formats when reading source textures, automatically converting to BGRA8:
+**"Attribute was not found or has no gobo textures"**
+Either the name is spelled differently in this library, or the wheel's slots have no images assigned. Open the fixture library and check the attribute.
 
-| Source Format | Processing Method |
-|---------------|-------------------|
-| **G8 (Grayscale)** | Gray → RGB (gray value copied to R/G/B), Alpha = 255 |
-| **BGRA8** | Direct read |
-| **Other ≥ 4-byte formats** | Read in BGRA byte order |
-| **Unsupported formats** | Filled as white |
+**A slot is missing from the list**
+Slots without an image are skipped, so the open slot of a wheel will not appear. Only slots that actually hold an image are built into the strip.
 
----
+**Generate Atlas is greyed out**
+Run **Search** first — there is nothing to build until images have been found.
 
-## 7. Usage Scenarios
-
-### Automatic Workflow
-
-Similar to the color atlas, when a fixture is placed in the scene, SuperStage automatically checks and generates a GOBO atlas.
-
-### Manual Usage Scenarios
-
-- After updating GOBO texture files, repack
-- After adding new GOBO patterns to the fixture library
-- When you need to generate separate atlases for different gobo attributes (e.g., `Gobo2`)
+**A gobo looks stretched**
+The slot's share of the strip is a fixed shape; a source image with a very different shape will be squeezed into it. Prepare gobo images **square** if you want them projected round.
 
 ---
 
-## 8. Notes
+## 5. Boundaries
 
-- The attribute name must be entered manually; the tool does not automatically scan all gobo attributes
-- Atlas size is fixed at 4096×256 and cannot be adjusted
-- Output path is automatically determined; no manual setting is needed
-- Regenerating the atlas overwrites any existing texture asset with the same name
-- If an existing asset with the same name exists, the old asset is deleted before the new one is created
-- The GOBO arrangement order in the atlas matches the definition order in the fixture library
-- Each GOBO proportionally divides the atlas width to ensure complete fill
+- The tool does not scan for gobo attributes automatically; the attribute name has to be typed in;
+- The atlas is for fixture previsualisation. It is not a promise of matching a real gobo, lens, focus, or on-site haze.
 
 ---
 
-## 9. FAQ
+## 6. Related Documents
 
-| Issue | Solution |
-|-------|----------|
-| GOBO list is empty | Confirm the fixture library has attributes matching the name, and ChannelSets contain texture references |
-| Attribute name mismatch | Check the `AttribName` field in the Fixture Library Editor and confirm spelling matches |
-| Generated atlas is all black | Check if source textures can be read normally and if the format is supported |
-| Projected gobo pattern is blurry | Use higher-resolution source textures |
-| Generation fails | Check if the fixture library asset path is valid and the disk has write permissions |
+- [Channel Library Editor](10_FixtureLibraryEditor_en.md)
+- [Color Atlas Builder](13_ColorAtlasBuilder_en.md)
+- [The Fixture Definition Asset](../fixture/01_FixtureDefinition_en.md)

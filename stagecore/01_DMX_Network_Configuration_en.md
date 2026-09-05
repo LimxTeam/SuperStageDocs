@@ -1,19 +1,19 @@
 # 01 - DMX Network Configuration
 
-> **Module**: SuperDMX Configuration Panel (SSuperDMXConfigPanel)  
+> **Module**: SuperDMX configuration panel  
 > **Target Users**: Lighting programmers, technical staff  
-> **Prerequisites**: [00 - DMX System Overview](/docs/stage-core/overview)  
+> **Prerequisites**: [00 - DMX System Overview](00_DMX_System_Overview_en.md)
 > **Last Updated**: 2026-04-14
 
 ---
 
 ## 1. Opening the DMX Configuration Panel
 
-Click the **DMX** button in the **SuperStage toolbar** at the bottom of the UE editor to open the DMX configuration panel. The panel docks into the editor and you can adjust its position at any time.
+Click the **SuperDMX** button in the editor **status bar at the bottom** to open the DMX configuration panel. The panel docks into the editor and you can adjust its position at any time.
 
 The configuration panel is divided into two main areas:
 1. **Upper section** — Input/Output configuration controls (single-row layout)
-2. **Lower section** — DMX Activity Monitor (real-time channel value display)
+2. **Lower section** — DMX Activity Monitor (shows the currently cached channel values)
 
 ---
 
@@ -49,7 +49,7 @@ The configuration panel is divided into two main areas:
               └────────────────────────┘
 ```
 
-> **Key Requirement**: The console, UE editor, and fixtures/nodes must be on the **same Ethernet subnet** (e.g., `192.168.0.x`, subnet mask `255.255.255.0`). Use wired Gigabit connections; **avoid WiFi**.
+> **Key Requirement**: The console, UE editor, and fixtures/nodes must be able to communicate on the Ethernet network. Wired Ethernet is recommended; WiFi, routed subnets, switch multicast settings, firewall rules, and multi-adapter routing can all affect reception.
 
 ---
 
@@ -80,10 +80,10 @@ The current version supports two DMX over Ethernet protocols:
 
 | Protocol | Port | Description |
 |------|------|------|
-| **Art-Net** | UDP 6454 | Most commonly used DMX network protocol, widely compatible with all brand consoles |
-| **sACN (E1.31)** | UDP 5568 | ESTA standard protocol, multicast-based transmission, supports more Universes |
+| **Art-Net** | UDP 6454 | Common DMX over Ethernet protocol. |
+| **sACN (E1.31)** | UDP 5568 | E1.31 protocol; SuperStage has unicast / multicast send and receive paths. |
 
-> **Selection Advice**: If both console and devices support it, **sACN** is recommended (more efficient multicast transmission, no need to configure IP subnet). For MA series consoles, both Art-Net and sACN work.
+> **Selection Advice**: The protocol must match the console or sender. sACN multicast still depends on correct adapter, switch, and system routing configuration; it is not network-configuration-free.
 
 ### 4.2 Local IP Address
 
@@ -121,10 +121,10 @@ The current version supports two DMX over Ethernet protocols:
 | Parameter | Description |
 |------|------|
 | **Type** | Integer input box (supports drag adjustment) |
-| **Range** | 0 - 32,767 |
+| **Range** | Art-Net: 0 - 32,767; sACN: 1 - 63,999 |
 | **Default Value** | 0 |
 
-This is an **offset** used to map Art-Net Universe numbers from the network to SuperStage's internal Universe numbers.
+This is an **offset** used to map network universe numbers to SuperStage's internal universe numbers.
 
 **Mapping Formula**:
 ```
@@ -183,7 +183,7 @@ Select the NIC for sending DMX packets. Should select the NIC on the same subnet
 | Parameter | Description |
 |------|------|
 | **Type** | Integer input box (supports drag adjustment) |
-| **Range** | 0 - 32,767 |
+| **Range** | Art-Net: 0 - 32,767; sACN: 1 - 63,999 |
 | **Default Value** | 0 |
 
 **Mapping Formula** (opposite direction from Input):
@@ -206,14 +206,14 @@ Network Universe = SuperStage Internal Universe + Start Universe - 1
 
 ## 6. Remote IP Address (Send Target)
 
-The output remote IP address (where DMX packets are sent) defaults to **255.255.255.255** (broadcast mode), meaning sent to all devices on the same subnet. sACN uses multicast transmission; no remote IP configuration needed.
+The compact configuration panel does not expose a remote IP text field. When the protocol changes, the panel writes the default remote target for that protocol:
 
-| Mode | Remote IP | Description |
+| Protocol | Default remote setting | Description |
 |------|---------|------|
-| **Broadcast** (default) | `255.255.255.255` | All devices on the same subnet can receive |
-| **Unicast** | e.g., `192.168.0.100` | Only sent to the specified device |
+| **Art-Net** | `255.255.255.255` | Broadcast output. |
+| **sACN** | Empty | Output dynamically calculates `239.255.x.y` multicast addresses from the universe. |
 
-> **Note**: Remote IP can be modified in the current version through the editor settings panel (Project Settings > Plugins > SuperDMX). Default broadcast works for most scenarios.
+> **Note**: Project Settings still shows lower-level fields such as RemoteIp and Port, but the DMX configuration panel rewrites the default port and remote target for the selected protocol when it saves. For normal use, treat the DMX configuration panel as the source of truth.
 
 ---
 
@@ -242,13 +242,13 @@ All settings in the DMX configuration panel are **automatically saved** to the p
 
 Before starting, check your configuration against the following checklist:
 
-- [ ] Computer and console are connected on the **same Ethernet network** (same switch or router)
-- [ ] Computer and console IPs are on the **same subnet** (e.g., both 192.168.0.x, subnet mask 255.255.255.0)
+- [ ] Computer and console can communicate on the Ethernet network
+- [ ] Local adapter, console/sender IP, switch, and routing setup match the selected protocol
 - [ ] **Input is enabled** in the DMX configuration panel
 - [ ] **Local IP** has the correct NIC selected (the one on the same subnet as the console)
 - [ ] **Start Universe** is correctly set (default 0 usually works)
 - [ ] Windows Firewall **allows UE editor** UDP 6454 (Art-Net) or 5568 (sACN) port communication
-- [ ] Console's Art-Net output is enabled and the target address includes your computer's IP (or broadcast address)
+- [ ] Console or sender output protocol matches the protocol selected in SuperStage
 
 ---
 
@@ -261,7 +261,7 @@ Before starting, check your configuration against the following checklist:
 1. **Physical connection**: Confirm Ethernet cable is connected, NIC indicator light is on
 2. **IP configuration**: Run `ipconfig` in command prompt, confirm your IP is on the same subnet as the console
 3. **Firewall**: Temporarily disable Windows Firewall for testing. If it works after disabling, add UDP 6454 (Art-Net) or 5568 (sACN) firewall allow rules
-4. **Console settings**: Confirm console's Art-Net output is enabled
+4. **Console settings**: Confirm the matching protocol output is enabled on the console or sender
 5. **Protocol match**: Confirm console output protocol matches the protocol selected in SuperStage configuration panel (Art-Net or sACN)
 6. **Local IP selection**: Try switching the local IP in the configuration panel, or leave it blank (listen on all NICs)
 
@@ -288,17 +288,17 @@ In addition to the quick settings in the DMX configuration panel, you can find m
 | **Protocol** | Network protocol (Art-Net / sACN) |
 | **Input > bEnabled** | Input enable switch |
 | **Input > LocalIp** | Local IP for input listening |
-| **Input > RemoteIp** | Remote IP for input (usually broadcast address) |
+| **Input > RemoteIp** | Lower-level remote field; the compact panel writes a protocol default |
 | **Input > Port** | Input port (Art-Net: 6454 / sACN: 5568) |
 | **Input > StartUniverse** | Input Start Universe offset |
 | **Output > bEnabled** | Output enable switch |
 | **Output > LocalIp** | Local IP for output |
-| **Output > RemoteIp** | Output target remote IP |
+| **Output > RemoteIp** | Lower-level remote field; Art-Net defaults to broadcast, sACN can be empty and use per-universe multicast |
 | **Output > Port** | Output port (Art-Net: 6454 / sACN: 5568) |
 | **Output > StartUniverse** | Output Start Universe offset |
 
-These settings are fully synchronized with the controls in the DMX configuration panel; modifying either location automatically updates the other.
+The configuration panel saves and applies these settings. RemoteIp, Port, and similar lower-level fields are written from the current protocol; manual edits in Project Settings may be overwritten the next time the DMX configuration panel saves.
 
 ---
 
-> **Next Steps**: Read [02 - Fixture Library](/docs/stage-core/fixture-library) to learn how to create and configure fixture channel definitions.
+> **Next Steps**: Read [02 - Fixture Library](02_Fixture_Library_en.md) to learn how to create and configure fixture channel definitions.

@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The DMX Activity Monitor is a real-time DMX data viewing tool that visually displays Universe channel levels using grayscale bar graphs. It supports monitoring a single Universe or auto-scanning all active Universes, helping you quickly verify DMX signal reception and transmission.
+The DMX Activity Monitor is a tool for viewing SuperStage's internal DMX buffers. It displays Universe channel levels using grayscale blocks and numeric values. It supports monitoring a single Universe or showing all Universes that contain non-zero channel values, helping you confirm whether SuperStage is receiving DMX data.
 
 ---
 
@@ -43,7 +43,7 @@ The DMX Activity Monitor is embedded in the bottom area of the **DMX Config Pane
 | Control | Description |
 |---------|-------------|
 | **All Universes checkbox** | Checked: Auto-display all Universes with signals; Unchecked: Show only the specified Universe |
-| **Universe input field** | Select the Universe number to monitor (range 1 – 32767), supports drag adjustment |
+| **Universe input field** | Select the Universe number to monitor (range 1-512), supports drag adjustment |
 
 ### 4.2 Channel Display
 
@@ -51,14 +51,14 @@ Each Universe is displayed as a row, containing:
 - **Left label**: `U {Number}`
 - **Channel columns**: Each channel is 28 pixels wide, showing from top to bottom:
   - **Channel address** (1–512)
-  - **Grayscale bar** (20 pixels high): Brightness = channel value / 255; higher values appear brighter
+  - **Grayscale block** (20 pixels high): Brightness = channel value / 255; higher values appear brighter; height is fixed and does not represent value
   - **Numeric value** (0–255)
 
-The number of displayable channels is configurable (default 512, maximum 512).
+The DMX Config Panel shows 512 channels by default. The source keeps a channel-count argument, but the current panel does not expose a separate user input for it.
 
 ### 4.3 Signal Filtering
 
-- **All Universes mode**: Retrieves all known Universes from `USuperDMXSubsystem`, only displaying Universes with non-zero signals
+- **All Universes mode**: Retrieves all known Universes from the DMX subsystem, only displaying Universes with non-zero signals
 - **Single Universe mode**: Only queries the specified Universe's buffer
 
 When no DMX data is available, the prompt text appears: *"No DMX data yet. Check Input Enable and source."*
@@ -97,9 +97,9 @@ Click the **"Clear"** button to clear the DMX buffer:
 
 ## 6. Notes
 
-- The activity monitor refreshes data every **100ms**
+- The activity monitor refreshes data about every **100ms**
 - The UI is only rebuilt when the Universe set changes (to avoid frequent redraws)
 - The monitor is read-only; DMX values cannot be modified through this panel (except Clear)
-- A valid subscription is required to refresh data (without permission, data stays frozen without flickering)
-- Universe numbers range from 1–32767 (consistent with the SuperDMX subsystem)
+- The current widget does not perform a subscription-permission check; whether data appears depends on DMX input settings, protocol, network, and sender
+- Universe numbers range from 1-512
 - Supports both horizontal and vertical scrolling to accommodate viewing large numbers of channels

@@ -1,79 +1,46 @@
-# Super Curved Truss — User Manual
+# Super Curved Truss User Manual
 
-## 1. Overview
+## Purpose
 
-**Super Curved Truss** is a spline-driven curved truss generation tool provided by SuperStage. It uses the UE Spline Component to control the truss path, enabling truss structures of any free-form curve shape.
+Super Curved Truss generates truss along a spline path. After selecting the Actor, edit the spline points in the viewport and the truss follows the updated path.
 
-### Core Features
+Use it for free-form lighting rigs, wave-shaped suspended structures, and non-standard truss paths in visualization scenes.
 
-- **Spline-driven** — Define truss path by editing spline control points
-- **Section perpendicular to tangent** — Truss sections are always automatically perpendicular to the spline tangent direction
-- **Section rotation** — SectionRotation parameter controls section rotation around the tangent axis
-- **End plates** — End caps/flanges at both ends
-- **Multiple sections** — Box / Triangle / Flat
-- **Multiple sizes** — S290 / S400 / S520
-
-### Use Cases
-
-- Free-form curved stage trusses
-- S-shaped or wave-shaped lighting rigs
-- Irregular ceiling structures
-- Truss systems that need to follow arbitrary paths
-
-### Differences from Circular Truss
-
-| Feature | Circular Truss | Curved Truss |
-|------|---------------|--------------|
-| Path control | Fixed arc (radius + angle) | Free spline curve |
-| Shape flexibility | Arc only | Any curve |
-| Dual-layer | Supports inner + outer ring | No |
-| Editing method | Parameter adjustment | Spline control point dragging |
-
----
-
-## 2. Main Parameters
-
-### 2.1 Truss Parameters
+## Main Parameters
 
 | Parameter | Description |
-|------|------|
-| **SectionType** | Section type: Box / Triangle / Flat |
-| **TrussSize** | Size: S290 / S400 / S520 |
-| **SectionRotation** | Section rotation angle around the tangent axis |
+| --- | --- |
+| `SectionType` | Section type: Box, Triangle, or Flat. |
+| `TrussSize` | Truss size: S290, S400, or S520. |
+| `BracePattern` | Brace pattern: Warren or Cross. |
+| `SpanCountAlongSpline` | Number of spans along the spline. Higher values create finer path segmentation. |
+| `SectionRotation` | Rotates the section around the spline direction. |
+| `SuspendedLoad` | Suspended load used by the simplified statistics. |
+| `DistributedLoad` | Distributed load used by the simplified statistics. |
+| `bShowHorizontalBraces` | Shows horizontal braces. |
+| `bShowEndPlates` | Shows end plates at both ends. |
+| `ChordMaterial` | Material for chord members. |
+| `BraceMaterial` | Material for brace members. |
+| `EndPlateMaterial` | Material for end plates. |
 
-### 2.2 Spline Editing
+## Spline Editing
 
-After selecting the Actor, spline control points are visible in the viewport:
+- Select the Actor and move spline control points in the viewport to change the truss path.
+- Add more control points for more complex curves.
+- Use `SectionRotation` to adjust the section orientation, such as turning a triangular section upward or sideways.
 
-1. **Drag control points** — Modify the truss path
-2. **Alt + click on spline** — Add a new control point
-3. **Select control point + Delete** — Delete a control point
-4. **Adjust tangent handles** — Control curve curvature
+## Statistics
 
-### 2.3 Component Visibility
+The Actor updates these values from the current spline and parameters:
 
-| Parameter | Description |
-|------|------|
-| **bShowDiagonals** | Show diagonal braces |
-| **bShowHorizontalBraces** | Show horizontal braces |
-| **bShowEndPlates** | Show end plates |
+- `PartCounts`: instance counts for chords, braces, end plates, and related parts.
+- `WeightStats`: simplified estimates for self weight, suspended load, maximum point load, maximum distributed load, deflection, and reaction per upright.
+- `CurrentProfile`: profile data for the selected section and truss size.
+- `BaySizeAlongSpline`: bay length along the spline.
+- `SplineTotalLength`: total spline length.
 
----
+## Notes
 
-## 3. ISM Components
-
-| Component | Elements |
-|------|------|
-| ChordISM | Chords |
-| DiagonalISM | Diagonal braces |
-| HorizontalBraceISM | Horizontal braces |
-| EndPlateISM | End plates |
-
----
-
-## 4. Usage Tips
-
-- A spline requires at least 2 control points
-- More control points = finer truss, but more components
-- SectionRotation adjusts section orientation, e.g., triangle section pointed up or down
-- Curved truss does not support load calculation (due to irregular path)
+- The spline needs at least two valid points.
+- More spans give a finer shape but increase instance count.
+- Load and deflection values are quick estimates only. They do not replace structural engineering calculations or site approval.

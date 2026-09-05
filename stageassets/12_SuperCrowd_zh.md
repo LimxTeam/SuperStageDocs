@@ -1,99 +1,100 @@
-# Super Crowd 程序化人群 — 用户手册
+# Super Crowd 用户手册
 
-## 1. 概述
+## 功能定位
 
-**Super Crowd**（程序化人群）是 SuperStage 提供的程序化观众/人群生成工具。它在样条定义的封闭区域内，通过泊松圆盘采样算法生成不重叠的随机分布人群，并支持地形贴合。
+Super Crowd 用于在封闭样条区域内生成静态人群实例。它按目标人数或目标密度生成点位，再根据角色类型权重分配 Static Mesh，并可选择向地面射线吸附。
 
-### 核心功能
+适合用于观众区预演、活动人流密度预估和舞台前区占位效果。
 
-- **样条边界** — 闭合样条定义人群分布区域
-- **泊松圆盘采样** — Bridson 算法确保人物间距均匀、不重叠
-- **多角色模板** — 支持多种角色网格体 + 权重随机分配
-- **地形贴合** — 射线检测自动贴合地面
-- **密度/数量双模式** — 按密度或目标数量控制人群规模
+插件随包提供 **13 个 VAT 观众角色**，每个角色带 Anim_V1 / Anim_V2 两套动画材质与基础 / 自发光两层表现，角色网格带 LOD。对应两个可放置对象：**Super Crowd V1** 与 **Super Crowd V2**，区别只在套用哪一套动画材质；两者都会在 `CharacterTypes` 为空时自动填入这 13 个角色。
 
-### 适用场景
+也可以在 `CharacterTypes` 里改用项目自有或已获授权的 Static Mesh 和材质——填了就不会被自动填充覆盖。
 
-- 演出场馆观众席预可视化
-- 活动场地人流密度规划
-- 舞台前方站立观众模拟
-- 任意区域人群填充
+## 基本使用
 
----
+1. 在关卡中放置 Super Crowd。
+2. 编辑 Actor 的样条点，让样条围成封闭区域。
+3. 在 `CharacterTypes` 中添加至少一个启用的角色类型，并指定 Static Mesh。
+4. 设置 `TargetCount`，或启用 `bUseDensityMode` 后设置 `TargetDensity`。
+5. 根据需要启用地面吸附、偏航偏差和缩放。
 
-## 2. 使用方式
+如果没有有效角色 Mesh，组件不会生成可见人群。
 
-1. 在场景中放置 **Super Crowd** Actor
-2. 选中后编辑样条控制点，**围出一个封闭区域**
-3. 调整密度/数量参数
-4. 人群自动生成在封闭区域内
-
-> **重要**：样条必须形成封闭多边形（首尾相接），否则无法计算区域。
-
----
-
-## 3. 主要参数
-
-### 3.1 分布参数
-
-| 参数 | 说明 |
-|------|------|
-| **FillMode** | 填充模式：Density（密度）/ TargetCount（目标数量） |
-| **Density** | 密度（人/m²），Density 模式下使用 |
-| **TargetCount** | 目标人数，TargetCount 模式下使用 |
-| **MinSpacing** | 人物间最小间距 (cm) |
-| **RandomSeed** | 随机种子（相同种子产生相同分布） |
-
-### 3.2 角色模板
-
-通过 `Characters` 数组定义可用的角色模型：
+## 角色类型
 
 | 字段 | 说明 |
-|------|------|
-| **Mesh** | 角色静态网格体（StaticMesh） |
-| **Weight** | 权重（越大越可能被选中） |
-| **MinScale / MaxScale** | 随机缩放范围 |
-| **bRandomYaw** | 是否随机旋转朝向 |
+| --- | --- |
+| `Mesh` | 角色 Static Mesh。 |
+| `MaterialOverride` | 可选材质覆盖。 |
+| `Weight` | 随机权重，数值越大越容易被选中。 |
+| `Scale` | 基础缩放。 |
+| `ScaleVariation` | 随机缩放浮动。 |
+| `FootOffsetZ` | 脚底高度偏移。 |
+| `BaseRotationOffset` | 基础旋转偏移。 |
+| `DisplayName` | 编辑器内显示名称。 |
+| `bEnabled` | 是否参与生成。 |
+| `bCastShadow` | 是否投射阴影。 |
 
-### 3.3 地形参数
+## 生成参数
 
 | 参数 | 说明 |
-|------|------|
-| **bSnapToGround** | 是否贴合地面 |
-| **TraceDistance** | 射线检测距离 (cm) |
-| **GroundOffset** | 地面偏移 (cm) |
+| --- | --- |
+| `TargetCount` | 目标人数。实际生成数量可能低于目标值。 |
+| `SafetyRadius` | 人物之间的安全半径，单位厘米。 |
+| `BoundaryPadding` | 距离样条边界的留空距离。 |
+| `RandomSeed` | 随机种子，相同设置下可复现分布。 |
+| `bUseDensityMode` | 使用密度模式。开启后根据区域面积和 `TargetDensity` 计算目标数量。 |
+| `TargetDensity` | 目标密度，单位人/平方米。 |
+| `PoissonAttemptsPerPoint` | 每个采样点的尝试次数。 |
+| `GroundOversampleMultiplier` | 启用地面检测时的过采样倍率。 |
+| `bRelaxSpacingWhenCrowded` | 目标过密时允许逐步放宽安全半径。 |
+| `MinRelaxedSpacingScale` | 安全半径可放宽到的最小比例。 |
+| `SpacingRelaxationPasses` | 放宽间距的尝试轮数。 |
+| `SplineSampleSpacing` | 样条采样间距，单位厘米。 |
 
----
+## 地面和外观参数
 
-## 4. 算法说明
+| 参数 | 说明 |
+| --- | --- |
+| `bSnapToGround` | 启用向地面射线吸附。 |
+| `GroundChannel` | 地面检测使用的碰撞通道。 |
+| `RaycastStartHeight` | 射线起点高度。 |
+| `RaycastDepth` | 向下检测深度。 |
+| `DefaultGroundHeight` | 未吸附时使用的默认高度。 |
+| `GroundOffset` | 地面高度偏移。 |
+| `bAlignToGroundNormal` | 按地面法线调整朝向。 |
+| `bRejectSteepGround` | 拒绝过陡地面。 |
+| `MaxGroundSlopeDegrees` | 允许的最大地面坡度。 |
+| `bFlattenToSplinePlane` | 将点位压回样条平面。 |
+| `bRandomYaw`（Enable Yaw Variation） | 启用偏航偏差，在基础朝向两侧做受控偏移。 |
+| `GlobalMaxRotationVariation`（Yaw Variation Range） | 偏航偏差范围，0–180 度，默认 0。 |
+| `bFaceSplineCenter`（Face Spline Center） | 朝向样条围合区域的中心。默认关。 |
+| `bFaceAwayFromCenter`（Face Away From Center） | 背对中心。默认关。 |
+| `GlobalScaleFactor`（Global Scale Factor） | 全局缩放，0.1–10，默认 1.0。 |
+| `GlobalScaleVariation`（Global Scale Variation） | 全局缩放随机浮动，0–0.5，默认 0。 |
+| `bCastShadows`（Cast Shadows） | 投射阴影。 |
+| `bEnableInstanceCollision`（Enable Instance Collision） | 启用实例碰撞。 |
+| `OverrideMaterial`（Override Material） | 覆盖材质。 |
+| `bOverrideAllMaterialSlots`（Override All Material Slots） | 覆盖全部材质槽。 |
+| `bShowSpline`（Show Spline） | 显示样条。 |
+| `bDebugShowSafetyRadius`（Debug Show Safety Radius） | 调试显示安全半径。 |
 
-### 泊松圆盘采样 (Bridson)
+## 统计信息
 
-- 在样条定义的区域内生成均匀分布的随机点
-- 保证任意两点间距离不小于 MinSpacing
-- 比纯随机分布更自然、无聚簇
+组件会更新：
 
-### 区域判定
+- `ActualCount`：实际生成数量。
+- `NormalizedWeights`：归一化后的角色权重。
+- `CrowdStats.TotalCount`、`RequestedCount`、`CountPerType`：数量统计。
+- `CrowdStats.ValidCharacterTypes`：有效角色类型数量。
+- `CrowdStats.AreaM2`、`Density`：区域面积和实际密度。
+- `CrowdStats.GroundSnappedCount`：成功地面吸附数量。
+- `CrowdStats.FailedPlacements`、`PlacementAttempts`：失败和尝试次数。
+- `CrowdStats.RejectedByBoundary`、`RejectedByGround`、`RejectedBySlope`：被边界、地面检测或坡度过滤的点位数量。
+- `CrowdStats.EffectiveSafetyRadius`、`AverageSpacing`、`MinimumSpacing`：最终间距统计。
 
-- 射线法（Ray Casting）判定点是否在多边形内
-- Shoelace 公式计算区域面积
+## 使用注意
 
-### 地形贴合
-
-- 每个采样点从上方向下发射射线
-- 局部坐标 → 世界坐标 → 射线检测 → 世界坐标 → 局部坐标
-
----
-
-## 5. ISM 组件
-
-使用 ISM 组件池（最多 `MAX_CHARACTER_ISM_COUNT` 个），每种角色网格体占用一个 ISM 组件。
-
----
-
-## 6. 使用提示
-
-- 密度建议值：站立密集 2~4 人/m²，宽松 0.5~1 人/m²
-- 角色 Weight 用于控制比例，如 70% 普通观众 + 20% 举手 + 10% 拍照
-- 修改样条控制点后人群自动重新生成
-- 大量人群（>1000）可能影响编辑器帧率
+- 样条需要围成有效区域，否则面积和分布结果会异常。
+- 目标人数不保证一定达到；区域太小、安全半径太大或地面过滤太严格时会减少。
+- 大量实例会影响编辑器性能，建议先用较小数量确认区域和角色设置。

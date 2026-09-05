@@ -1,265 +1,95 @@
-# 12 - 升降矩阵 (Lift Matrix)
+# 12 - 升降矩阵
 
-> **所属模块**: SuperStage 运行时 (ASuperLiftMatrix)  
+> **所属模块**: SuperAssets  
 > **适用对象**: 灯光设计师、舞美技术人员  
-> **前置阅读**: [04 - 电脑灯](/docs/stage-core/computer-light)  
-> **最后更新**: 2026-04-14
+> **前置阅读**: [00 - DMX 系统概览](00_DMX_System_Overview_zh.md)、[03 - DMX 灯具 Actor 基础](03_DMX_Actor_Base_zh.md)  
+> **最后核对**: 2026-06-28
 
 ---
 
 ## 一、概述
 
-**SuperLiftMatrix** 是一种特殊的舞台灯具 Actor，将多个发光组件垂直排列在钢丝绳悬挂结构上，通过 DMX 控制实现**升降展开/收拢**和**独立颜色/效果控制**。它模拟了演出中常见的升降矩阵灯阵（Kinetic Light）。
+**LiftMatrix** 是一个 42 通道的轻机械灯具 Actor，显示名为 **LiftMatrix**，内置在 SuperStage 插件的 **SuperAssets** 模块中。
 
-### 类继承链
+它由 5 个升降层组成，每层挂载 2 个效果组件，共 10 个发光单元。DMX 或属性控制会驱动整体升降、每个发光单元的效果和 RGB 颜色。
 
-```
-AActor (UE5 引擎基类)
-  │
-  └── ASuperBaseActor ·············· SuperStage 根基类 (L1)
-        │
-        └── ASuperDmxActorBase ····· DMX 灯具基类 (L2)
-              │                      ├ DMX 地址 / 灯具库 / 通道读取
-              │                      └ SuperDMXTick / 矩阵读取
-              │
-              └── ASuperLightBase ·· 电脑灯基类 (L3)
-                    │                 ├ Pan/Tilt 控制 / 无极旋转
-                    │                 ├ LiftRange 升降控制
-                    │                 └ PTSpeed 插值速度
-                    │
-                    └── ASuperLiftMatrix ·· 升降矩阵 (L4) ← 本文档
-                          ├ 5 层 LiftComponent（各含 2 个 EffectComponent）
-                          ├ 4 根 CableComponent 钢丝绳
-                          ├ 升降展开/收拢控制（InPosZ）
-                          ├ 矩阵效果 + 矩阵颜色独立控制
-                          └ MaxLightIntensity 亮度上限
-```
-
-> **设计要点**：`ASuperLiftMatrix` 继承自 `ASuperLightBase`，因此它天然拥有 Pan/Tilt 旋转能力——整个升降矩阵灯阵可以在旋转的同时做升降展开动作。升降功能复用了父类的 `InPosZ` 通道和 `LiftRange` 参数。
-
-### 物理结构
-
-```
-    ┌─ CableOrigin（钢丝绳起点，固定在顶部）
-    │
-    ║  ║                    ←── 4根钢丝绳（四角悬挂）
-    ║  ║
-    ├──┤ LiftComponent_0   ←── 第1层（各含2个EffectComponent）
-    ║  ║
-    ├──┤ LiftComponent_1   ←── 第2层
-    ║  ║
-    ├──┤ LiftComponent_2   ←── 第3层
-    ║  ║
-    ├──┤ LiftComponent_3   ←── 第4层
-    ║  ║
-    └──┘ LiftComponent_4   ←── 第5层
-```
-
-### 核心特点
-
-- **5 层发光组件** — 垂直排列，每层包含 2 个 SuperEffectComponent
-- **4 根钢丝绳** — 从顶部四角延伸到最底层，长度随升降自动调整
-- **DMX 升降控制** — 通过一个 DMX 通道控制整体展开/收拢
-- **矩阵效果控制** — 每层可独立控制效果和颜色（通过矩阵 DMX 读取）
-- **继承 Pan/Tilt** — 继承自 SuperLightBase，支持整体旋转
-
-### 应用场景
-
-- 升降矩阵灯阵（Kinetic Light）
-- 动态吊挂灯具装置
-- 互动装置艺术
-- 舞台背景动态灯光装饰
+> 注意：本文不把 LiftMatrix 描述为可 Pan/Tilt 旋转的电脑灯。
 
 ---
 
-## 二、组件层级
+## 二、放置和基本设置
 
-```
-Actor Root
-  ├── CableOrigin（钢丝绳起点，高度 15cm）
-  │     ├── Cable_0（左前钢丝绳）
-  │     ├── Cable_1（右前钢丝绳）
-  │     ├── Cable_2（左后钢丝绳）
-  │     └── Cable_3（右后钢丝绳）
-  │
-  ├── LiftComponent_0（第1层）
-  │     ├── EffectComponentA_0
-  │     └── EffectComponentB_0
-  ├── LiftComponent_1（第2层）
-  │     ├── EffectComponentA_1
-  │     └── EffectComponentB_1
-  ├── LiftComponent_2（第3层）
-  │     ├── EffectComponentA_2
-  │     └── EffectComponentB_2
-  ├── LiftComponent_3（第4层）
-  │     ├── EffectComponentA_3
-  │     └── EffectComponentB_3
-  └── LiftComponent_4（第5层）
-        ├── EffectComponentA_4
-        └── EffectComponentB_4
-```
+1. 在 SuperStage 资产/灯具列表中找到 **LiftMatrix**。
+2. 放入关卡后，按普通 DMX 灯具设置 **Universe**、**Start Address**、**ControlMode**。
+3. 如果要用 DMX 控制，把 `ControlMode` 设为 DMX，并确保灯具库资产正常加载。
+4. 如果要在属性面板手动预览，把 `ControlMode` 设为 Property，然后调节 **PosZ**。
 
-**共计**：5 个升降层 × 2 个效果组件 = **10 个独立可控的发光单元**
+当前实现中默认灯具库路径为：
+
+`/SuperStage/SuperCore/SuperLight/Machinery/LiftMatrix/SL_Machinery_LiftMatrix`
 
 ---
 
-## 三、属性详解
+## 三、可调参数
 
-### 3.1 默认参数
+| 参数 | 分类 | 默认值 | 说明 |
+| --- | --- | ---: | --- |
+| **PosZ** | C.ControlParameter | 0.0 | 升降展开程度，当前实现按 0-1 归一化读取；在属性模式下可手动调节。 |
+| **LiftRange** | B.DefaultParameter | 500.0 cm | 升降展开范围。数值越大，完全展开时各层之间拉开的距离越大。 |
+| **MaxIntensity** | B.DefaultParameter | 5.0 | 传给效果组件的亮度上限参数。 |
 
-| 参数 | 位置 | 说明 | 范围 | 默认值 |
-|------|------|------|------|--------|
-| **MaxLightIntensity** | B.DefaultParameter | 最大灯光强度 | 0 - 无上限 | 1.0 |
-| **LiftRange** | B.DefaultParameter（继承） | 升降范围（总行程） | 0 - 无上限 | 500.0 cm |
-
-**LiftRange** 来自父类 SuperLightBase，定义了从完全收拢到完全展开的总高度（单位：厘米）。
-
-#### 调参建议
-
-| 场景 | MaxLightIntensity | LiftRange | 说明 |
-|------|-------------------|-----------|------|
-| 小型装置 (3m 以内) | 0.5 - 2.0 | 100 - 200 cm | 近距离观赏，亮度适中 |
-| 中型舞台 (3-8m) | 2.0 - 5.0 | 300 - 600 cm | 标准演出场景 |
-| 大型演唱会 (8m+) | 5.0 - 15.0 | 600 - 1200 cm | 远距离需要更高亮度和更大行程 |
-| 互动装置艺术 | 1.0 - 3.0 | 50 - 150 cm | 小幅运动，注重精度 |
-
-> **提示**：`LiftRange` 决定了完全展开后最底层到最顶层的距离。实际安装时请确保物理空间足够容纳设定的行程。`ComponentSpacing`（5cm）为收拢状态下的层间距，无法修改。
-
-### 3.2 内部常量
-
-| 常量 | 值 | 说明 |
-|------|-----|------|
-| **ComponentCount** | 5 | 升降层数量 |
-| **ComponentSpacing** | 5.0 cm | 收拢状态下各层间距 |
-| **DivisionCount** | 6 | 展开等分数（5层占6等分的1/6~5/6位置） |
-| **CableCornerOffset** | 22.0 cm | 钢丝绳距中心的偏移距离 |
-| **CableOriginHeight** | 15.0 cm | 钢丝绳起点高度 |
-| **CableRadius** | 0.5 cm | 钢丝绳半径 |
+`PosZ` 在 DMX 模式下读取 `PosZ` 属性，并以 16 位方式取值。属性模式下，面板中的 `PosZ` 会直接参与升降计算。
 
 ---
 
-## 四、升降控制
+## 四、结构和运动
 
-### 4.1 升降映射
+LiftMatrix 当前固定创建：
 
-通过一个 DMX 属性（InPosZ，来自父类）控制所有层的展开程度：
+| 内容 | 数量 | 说明 |
+| --- | ---: | --- |
+| 升降层 | 5 | `LiftComponent_0` 到 `LiftComponent_4`。 |
+| 效果组件 | 10 | 每个升降层 2 个效果组件，A 组使用 `SM_Effect`，B 组使用 `SM_Matrix`。 |
+| 钢丝绳 | 4 | 使用 UE 内置圆柱体网格，位于四角。 |
 
-| DMX 值 | 状态 | 说明 |
-|--------|------|------|
-| 0.0 | 完全收拢 | 所有层紧密排列，间距 5cm |
-| 0.5 | 半展开 | 各层均匀分布在 LiftRange 的一半范围内 |
-| 1.0 | 完全展开 | 各层均匀分布在整个 LiftRange 范围内 |
+升降位置由当前实现按 6 等分计算。5 个升降层占用第 1 到第 5 份，顶部留出 1 份空间：
 
-### 4.2 展开分布算法
-
-每层的 Z 位置按**等分分布**计算：
-
-```
-第 i 层（i=0~4）:
-  收拢位置 = -ComponentSpacing × i        （紧密排列）
-  展开位置 = -LiftRange × (i+1) / 6       （6等分，第1~5份）
-  实际位置 = Lerp(收拢位置, 展开位置, DMX值)
+```text
+第 i 层，i = 0..4
+收拢位置 = 初始偏移 - 5cm * i
+展开位置 = 初始偏移 - LiftRange * (i + 1) / 6
+最终位置 = Lerp(收拢位置, 展开位置, PosZ)
 ```
 
-**示例**（LiftRange = 600cm，DMX = 1.0 完全展开）：
-
-| 层 | 收拢 Z | 展开 Z | 说明 |
-|----|--------|--------|------|
-| 第0层 | 0 cm | -100 cm | 1/6 处 |
-| 第1层 | -5 cm | -200 cm | 2/6 处 |
-| 第2层 | -10 cm | -300 cm | 3/6 处 |
-| 第3层 | -15 cm | -400 cm | 4/6 处 |
-| 第4层 | -20 cm | -500 cm | 5/6 处 |
-
-> **注意**：最顶部的 1/6（0~-100cm）空置，用于容纳钢丝绳起点和悬挂机构。
-
-### 4.3 钢丝绳自动更新
-
-升降时，4 根钢丝绳自动调整长度：
-
-- 钢丝绳从 CableOrigin（高度 15cm）延伸到最底层组件
-- 长度 = CableOriginHeight - 最底层Z位置
-- 位于四角（偏移 ±22cm）
-- 通过缩放圆柱体网格实现
+因此 `PosZ = 0` 时接近收拢状态，`PosZ = 1` 时按 `LiftRange` 完全展开。钢丝绳长度跟随最底层位置自动更新。
 
 ---
 
-## 五、效果控制
+## 五、DMX 通道行为
 
-### 5.1 初始化
+该 Actor 的资产信息标记为 **42CH**。当前实现实际读取的主要属性如下：
 
-| 函数 | 说明 |
-|------|------|
-| **SetEffectMatrixDefaultValue** | 初始化所有 10 个效果组件的材质，设置 MaxLightIntensity |
+| 属性 | 用途 | 说明 |
+| --- | --- | --- |
+| `PosZ` | 升降 | 16 位读取，控制 5 层整体展开/收拢。 |
+| `Effect` | 效果 | 通过矩阵读取分配到 10 个效果组件，并查效果 LUT。 |
+| `Red1` / `Green1` / `Blue1` | 颜色 | 通过矩阵 RGB 读取分配到 10 个效果组件。 |
 
-**必须在使用前调用**——通常在蓝图的 BeginPlay 或 SuperDMXTick 第一次执行前调用。
-
-### 5.2 效果选择
-
-| 函数 | 说明 |
-|------|------|
-| **SetEffectMatrix(DmxAttribute)** | 通过矩阵 DMX 通道控制每层的效果选择 |
-
-使用**矩阵 DMX 读取**（GET_SUPER_DMX_MATRIX_VALUE 宏），每个效果组件通过独立的 DMX 通道控制：
-
-- DMX 值（0~255）通过**效果查找表（EffectLUT）**映射为具体的效果参数
-- 效果参数包括：Effect（效果类型）、Speed（速度）、Width（宽度）
-- 10 个效果组件可以独立控制不同的效果
-
-### 5.3 颜色控制
-
-| 函数 | 说明 |
-|------|------|
-| **SetEffectColorMatrix(DmxR, DmxG, DmxB)** | 通过矩阵 DMX 通道控制每层的颜色 |
-
-同样使用矩阵 DMX 读取，每个效果组件通过 3 个独立通道（R/G/B）控制颜色。
+42 通道的来源可以按当前实现理解为：`PosZ` 2 通道，加上 10 个发光单元的 `Effect`、`Red`、`Green`、`Blue` 共 40 通道。实际地址顺序以灯具库资产为准。
 
 ---
 
-## 六、蓝图控制
+## 六、使用建议
 
-### 6.1 典型蓝图实现
-
-```
-Event BeginPlay
-  │
-  └─ SetEffectMatrixDefaultValue()    ← 初始化材质
-
-Event SuperDMXTick(DeltaTime)
-  │
-  ├─ LiftMatrix(DmxLift)              ← 升降控制
-  ├─ SetEffectMatrix(DmxEffect)        ← 效果选择（矩阵）
-  └─ SetEffectColorMatrix(R, G, B)     ← 颜色控制（矩阵）
-```
-
-### 6.2 DMX 通道规划
-
-| 通道 | 属性 | 类型 | 说明 |
-|------|------|------|------|
-| 1-2 | Lift | 16位 | 升降控制（InPosZ） |
-| 3+ | Effect × N | 矩阵 | 效果选择（每个灯头独立） |
-| N+ | R/G/B × N | 矩阵 | 颜色控制（每个灯头独立，各3通道） |
-
-> **通道数取决于矩阵灯头数量**。10 个效果组件 × (1效果 + 3颜色) = 40 通道 + 2升降通道 = 42 通道。
+- `Start Address` 要预留完整 42 通道，避免和后续灯具重叠。
+- `LiftRange` 单位是厘米，设得过大会让模型展开距离明显变长。
+- 如果发光面无颜色或效果，先确认 DMX 是否已经写入对应 Universe 和地址，再检查灯具库是否正常加载。
+- 当前层数和每层发光单元数量是当前实现固定值，用户界面里没有层数设置。
 
 ---
 
-## 七、常见问题
+## 七、相关文档
 
-### Q: 升降范围不够大/太大？
-调整 **LiftRange** 参数。例如设为 1000 表示 10 米行程。
-
-### Q: 效果组件不亮？
-1. 确认已调用 **SetEffectMatrixDefaultValue** 初始化材质
-2. 检查 **MaxLightIntensity** 不为 0
-3. 确认 DMX 信号正确到达
-
-### Q: 钢丝绳不可见？
-钢丝绳使用默认引擎圆柱体网格，如果场景中没有该资源则不会显示。这不影响功能。
-
-### Q: 如何只用部分层？
-目前组件数量固定为 5 层（10个效果组件）。如果只需较少层数，可以将不需要的层的 DMX 效果通道设为 0（关闭）。
-
----
-
-> **下一步**：请阅读 [13 - LED 灯带特效](/docs/stage-core/light-strip) 了解灯带效果控制。
+- [03 - DMX 灯具 Actor 基础](03_DMX_Actor_Base_zh.md)
+- [07 - Patch 工具](07_Patch_Tools_zh.md)
+- [10 - 舞台机械](10_Stage_Machinery_zh.md)

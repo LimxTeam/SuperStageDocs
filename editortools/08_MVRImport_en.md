@@ -1,157 +1,147 @@
-# SuperStage MVR Import — User Manual
+# SuperStage MVR Import / Export User Guide
 
-## 1. Overview
+## 1. Scope
 
-The MVR Import Tool (MVR Import) is used to import fixture layout data from MVR (My Virtual Rig) files. MVR is an open standard file format (.mvr) defined by the GDTF organization, widely used for data exchange between lighting design software. With this tool, you can import stage views exported from software like Vectorworks, Capture, WYSIWYG, etc., directly into the SuperStage scene.
+MVR (My Virtual Rig) is the standard format that lighting design tools, visualisers and consoles use to exchange a complete plot. This panel implements reading and writing to the **MVR 1.6** specification:
 
-The tool displays parsed results grouped by **fixture type**, and you specify a local Actor Class for each type before importing with one click.
+- **Import** — read a `.mvr` package, parse the full scene description (layers, groups, fixtures, trusses, supports, scenery, video screens, projectors, positions, classes, focus points, mapping definitions) and place fixtures and scenery in the current level.
+- **Export** — write the current level back out as a spec-conformant `.mvr`, packing the GDTF of every fixture type into the archive.
 
----
+GDTF files inside the package are no longer ignored: a fixture type that is not in the library yet can be created directly from the GDTF that travelled with the MVR.
 
-## 2. Access
-
-**Main Menu Path**: Toolbar **SuperStage** dropdown menu → **SuperDMXTool** → **MVRImport**
-
-The panel opens with a minimum size of 900 × 500 pixels.
+Open it from the main menu: **SuperStage** → **SuperDMXTool** → **MVR**. The panel has **Import** and **Export** tabs.
 
 ---
 
-## 3. Interface Description
+## 2. Import
+
+### 2.1 Panel
+
+| Area | Purpose |
+| --- | --- |
+| MVR File / Browse | Pick a `.mvr` (an already-extracted `.xml` also works, which is handy when chasing interop problems) |
+| Options | See 2.2 |
+| Summary line | File version, provider, layer count, per-type object counts |
+| Select All / None | Bulk-select fixture types |
+| Re-match | Match every type against the fixture library again (useful after importing new definitions) |
+| Import | Spawn the actors |
+| List | Fixtures grouped by GDTF type and DMX mode, each given a target in the **Target Fixture** column |
+
+The list groups by **(GDTFSpec, GDTFMode)** rather than by fixture instance name. The 16CH and 32CH modes of the same fixture are two different channel layouts and need separate targets; grouping them together would patch half the rig with the wrong channels.
+
+### 2.2 Options
+
+| Option | Description |
+| --- | --- |
+| Create missing fixtures from packaged GDTF | Create a fixture definition asset from the packaged GDTF when the type is not in the library (on by default). MVR requires every fixture's GDTF to travel inside the package, so this almost always works |
+| Layers to outliner folders | Recreate layers and groups as World Outliner folders (on by default). On export the first folder segment becomes a layer again and deeper segments become nested groups |
+| Keep MVR metadata | Attach a `Super MVR Metadata` component holding position, class, focus point, console IDs, colour, protocols, network addresses and everything else Unreal has no concept for (on by default). **Turn it off and that information is gone when you export back to MVR** |
+| Import trusses / supports / scenery | Build static meshes from the `.glb` / `.3ds` geometry in the package, or from the model inside a referenced GDTF, and place them (on by default) |
+| DMX address | Address interpretation, see 2.4 |
+
+### 2.3 Choosing a target
+
+Every group needs a target in the **Target Fixture** column. The drop-down offers three sources:
+
+1. **From packaged GDTF** — create a fixture definition asset from the GDTF this MVR carries.
+2. **Fixture library** — pick an existing type through manufacturer → model → DMX mode. Mode names are only loaded when the third level is actually opened, so a library with thousands of types stays responsive.
+3. **Legacy actor classes** — native fixture classes from SuperAssets (the 16 in-house fixtures and the machinery), plus any Blueprint fixture classes the project itself defines.
+
+Opening a file runs an **automatic match**: GDTF file names follow the `Manufacturer@Model@Revision` convention and fixture definitions carry exactly the same pair in their Identity, so splitting on `@` gives an exact match. A model-only match is accepted when that model name is unique across the whole library; when several manufacturers share a model name ("Beam 200" and friends) the target is left empty for a human to pick rather than guessed.
+
+New definition assets are created under `/Game/SuperStage/FixtureLibrary/<Manufacturer>/<Model>/` and **must be saved from the Content Browser afterwards** (the report reminds you).
+
+### 2.4 DMX addresses
+
+The MVR `<Address>` value is an **absolute, cross-universe address** (universe 4 channel 100 = 3×512+100) and the `break` attribute is the GDTF DMX break, unrelated to universes. This is the default reading.
+
+A few older files instead treat `break` as a universe index and write the channel within that universe. Re-import with **Legacy (break = universe - 1)** in that case. The parser flags the suspicious combination — every address inside one universe while several different break values are in use — in the report.
+
+The `"universe.channel"` string form is understood in both modes.
+
+Multi-break fixtures (body and pixels patched separately) can only carry their first address in Unreal; the remaining breaks are preserved in the metadata component and written back out on export. The report names every affected fixture.
+
+### 2.5 What import produces
+
+| Data | Source |
+| --- | --- |
+| Location / rotation / scale | `<Matrix>`, converted through millimetres→centimetres, right→left handed and the fixture orientation flip |
+| Universe / StartAddress | The primary address (lowest break) |
+| FixtureID | `<FixtureIDNumeric>` → `<FixtureID>` text → `<UnitNumber>`, in that order |
+| Actor Label | The `name` attribute; model plus ID when absent |
+| Outliner folder | Layer and group names |
+| MVR metadata component | Position, class, focus point location, IDs, colour, gobo, protocols, network addresses, mappings, connections, alignments, overwrites, custom commands |
+
+The whole import runs inside one Unreal transaction, so Ctrl+Z undoes it. **Newly created definition assets are outside the transaction** (asset creation is not part of the level undo stack) — undo removes the fixtures, the assets stay.
+
+A report opens when import finishes, listing every error, warning and note from both the parse and the spawn stage. The same lines go to `LogMvrImport`.
+
+---
+
+## 3. Export
+
+Switch to the **Export** tab, set the options below, choose an output path, and click **Export MVR**.
+
+### 3.1 Options
+
+| Option | Description |
+| --- | --- |
+| Pack GDTF files | Put each type's `.gdtf` into the archive (on by default). The spec requires it — without it the receiving application knows the type name but has no channel layout |
+| Outliner folders as layers | First folder segment → layer, deeper segments → nested groups (on by default). Turn off to put every fixture into a single layer |
+| Selected actors only | Export only the fixtures currently selected in the level |
+| Write MVR metadata back | Restore the position, class, focus point, IDs, colour and protocols captured on import (on by default) |
+| Compress scene description | Deflate the scene description (on by default). A large plot compresses roughly ten to one; `.gdtf` files are already archives and are always stored uncompressed |
+
+### 3.2 Archive contents
 
 ```
-┌──────────────────────────────────────────────────────┐
-│  MVR File: [<Choose .mvr>                  ] [Browse]│
-│                                                      │
-│  [Select All] [Select None]              [Import]    │
-│                                                      │
-│  ┌──────────────────────────────────────────────┐    │
-│  │ Import │ Fixture Type   │ Count │ Actor Class │    │
-│  │   ☑   │ Spot380        │  24   │ BP_Spot  ▼  │    │
-│  │   ☑   │ WashLED600     │  16   │ BP_Wash  ▼  │    │
-│  │   ☑   │ BeamMoving     │   8   │ (None)   ▼  │    │
-│  └──────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────┘
+GeneralSceneDescription.xml     Full scene, child order following the MVR 1.6 xs:sequence exactly
+Manufacturer@Model@Rev.gdtf     Each type's original GDTF, keeping its source file name
 ```
 
----
+What gets written: layers and groups; fixtures (matrix, GDTFSpec/GDTFMode, Focus, CastShadow, DMXInvertPan/Tilt, Position, Function, FixtureID/FixtureIDNumeric/UnitNumber, ChildPosition, Addresses plus Network, Protocols, Alignments, CustomCommands, Overwrites, Connections, Color, CustomId, Mappings, Gobo); positions, classes and mapping definitions in AUXData; and the focus points that are referenced.
 
-## 4. Workflow
+`<GDTFMode>` comes from the data-driven fixture's **ActiveMode**, not from the channel library's module name — the latter is a pixel-group name, and writing it would patch the fixture with a completely wrong channel layout.
 
-### Step 1: Select MVR File
+### 3.3 Checked before and after writing
 
-Click the **"Browse"** button and select a `.mvr` file in the file dialog.
+Export does not stop at "the file was written":
 
-Supported file formats:
-- `.mvr` — Standard MVR file (ZIP archive, containing `GeneralSceneDescription.xml`)
-- `.xml` — Directly select the MVR XML description file
+- **Before writing**, the hard requirements of the spec are checked one by one: canonical and unique uuids, positive and globally unique FixtureIDNumeric, UnitNumber, no duplicate breaks on one fixture, valid GDTF file names, every Position / Class / Focus / MappingDefinition reference actually defined, multipatch parents present. Any failure aborts the export with the reason.
+- **After writing**, the file is reopened, re-parsed and the fixture count compared. This catches the class of error where we write something we cannot read back ourselves — downstream that only ever shows up as "the console will not open this file".
 
-> **Auto-Parse**: After selecting a file, the tool **automatically** reads and parses the file content; no additional button click is needed. Parsed results are displayed grouped by fixture type in the list.
-
-### Step 2: Specify Actor Class for Each Type
-
-After parsing, each row in the list represents a fixture type. You need to select the corresponding SuperStage fixture Blueprint class (subclass of `ASuperDmxActorBase`) in the **Actor Class** column's dropdown menu for each type.
-
-### Step 3: Select Types to Import
-
-Use the **Import** checkbox in each row to select which fixture types to import. You can also use the toolbar's **Select All** / **Select None** buttons for batch operations.
-
-### Step 4: Import
-
-Click the **"Import"** button. The tool will:
-1. Check whether all checked types have an Actor Class specified (an alert will appear if any are missing)
-2. Create all fixture Actors within a UE Transaction
-3. Set each fixture's position, rotation, and DMX properties
-4. Display the results via a notification popup after import
+Both results appear in the export report.
 
 ---
 
-## 5. Fixture List Fields
+## 4. When Something Looks Wrong
 
-| Column | Width | Description |
-|--------|-------|-------------|
-| **Import** | 70px | Checkbox; whether to import this fixture type |
-| **Fixture Type** | Flexible | The fixture type name as defined in the MVR file |
-| **Count** | 80px | Number of fixtures of this type |
-| **Actor Class** | 240px | Dropdown to select the local corresponding SuperStage fixture Blueprint class |
+**Fixtures are in the wrong universe**
+Switch **DMX address** to **Legacy** and import again.
 
-The list is sorted in alphabetical ascending order by fixture type name.
+**A type shows "No fixture / no GDTF"**
+The library has no match and the package carried no profile for it. Pick a target by hand, or import the GDTF into the fixture library first.
 
----
+**Export says "Missing GDTF"**
+The fixture's channel library has no profile file on disk. Re-import that fixture from its GDTF so the path is recorded.
 
-## 6. MVR File Parsing
+**Trusses did not appear**
+Only `.glb` and `.3ds` geometry can be read. Profiles that declare a primitive placeholder instead of a real model produce no mesh - the report says which ones.
 
-### 6.1 Parsing Flow
-
-1. If the file is `.mvr` (ZIP format), the tool extracts `GeneralSceneDescription.xml` from the archive
-2. If the file is `.xml`, the tool reads the XML content directly
-3. Parse `<Fixture>` nodes in the XML, extracting type names, positions, rotations, and DMX addresses
-4. Group and count by fixture type
-
-### 6.2 ZIP Extraction Strategy
-
-The tool supports multiple extraction methods to ensure compatibility:
-- **Preferred**: In-memory direct decompression (supports Stored and Deflate compression)
-- **Fallback**: Use system tools (calls PowerShell `Expand-Archive` or `tar.exe` on Windows)
-
-### 6.3 Encoding Support
-
-XML files support the following encodings: UTF-8, UTF-16 LE, UTF-16 BE.
+> Every run also writes its full report to the output log: `LogMvrImport` for import, `LogMvrExport` for export.
 
 ---
 
-## 7. DMX Address Parsing
+## 5. Interoperability notes
 
-DMX address information in MVR files supports multiple formats; the tool automatically recognizes them:
+- The archive is written per PKWARE 6.3.3 using only STORE and DEFLATE, without encryption, with every file at the archive root (the spec requires a flat package). The reader additionally tolerates third-party packages with sub-directories and says so in the report.
+- The reader is deliberately forgiving: tag names are case-insensitive, uuids are accepted in upper case, in braces or without hyphens, objects found directly under `<Layers>` are collected into a synthetic layer, a `Geometry3D` `fileName` without an extension is treated as `.3ds`, and both the `ScaleHandeling` and `ScaleHandling` spellings are read.
+- The writer sticks to the spec: nodes that are not in the specification's child tables are never written (`FixtureTypeId`, for example, is read but not written back), and mandatory nodes are always written even when the value is 0 or empty.
+- Scene descriptions in UTF-8, UTF-8 BOM, UTF-16 LE and UTF-16 BE are all read, as is XML minified onto a single line.
 
-| Format | Example | Description |
-|--------|---------|-------------|
-| **Break Attribute** | `DMXBreakOverride` | Read from XML node attributes |
-| **Absolute Address** | `1025` | Automatically calculated as Universe 3, Address 1 |
-| **U.A Format** | `1.001` | Universe 1, Address 1 |
+## 6. What this version does not do
 
----
-
-## 8. Post-Import Operations
-
-After fixtures are imported into the scene:
-- Fixtures are placed at the 3D positions recorded in the MVR file (with automatic coordinate conversion)
-- Fixtures use the rotation information from the MVR file
-- DMX properties (Universe, StartAddress, FixtureID) are automatically set
-- Fixtures use the MVR label as the Actor Label
-
-You can further adjust fixture configuration after import using SuperStage's other tools (Batch Patch, Patch Preview, etc.).
-
----
-
-## 9. Supported MVR Versions
-
-| Version | Support Status |
-|---------|----------------|
-| MVR 1.0 | Fully supported |
-| MVR 1.4 | Fully supported |
-| MVR 1.5 | Fully supported |
-| MVR 1.6 | Fully supported |
-
----
-
-## 10. Notes
-
-- After selecting a file, parsing happens automatically; no manual trigger is needed
-- Each fixture type **must** have an Actor Class specified to import; otherwise an error prompt will appear
-- Both `.mvr` (ZIP) and `.xml` (direct XML) file formats are supported
-- GDTF fixture description files in MVR are not automatically imported into the SuperStage fixture library
-- Large MVR files (containing hundreds of fixtures) may take a few seconds to parse
-- Import operations support **Ctrl+Z undo** (executed within a UE Transaction)
-
----
-
-## 11. FAQ
-
-| Issue | Solution |
-|-------|----------|
-| List is empty after parsing | Confirm that the MVR file actually contains fixture data |
-| Actor Class dropdown is empty | Confirm the project has Blueprint classes inheriting from `ASuperDmxActorBase` |
-| Clicking Import shows an alert | All checked types must have an Actor Class specified |
-| All fixtures at origin position | The MVR file may not contain position information |
-| Wrong fixture orientation | Different software may use different coordinate systems; manually adjust rotation after import |
-| Cannot open .mvr file | Confirm the file is not corrupted, or try extracting and selecting the internal .xml file |
+- **Scenery is not exported.** Unreal has no path here for writing static meshes back out as `.3ds` / `.glb`, so an exported package contains fixtures only — trusses and props are not included.
+- **MVR-xchange is not implemented.** That is a separate part of the MVR ecosystem (an mDNS discovery plus TCP/WebSocket live-sync protocol), distinct from the file format this panel reads and writes.
+- **Third-party UserData is not passed through.** Private data blocks other applications write under the root `<UserData>` are read, but they are not stored with the level and therefore cannot be handed back on export. Export writes its own provenance block (project name, engine version, fixture count, export time).
+- Scenery whose GDTF only declares a `PrimitiveType` placeholder and carries no model file produces no mesh; the report explains why.

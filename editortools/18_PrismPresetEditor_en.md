@@ -1,134 +1,100 @@
-# Prism Preset Editor — User Manual
+# Prism Preset Editor User Manual
 
-## 1. Overview
+## 1. Scope
 
-The **Prism Preset Editor** is a visual prism pattern editing tool provided by SuperStage. It allows you to directly drag the position and size of prism split points on a 2D canvas, preview the prism effect in real time, and save the results as a **prism preset data asset** (USuperPrismPreset) for use by fixtures.
+The Prism Preset Editor edits SuperStage Prism Preset assets. One preset contains 3 prism layers, mapped to Prism 1, Prism 2, and Prism 3. Each layer contains multiple split points and has global scale, position scale, rotation, and offset settings.
 
-### Core Capabilities
+Whether a fixture displays these prism effects depends on whether the fixture asset references the preset and whether the fixture library Prism slot selects the matching Prism layer.
 
-- **2D Visual Dragging** — Drag prism points directly on the canvas
-- **Three Independent Layers** — Each prism preset supports 3 layers, with up to 48 split points per layer
-- **Multi-Select Operations** — Box-select or Ctrl+click for multi-select; batch move/delete
-- **Preset Templates** — 11 built-in templates: Circle, Line, Triangle, Square, Pentagon, Hexagon, Star, Cross, Diamond, Arc, Honeycomb
-- **Precise Numeric Editing** — Position (X/Y) and scale of each point can be precisely entered
-- **Preset Regeneration Generator** — Generate regular patterns quickly based on templates
-- **3D Preview Viewport** — View the actual prism effect in lighting in real time
-- **Thumbnail Rendering** — Preset thumbnails displayed in the Content Browser
+## 2. Create and Open
 
----
+1. Create a **Prism Preset** asset in the Content Browser.
+2. Double-click the asset to open the editor.
+3. Select Prism 1, Prism 2, or Prism 3 in the editor.
 
-## 2. Creating a Prism Preset
+## 3. Canvas Operations
 
-### Method 1: Content Browser Right-Click Creation
+The left canvas shows the split points for the active layer.
 
-1. Right-click in the Content Browser → **Miscellaneous** → **Prism Preset**
-2. Name the new asset
-3. **Double-click** to open the Prism Preset Editor
+| Operation | Description |
+| --- | --- |
+| Drag a split point | Moves the point |
+| Ctrl + click | Adds to or removes from selection |
+| Box select | Selects multiple points |
+| Delete | Deletes selected points |
+| Add Facet | Adds one split point |
+| Delete Selected | Deletes selected split points |
 
-### Method 2: Using Built-in Templates
+Each layer supports up to 48 split points. When the limit is reached, no more points can be added.
 
-1. After creating a blank preset, open the editor
-2. Click a template button in the preset panel (Circle / Triangle / Square, etc.)
-3. The template automatically fills the split points for the current layer
+## 4. Layer Parameters
 
----
+| Parameter | Description |
+| --- | --- |
+| Enabled | Enables the current prism layer |
+| Layer Name | Name of the current layer |
+| Facet Size Scale | Scales all split point sizes |
+| Position Scale | Scales all split point distances from center |
+| Global Rotation | Rotates the current layer, in degrees |
+| Global Offset | Moves the current layer |
 
-## 3. Editor Interface
+Each point also has Position and Scale. Position is the XY offset from the center. Scale controls that point's size.
 
-The editor uses a **left-right layout**:
+## 5. Arrangement (a live parameter from 26H2.6)
 
-### Left — 2D Canvas
+Arrangement is no longer a one-shot template that fills in a batch of points. It is a **live parameter**: facet count, radius and facet size all recompute as you change them.
 
-- **Reference Circle** — Circular boundary at the center of the canvas; prism points cannot exceed this range
-- **Prism Points** — Circular markers, draggable to reposition
-- **Point Size** — Reflects the Facet.Scale value
+| Arrangement | Description |
+| --- | --- |
+| **Manual (hand-placed)** | Hand-placed facets; the facet array is the final result. The default on existing assets, which keeps hand-placed content as it is |
+| **Ring** | N evenly spaced facets on a ring. The most common form |
+| **Ring + Centre** | A ring plus one facet in the centre, usually larger and brighter |
+| **Double Ring** | Inner and outer rings, each with its own facet count and radius |
+| **Line** | A single row (linear prism) |
+| **Concentric Rings** | **Any number of concentric rings**, with an optional centre facet |
 
-#### Canvas Operations
+**Concentric Rings** is new in this release and the recommended choice for new prisms: three rings, five rings, a different facet count per ring, a phase offset per ring — none of it has to be placed by hand. Per-ring parameters:
 
-| Operation | Function |
-|-----------|----------|
-| Mouse drag prism point | Move position |
-| Ctrl + Click | Multi-select / deselect |
-| Box-select | Batch select |
-| Delete | Delete selected points |
+| Per-ring parameter | Range |
+| --- | --- |
+| Facet Count | 2–48 |
+| Phase | 0–360° |
+| Size Scale | 0.05–4.0 |
+| Position Scale | 0–4.0 |
+| Radius | 0–0.5 |
+| Intensity | 0–4.0 |
 
-### Right — Properties Panel
+Ring / Ring + Centre / Double Ring are all special cases of Concentric Rings; they are kept because existing assets serialise them by enum name.
 
-- **Layer Selection** — Switch between Layer 0 / 1 / 2
-- **Template Buttons** — One-click generation from 11 preset templates
-- **Point List** — Precise numeric values for all split points in the current layer
-- **Global Parameters** — Global scale, etc.
+> The facet count, radius and facet size are independent, so changing a 6-facet layout to 8 keeps everything else you set.
 
----
 
-## 4. Coordinate System
+## 6. Preview and Save
 
-The Prism Preset Editor uses **UV space** coordinates:
+The editor refreshes preset data after asset changes. Use the Unreal Editor save command to save the asset.
 
-| Dimension | Range | Meaning |
-|-----------|-------|---------|
-| X | -0.5 ~ +0.5 | Horizontal position |
-| Y | -0.5 ~ +0.5 | Vertical position |
-| Scale | 0.0 ~ 1.0 | Split point size |
+The Content Browser shows a thumbnail for Prism Preset assets to help identify different presets.
 
-- The coordinate system is consistent with the shader UV coordinate system
-- Circular constraint ensures points do not exceed the reference circle boundary
+## 7. Export Position Texture
 
----
+The editor provides position texture export:
 
-## 5. Preset Templates
+| Button | Description |
+| --- | --- |
+| Export Current Layer | Exports the position texture for the current enabled layer |
+| Export All Enabled Layers | Exports all enabled layers that contain split points |
 
-| Template | Point Count | Description |
-|----------|-------------|-------------|
-| **Circle** | Adjustable | Circular arrangement |
-| **Line** | Adjustable | Linear arrangement |
-| **Triangle** | 3 | Triangle |
-| **Square** | 4 | Square |
-| **Pentagon** | 5 | Pentagon |
-| **Hexagon** | 6 | Hexagon |
-| **Star** | 5 | Star shape |
-| **Cross** | 4 | Cross shape |
-| **Diamond** | 4 | Diamond shape |
-| **Arc** | Adjustable | Arc arrangement |
-| **Honeycomb** | 7 | Honeycomb structure (1 center + 6 surrounding) |
+Exported textures are for material workflows that need direct texture references. For ordinary fixture use, referencing the Prism Preset asset is usually enough.
 
----
+## 8. Use in Fixtures
 
-## 6. Technical Architecture
+1. Reference the Prism Preset in the fixture asset or fixture configuration.
+2. In the fixture library Prism slot, select Prism 1, Prism 2, or Prism 3.
+3. When console or DMX data triggers that slot, the fixture uses the matching prism layer.
 
-### Position Lookup Texture
+## 9. Notes
 
-Each prism preset generates a **48×1 RGBA16F** position lookup texture:
-
-| Channel | Meaning |
-|---------|---------|
-| R | X offset |
-| G | Y offset |
-| B | Scale |
-| A | Reserved |
-
-The `SuperPrismDraw` material expression in the material loops through this texture to render multi-split patterns.
-
-### Data Asset
-
-- `USuperPrismPreset` inherits from `UDataAsset`
-- `GetPositionTexture()` lazy-creates/caches the texture
-- The texture updates automatically when the preset is modified
-
----
-
-## 7. Using in Fixtures
-
-1. Create and edit a prism preset
-2. Reference the preset in the fixture Blueprint's **Prism** property
-3. Select which layer to use via PrismLayerIndex (0/1/2)
-4. The corresponding prism split effect will appear in the light
-
----
-
-## 8. Usage Tips
-
-- Each layer supports up to 48 split points (limited by the position lookup texture resolution)
-- Changes to presets update in fixtures in real time; no restart required
-- Thumbnails are automatically generated from the preset's point distribution for easy identification in the Content Browser
-- It's recommended to store commonly used prism presets in the project's `Content/PrismPresets/` folder
+- Prism 2 and Prism 3 may be disabled by default. Enable them or apply a template before use.
+- Empty layers do not provide usable split points.
+- Templates replace existing split points in the current layer. Duplicate the asset first if you need to keep the old pattern.
+- Final visual output also depends on fixture materials, beam components, and the fixture's prism control logic.

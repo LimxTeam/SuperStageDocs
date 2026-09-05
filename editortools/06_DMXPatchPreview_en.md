@@ -1,100 +1,62 @@
-# SuperStage DMX Patch Preview — User Manual
+# SuperStage DMX Patch Preview User Manual
 
-## 1. Overview
+## Purpose
 
-The DMX Patch Preview panel (Super DMX Patch Preview) provides a visual list of DMX address information for all fixtures in the scene. You can view, sort, and directly edit each fixture's DMX parameters in this panel without needing to select fixtures individually.
+DMX Patch Preview shows and edits patch information for SuperStage DMX fixtures in the current level. The left side is a fixture list and the right side is a DMX channel grid.
 
----
+The panel only collects SuperStage DMX fixtures. It does not show regular Unreal lights or other non-DMX Actors.
 
-## 2. Access
+## Opening The Panel
 
-**Main Menu Path**: Toolbar **SuperStage** dropdown menu → **SuperDMXTool** → **PatchPreview**
+It is the lower half of the **Super Patch Tool** panel: SuperStage toolbar → **SuperDMXTool** → **PatchTool**; the patch preview is below the parameter bar.
 
----
-
-## 3. Interface Description
-
-```
-┌────────────────────────────────────────────────────┐
-│  Fixture Patch List                                 │
-│  ┌──────────────────────────────────────────────┐  │
-│  │ Model     | Name       | FID | Uni | Addr    │  │
-│  │ Spot380   | Spot_1     | 1   | 1   | 1       │  │
-│  │ Spot380   | Spot_2     | 2   | 1   | 25      │  │
-│  │ Wash600   | Wash_1     | 3   | 1   | 49      │  │
-│  │ Wash600   | Wash_2     | 4   | 1   | 73      │  │
-│  │ ...                                          │  │
-│  └──────────────────────────────────────────────┘  │
-│                                                     │
-│  [Refresh List]                                     │
-└────────────────────────────────────────────────────┘
-```
-
----
-
-## 4. List Field Description
+## List Columns
 
 | Column | Description | Editable |
-|--------|-------------|----------|
-| **Model** | The Blueprint class name of the fixture | No (read-only) |
-| **Name** | The fixture's label in the scene | No (read-only) |
-| **Fixture ID (FID)** | Fixture ID number, used for console identification | Yes |
-| **Universe (Uni)** | DMX Universe number | Yes |
-| **Start Address (Addr)** | Starting channel in that Universe | Yes |
+| --- | --- | --- |
+| Model | Fixture model/type name. | No |
+| Name | Actor label in the level. | Yes |
+| FixtureID | Fixture ID. Duplicate IDs are shown in red. | Yes |
+| Universe | DMX Universe. | Yes |
+| StartAddress | Start address. Overlapping address ranges in the same Universe are shown in red. | Yes |
 
----
+## Editable Ranges
 
-## 5. Operations
+| Field | Source Limit |
+| --- | --- |
+| FixtureID | Minimum 1, maximum `INT32_MAX`. |
+| Universe | 1-512. |
+| StartAddress | 1-512. |
 
-### 5.1 Viewing Fixture Information
+Numeric input is clamped into the allowed range.
 
-After opening the panel, all SuperStage DMX fixtures currently in the scene and their patch information are automatically listed.
+## Sorting
 
-### 5.2 Editing DMX Parameters
+When the list refreshes, rows are sorted by:
 
-Click on editable fields (Fixture ID, Universe, Start Address) directly in the list, enter the new value, and press **Enter** to confirm. Modifications are applied immediately to the corresponding fixture.
+1. Fixture model/type name.
+2. Trailing number in the Actor label.
+3. Actor label text.
 
-| Parameter | Valid Range |
-|-----------|-------------|
-| **Fixture ID** | 1 - 9999 |
-| **Universe** | 1 - 256 |
-| **Start Address** | 1 - 512 |
+For fixtures of the same model/type, labels ending in numbers are ordered by those numbers.
 
-### 5.3 Sorting
+## Conflict Indicators
 
-The list is sorted by default according to these rules:
-1. First by fixture model (class name) in alphabetical order
-2. Within the same fixture type, by natural sort of numeric portions in the label names
+When the list refreshes, the panel calculates:
 
-### 5.4 Selection Linking
+- Whether FixtureID values are duplicated.
+- Whether address ranges overlap inside the same Universe.
 
-Clicking on a fixture row in the list automatically selects the corresponding fixture Actor in the 3D viewport, allowing you to quickly locate it.
+Conflicting values are shown in red. Address range uses the fixture's current channel span.
 
-### 5.5 Refreshing the List
+## Selection Linking
 
-If fixtures are added to or removed from the scene while using the panel, click the **"Refresh List"** button to update the display.
+- Selecting one or more rows in the left list selects the corresponding level Actors and highlights them in the channel grid.
+- Selecting fixtures in the channel grid also selects the level Actors and matching list rows.
+- After an address drag operation is committed in the channel grid, the list refreshes.
 
----
+## Notes
 
-## 6. Usage Scenarios
-
-### Scenario 1: Quickly Checking Patch Status of All Fixtures
-
-Open the panel to see the DMX allocation for all fixtures at a glance, quickly identifying address conflicts or omissions.
-
-### Scenario 2: Individually Adjusting a Fixture's Address
-
-Find the target fixture in the list and directly modify its Universe or Start Address without needing to locate and select the fixture in the viewport.
-
-### Scenario 3: Using Alongside the Batch Patch Tool
-
-First use the Batch Patch Tool for initial allocation, then fine-tune individual fixture addresses in the Patch Preview panel.
-
----
-
-## 7. Notes
-
-- The panel only shows SuperStage DMX fixtures, not regular UE lights
-- Modifications take effect immediately but support Ctrl+Z undo
-- Address conflicts are not automatically detected; ensure manually that different fixtures do not occupy overlapping channel ranges
-- If there are many fixtures (hundreds), refreshing may require a brief wait
+- Editing Name updates the Actor label in the level.
+- Editing FixtureID, Universe, or StartAddress writes back to the fixture's Patch settings and triggers editor update.
+- Conflict marks are calculated during list refresh. After manual address edits, reopen the panel or refresh through the channel grid before relying on the current conflict state.

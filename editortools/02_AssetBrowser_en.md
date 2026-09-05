@@ -1,112 +1,126 @@
-# SuperStage Asset Browser — User Manual
+# SuperStage Asset Browser
 
-## 1. Overview
+> Applies to SuperStage 26H2.6 and later (rebuilt in this release)
 
-The Asset Browser (Super Asset Browser) is SuperStage's fixture asset management panel. It automatically collects all available SuperStage fixture Blueprints in the project, organized by category and manufacturer, with support for searching, filtering, and drag-and-drop operations, making it easy to quickly place fixtures into the scene.
+## Purpose
 
----
+The asset browser finds a fixture, a prop or an effect by category and puts it into the scene.
 
-## 2. Access
-
-**Main Menu Path**: Toolbar **SuperStage** dropdown menu → **SuperBrowser**
+**Open**: SuperStage toolbar → **SuperBrowser**. There is a help button in the top-right corner.
 
 ---
 
-## 3. Interface Layout
+## 1. Interface
 
-The Asset Browser is divided into three main areas:
+| Area | Description |
+| --- | --- |
+| Category tree (left) | Narrows what is shown on the right; every row carries its item count |
+| Search box | Matches model, manufacturer and fixture type at once |
+| Tile view (right) | The placeable assets |
+| Slider (bottom right) | Tile size |
+| Refresh | Rescan |
 
-```
-┌─────────────────────────────────┐
-│  Search bar + filter buttons    │
-├──────────┬──────────────────────┤
-│          │                      │
-│ Category │   Fixture Asset      │
-│ Tree     │   Tile View          │
-│          │                      │
-│          │                      │
-├──────────┴──────────────────────┤
-│  Status bar (asset count)       │
-└─────────────────────────────────┘
-```
+Tree structure: **All** sits at the top (that is how you get back to everything after drilling into a category), below it three shortcut rows (All / Favorites / Recent), then the broad categories, and under each the manufacturers that have something in it.
+
+Assets fall into five categories:
+
+| Category | Content |
+| --- | --- |
+| StageLight | Fixture library, imported from GDTF |
+| StageModel | Scenic structures: truss, scaffolding, stage decks, seating stands, barriers, drapes, cable trays, audience |
+| SuperVFX | Effect devices: smoke, fire, snow, bubbles, streamers, pyro, fountain, water pool |
+| SuperLight | Seven in-house fixture series |
+| SuperStage | Stage devices: screens, projectors, lasers, LED tape, broadcast cameras, lift and track machinery, Madrix, white-model object |
 
 ---
 
-## 4. Feature Details
+## 2. Search
 
-### 4.1 Search Bar
+The search box matches **name, manufacturer and fixture type at once**, with space-separated terms — all words have to match, in any order. So `robe beam` finds Robe's beam fixtures.
 
-Located at the top of the panel, provides real-time text search functionality.
+Search **works together with the tree**: pick a manufacturer first and search inside it.
+
+---
+
+## 3. Favourites and Recent
+
+A show usually comes down to a handful of fixtures placed over and over. Two rows at the top of the tree exist for exactly that.
+
+**Favourites** is the list you curate:
+
+- Right-click a tile → **Add to favourites**; a star appears on its corner so you can spot it anywhere in the browser;
+- Once it is in there, the same menu item reads **Remove from favourites**;
+- **Favourites are kept per user**, so yours do not follow the project to anyone else.
+
+**Recent** fills itself in: anything you drag out or place lands at the top, newest first. Nothing to maintain — the fixtures you are actually working with rise to the top on their own.
+
+- Something you tried once and do not want cluttering the list: right-click it → **Remove from recent**;
+- To empty the whole list: right-click the **Recent** row in the tree → **Clear recent list**. Favourites are left alone.
+
+---
+
+## 4. Placing Into the Scene
+
+| Operation | Description |
+| --- | --- |
+| **Drag a tile into the viewport** | Drop it where you want it. The normal way to place something |
+| **Double-click a tile** | Drops it straight into the level without aiming — useful when the position does not matter yet, or when you are about to move it with the array tools anyway |
+
+> Fixtures arrive **unpatched**. Give one a universe, an address and a number in the Patch tool before expecting it to respond to a console.
+
+---
+
+## 5. Swapping Fixtures Already in the Scene
+
+Select one or more items in the level, then **right-click a tile** here and choose **Replace selected actor with this asset**.
+
+- The menu tells you how many actors are selected, so you can see the scale of what you are about to do before committing;
+- Each selected item is swapped for the one you picked, **keeping its position, orientation and DMX mode**;
+- This is how you change a whole rig from one fixture to another — for instance when the venue supplies a different model than the one the plot was drawn with — without placing anything again.
+
+> **The patch does not carry over.** Re-address anything you swap.
+
+---
+
+## 6. Other Right-Click Actions
 
 | Action | Description |
-|--------|-------------|
-| Enter keywords | Real-time filtering of fixture names, supports fuzzy matching |
-| Clear search box | Show all fixtures |
-
-**Search Scope**: Matches fixture asset names.
-
-### 4.2 Category Tree (Left Panel)
-
-Displays all fixture asset categories in a tree structure.
-
-**Category Hierarchy**:
-
-| Level | Description | Example |
-|-------|-------------|---------|
-| First Level | Fixture group | Moving Light, Conventional, Effect Light, Special Effect Device |
-| Second Level | Manufacturer | Acme, Chauvet, ClayPaky |
-| Third Level | Specific fixture model | XP-380Beam, Intimidator Spot |
-
-**Operations**:
-- **Click a category node**: The right asset view only shows fixtures under that category
-- **Click root node "All"**: Show all fixtures
-- The number next to a category indicates the fixture count in that category
-
-### 4.3 Asset Tile View (Right Main Area)
-
-Displays filtered fixture assets in tile form.
-
-**Each tile shows**:
-- Fixture thumbnail (automatically obtained from the Blueprint asset)
-- Fixture name
-
-**Operations**:
-
-| Action | Description |
-|--------|-------------|
-| **Click** | Select that fixture asset |
-| **Drag to viewport** | Drag the fixture to a specific location in the 3D scene; a fixture Actor is automatically created |
-| **Double-click** | Locate the asset in the Content Browser |
-
-### 4.4 Status Bar
-
-Located at the bottom of the panel, displays statistics for the current filter results:
-- Number of currently displayed assets
-- Total number of assets
+| --- | --- |
+| Place | Put into the level |
+| Replace | See section 5 |
+| Add / remove favourite | See section 3 |
+| Locate in Content Browser | Jump to the asset |
+| Open fixture definition | Go straight to the fixture editor |
 
 ---
 
-## 5. Workflow
+## 7. Tile Information
 
-### 5.1 Placing a Fixture into the Scene
-
-1. Open the Asset Browser
-2. (Optional) Use the left category tree to narrow down the scope, or enter keywords in the search bar
-3. Find the target fixture in the right tile view
-4. **Hold down the left mouse button and drag** the fixture tile into the 3D viewport
-5. **Release the mouse** at the target location; the fixture will be placed there
-
-### 5.2 Quickly Finding a Fixture
-
-1. Enter part of the fixture name in the top search bar (e.g., "Beam", "Wash")
-2. The view filters in real time, only showing fixtures whose names contain the keyword
-3. Clear the search bar to restore the full display
+Each tile shows a thumbnail and a name. **Hovering** shows the full model, manufacturer, type and how many DMX modes it has.
 
 ---
 
-## 6. Notes
+## 8. When Something Is Missing
 
-- The Asset Browser only shows Blueprint assets that inherit from SuperStage fixture base classes
-- Newly added fixture Blueprints need correct category metadata to appear under the correct category
-- If the fixture list is empty, check whether the project's Content directory contains SuperStage fixture assets
-- When dragging to the scene, fixtures use default DMX configuration, which can be modified later via the Patch Tool
+| Symptom | What to do |
+| --- | --- |
+| An item you just added is not listed | The list normally updates on its own; press **Refresh** if it has not |
+| You cannot find a fixture you know exists | Click **All** first — a category or manufacturer may still be selected in the tree, and search only looks inside the current scope |
+| Items appear under **Default** | That category is where anything without a category set ends up. Set one so the item is findable later |
+| Thumbnails are blank at first | Previews are built in the background the first time the panel opens; they fill in as they finish |
+
+---
+
+## 9. Notes
+
+- Dragging a fixture into the scene does **not** snap the page back to All or collapse the sidebar groups. Clicking empty space in the sidebar does return to All, which is intended behaviour;
+- The list keeps itself up to date as assets are imported and deleted; Refresh is there for the rare case where something has changed outside the editor.
+
+---
+
+## 10. Related Documents
+
+- [Fixture System Overview](../fixture/00_FixtureSystem_Overview_en.md)
+- [GDTF Import](../fixture/02_GdtfImport_en.md)
+- [Patch Tools](../stagecore/07_Patch_Tools_en.md)
+- [Fixture Array Tool](11_FixtureArrayTool_en.md)

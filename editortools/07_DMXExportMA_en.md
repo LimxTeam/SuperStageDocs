@@ -1,174 +1,111 @@
-# SuperStage DMX Export MA Macro — User Manual
+# DMXToMa User Manual
 
 ## 1. Overview
 
-The DMX Export MA Macro Tool (Super DMX To MA) is used to export fixture configurations from the SuperStage scene into macro script files and stage view XML files that can be directly imported by grandMA2 or grandMA3 lighting consoles. This allows you to complete fixture layouts in a virtual environment and sync them to the actual performance console with one click, eliminating the need to manually enter large amounts of fixture parameters.
+**DMXToMa** exports SuperStage DMX fixtures from the current level into grandMA2-compatible XML layer files and a macro file, grouped by model. The exported files must still be imported, executed, and checked in a grandMA2 environment.
+
+The current implementation does not provide a MA3 / Lua export option, and it does not create Fixture Profiles. For each selected model, you must manually enter the existing **FixtureType No** from the MA2 console.
 
 ---
 
 ## 2. Access
 
-**Main Menu Path**: Toolbar **SuperStage** dropdown menu → **SuperDMXTool** → **DMXToMa**
+Toolbar **SuperStage** dropdown → **SuperDMXTool** → **DMXToMa**
 
 ---
 
-## 3. Interface Description
+## 3. Interface
 
+The current panel contains:
+
+| Control | Description |
+| --- | --- |
+| **Export Directory** | Export root folder. The desktop is preferred as the default location when available. |
+| **Browse** | Choose the export folder. |
+| **Refresh** | Rescan SuperStage DMX fixtures in the current level. |
+| **Select All** | Select all model groups. |
+| **Select None** | Clear all model groups. |
+| **Export** | Generate export files. |
+| **Model list** | Shows Model, Count, and FixtureType No grouped by fixture model/type. |
+
+**FixtureType No** must be greater than 0 for every selected model. The current load/save functions for these numbers are placeholders, so check the numbers again after reopening the tool.
+
+---
+
+## 4. Exported Files
+
+When you click **Export**, the tool creates a timestamped folder under the export directory:
+
+```text
+SuperDMX_YYYYMMDD_HHmmss/
+  fixture_layers/
+    LAYER_ModelName-1.xml
+    ...
+  macros/
+    SuperStageToMA.xml
 ```
-┌──────────────────────────────────────────┐
-│  Export Settings                         │
-│                                          │
-│  Target Console:  [MA2 ▼] / [MA3 ▼]      │
-│  Export Path:     [C:\Export\...] [Browse]│
-│                                          │
-│  Stage View Options:                     │
-│  ☑ Export Stage View XML                │
-│  ☑ Include Fixture Position             │
-│  ☑ Include Fixture Rotation             │
-│                                          │
-│  Fixture List (Preview)                  │
-│  ┌──────────────────────────────────┐   │
-│  │ ☑ Spot_1  | FID:1 | U1.001     │   │
-│  │ ☑ Spot_2  | FID:2 | U1.025     │   │
-│  │ ☐ Wash_1  | FID:3 | U1.049     │   │
-│  │ ...                              │   │
-│  └──────────────────────────────────┘   │
-│                                          │
-│  [Select All] [Select None]  [Export]    │
-└──────────────────────────────────────────┘
-```
+
+Exported data comes from selected SuperStage DMX fixture model groups in the current level:
+
+| Data | Source |
+| --- | --- |
+| Universe | Fixture Universe |
+| Start Address | Fixture Start Address |
+| Fixture ID | Fixture ID |
+| Position / Rotation | Actor world location and world rotation |
+| Model name | Fixture model/type name |
+
+Layer XML writes Patch Address as 0. Actual patching is done by `Assign Fixture ... At Dmx ...` commands in the macro file.
 
 ---
 
-## 4. Parameter Description
+## 5. Coordinate Conversion
 
-### 4.1 Target Console
+The source writes MA layer XML using this conversion:
 
-| Option | Description |
-|--------|-------------|
-| **grandMA2** | Generate command-line macro scripts for grandMA2 (.xml format) |
-| **grandMA3** | Generate Lua macro scripts for grandMA3 (.lua format) |
+| MA Position / Rotation | SuperStage / UE Source |
+| --- | --- |
+| X | UE Y / 100 |
+| Y | -UE X / 100 |
+| Z | UE Z / 100 |
+| Rot X | UE Roll |
+| Rot Y | UE Pitch + 270 |
+| Rot Z | UE Yaw + 180 |
 
-> **Note**: MA2 and MA3 macro formats are completely different; ensure you select the option matching your console version.
-
-### 4.2 Export Path
-
-Click the **"Browse..."** button to select the save location for exported files. The default path is the `Saved/SuperStage/Export/` folder under the project directory.
-
-### 4.3 Stage View Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| **Export Stage View XML** | Whether to also export a stage view file | ☑ Enabled |
-| **Include Fixture Position** | Whether to include XYZ coordinates in the stage view | ☑ Enabled |
-| **Include Fixture Rotation** | Whether to include rotation angles in the stage view | ☑ Enabled |
+After import, check stage direction, origin, and fixture orientation in the console.
 
 ---
 
-## 5. Fixture List
+## 6. Workflow
 
-The list displays all SuperStage DMX fixtures in the scene. Each row includes:
-
-| Content | Description |
-|---------|-------------|
-| **Checkbox** | Whether to export this fixture (default: all checked) |
-| **Fixture Name** | The fixture's label in the scene |
-| **Fixture ID** | Fixture ID number |
-| **DMX Address** | Format: `U{Universe}.{StartAddress}` |
-
-You can uncheck fixtures you don't want to export.
-
-### 5.1 Quick Actions
-
-| Button | Function |
-|--------|----------|
-| **Select All** | Check all fixtures in the list |
-| **Select None** | Uncheck all fixtures |
+1. Confirm fixture Universe, Start Address, and Fixture ID in the scene.
+2. Open **DMXToMa**.
+3. Click **Refresh**.
+4. Select the model groups to export.
+5. Enter the matching MA2 **FixtureType No** for each selected model.
+6. Choose an export directory.
+7. Click **Export**.
+8. In grandMA2, import `fixture_layers` and `SuperStageToMA.xml`, then run the macros and check patch, groups, and positions.
 
 ---
 
-## 6. Export Content Description
+## 7. When Export Stops
 
-### 6.1 MA2 Macro Script Export
+**"Please choose an export directory"**
+No destination is set yet.
 
-The exported MA2 macro file contains the following commands:
+**"Model requires a valid FixtureType No"**
+One of the ticked types still has no console number. The message names which one.
 
-| Command Type | Description |
-|-------------|-------------|
-| **Fixture Type Creation** | Create the corresponding fixture type in the console's fixture library |
-| **Fixture Patch** | Assign Universe and Start Address for each fixture |
-| **Fixture ID** | Set the Fixture ID |
-| **Fixture Name** | Set the fixture's label name |
-
-### 6.2 MA3 Lua Script Export
-
-The exported MA3 Lua file performs the same operations using MA3's command-line interface; syntax is adapted for the MA3 environment.
-
-### 6.3 Stage View XML
-
-The stage view file contains fixture position and rotation information in 3D space, which can be imported into MA software's 3D Stage View for accurate 1:1 virtual stage reproduction.
+**"No actors found for export"**
+There are no fixtures in the current level, or none of the ticked types are actually present. Press **Refresh** and check the counts in the list.
 
 ---
 
-## 7. Workflow
+## 8. Notes
 
-### Step 1: Complete Fixture Layout
-
-Place all fixtures and configure DMX Patch in the SuperStage scene.
-
-### Step 2: Open Export Tool
-
-Open the DMX Export MA Macro Tool via the main menu.
-
-### Step 3: Select Target Console
-
-Select your console version (MA2 or MA3).
-
-### Step 4: Set Export Path
-
-Choose an accessible folder (e.g., USB drive or network share) for easy transfer to the console.
-
-### Step 5: Select Fixtures
-
-By default, all fixtures are exported. Uncheck fixtures you don't want to export to the console.
-
-### Step 6: Click Export
-
-Click the **"Export"** button; files will be generated in the specified path.
-
-### Step 7: Import to Console
-
-- **MA2**: Import the macro file via Backup → Import on the console, then execute the macro
-- **MA3**: Load and execute the Lua script via the Plugin feature on the console
-
----
-
-## 8. Exported File List
-
-After export completes, the following files will be generated in the export path:
-
-| File | Description |
-|------|-------------|
-| `SuperStage_Patch_MA2.xml` or `SuperStage_Patch_MA3.lua` | Macro script file |
-| `SuperStage_StageView.xml` | Stage view XML file (if stage view export was checked) |
-
----
-
-## 9. Notes
-
-- Ensure all fixtures have been correctly assigned DMX addresses and Fixture IDs before exporting
-- Fixtures without assigned Fixture IDs will use auto-generated numbers
-- MA macro scripts will overwrite existing fixture configurations with the same names on the console; back up the console first
-- Coordinates in the stage view are in meters, automatically converted from SuperStage's Unreal coordinates
-- If the console's fixture library lacks a corresponding fixture type, the macro script will attempt to create a basic fixture type configuration
-
----
-
-## 10. FAQ
-
-| Issue | Solution |
-|-------|----------|
-| Console reports errors executing macro | Check if target console version matches (MA2/MA3) |
-| Stage view has large position offsets | Check if fixture world coordinates in the SuperStage scene are reasonable |
-| Exported fixture count is incorrect | Check if some fixtures were unchecked |
-| Console fixture types don't match | Manually select the correct fixture type to replace in the console's fixture library |
+- Selection is by model group, not by individual Actor row.
+- FixtureType No must match an existing fixture type in the console.
+- The tool does not generate MA3 Lua files.
+- The tool does not create or import Fixture Profiles.
+- Exported files are handoff aids, not a guarantee of the final show-console patch.

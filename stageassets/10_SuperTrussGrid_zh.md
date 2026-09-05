@@ -1,66 +1,45 @@
-# Super Truss Grid 桁架网格 — 用户手册
+# Super Truss Grid 用户手册
 
-## 1. 概述
+## 功能定位
 
-**Super Truss Grid**（桁架网格）是 SuperStage 提供的程序化水平双层网格桁架生成工具。它模拟大型灯光吊挂系统——上下两层水平网格通过垂直连接杆组成，用于大面积灯光吊挂。
+Super Truss Grid 用于生成水平网格桁架。组件会根据宽度、深度和间距计算 X/Y 方向的格数，并生成主弦杆、次弦杆、斜撑和节点板。
 
-### 核心功能
+适合用于大型灯光吊挂网格、展厅顶部吊挂结构和舞台上方矩阵结构的预演。
 
-- **双层网格结构** — 上层+下层水平网格，垂直连接
-- **主弦杆 + 次弦杆** — 周边框架（主弦杆）和内部网格（次弦杆）
-- **斜撑系统** — 底层斜撑 + 顶层斜撑 + 垂直斜撑
-- **节点板** — 网格交叉点的连接板
-
-### 适用场景
-
-- 大型演出场馆天顶灯架
-- 展览馆灯光吊挂系统
-- 大面积灯具安装平台
-- 体育馆/礼堂顶部灯光网格
-
----
-
-## 2. 主要参数
-
-### 2.1 网格尺寸
+## 主要参数
 
 | 参数 | 说明 |
-|------|------|
-| **GridSizeX** | X 方向跨数 |
-| **GridSizeY** | Y 方向跨数 |
-| **GridSpacing** | 网格间距 (cm) |
-| **GridDepth** | 上下两层之间的距离 (cm) |
+| --- | --- |
+| `GridWidthX` | 网格 X 方向总宽度，单位厘米。 |
+| `GridDepthY` | 网格 Y 方向总深度，单位厘米。 |
+| `GridSpacing` | 目标网格间距，单位厘米。实际间距会按格数重新计算。 |
+| `GridHeightZ` | 上下层之间的高度，单位厘米。 |
+| `TrussSize` | 桁架规格，可选 S290、S400、S520。 |
+| `BracePattern` | 支撑样式，可选 Warren、Cross。 |
+| `DistributedLoad` | 均布载荷，用于统计面板的简化估算。 |
+| `PointLoadCount` | 点载荷数量。 |
+| `WeightPerPoint` | 每个点载荷的重量。 |
+| `bShowDiagonalBraces` | 显示斜撑。 |
+| `bShowNodePlates` | 显示节点板。 |
+| `bCentered` | 将网格以 Actor 原点居中。 |
+| `ChordMaterial` | 弦杆材质。 |
+| `BraceMaterial` | 支撑杆材质。 |
+| `PlateMaterial` | 节点板材质。 |
 
-### 2.2 截面参数
+## 统计信息
 
-| 参数 | 说明 |
-|------|------|
-| **MainChordDiameter** | 主弦杆直径 (cm) |
-| **SecondaryChordDiameter** | 次弦杆直径 (cm) |
-| **DiagonalDiameter** | 斜撑直径 (cm) |
+组件会根据当前参数更新：
 
-### 2.3 构件可见性
+- `GridCountX`、`GridCountY`：X/Y 方向实际格数。
+- `GridStats.MainChords`：主弦杆数量。
+- `GridStats.SecondaryChords`：次弦杆数量。
+- `GridStats.DiagonalBraces`：斜撑数量。
+- `GridStats.NodePlates`：节点板数量。
+- `GridStats.TotalInstances`：总实例数量。
+- `GridStats.SelfWeight`、`TotalLoad`、`MaxDeflection`：简化估算数据。
 
-| 参数 | 说明 |
-|------|------|
-| **bShowDiagonals** | 显示斜撑 |
-| **bShowNodePlates** | 显示节点板 |
+## 使用注意
 
----
-
-## 3. ISM 组件
-
-| 组件 | 构件 |
-|------|------|
-| MainChordISM | 主弦杆（周边框架） |
-| SecondaryChordISM | 次弦杆（内部网格 + Z 向连接） |
-| DiagonalISM | 斜撑（底层/顶层/垂直） |
-| NodePlateISM | 节点板 |
-
----
-
-## 4. 使用提示
-
-- 网格间距通常设置为 100~200cm，取决于灯具尺寸
-- GridDepth 影响结构刚度——越深越稳定
-- 大型场馆可搭配 Super Truss Tower 作为立柱支撑
+- 当前组件使用总尺寸和间距计算格数，不直接让用户填写 X/Y 格数。
+- 点载荷总量由 `PointLoadCount * WeightPerPoint` 参与统计。
+- 载荷和挠度只用于快速预估，不可替代结构工程计算或现场验算。
