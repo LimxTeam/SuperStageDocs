@@ -28,7 +28,6 @@ SuperStage is a single plugin. It currently contains the following modules, all 
 | SuperAuth | Runtime | Account and entitlement |
 | SuperAssets | Runtime | Stage structures, procedural scenic objects, in-house fixtures |
 | SuperTools | Editor | Asset browser, patching, fixture editor, GDTF / MVR / grandMA tool panels |
-| SuperConsole | Editor | Lighting console |
 
 ---
 
@@ -42,7 +41,6 @@ SuperStage is a single plugin. It currently contains the following modules, all 
 | Find a fixture that is not in the library | [GDTF Import](fixture/02_GdtfImport_en.md) |
 | Build a fixture from scratch with no GDTF | [Fixture Builder](fixture/06_FixtureBuilder_en.md) |
 | Connect a console and drive DMX | [DMX System Overview](stagecore/00_DMX_System_Overview_en.md) |
-| Program without an external console | [Console Overview](console/00_Console_Overview_en.md) |
 | Create laser content | [Laser Overview](laser/00_Laser_Overview_en.md) |
 | Take in an NDI video feed | [NDI Input Configuration](editortools/04_NDIConfigPanel_en.md) |
 | Place effect machines and fountains | [Stage VFX](stagecore/14_Stage_VFX_en.md), [Stage Fountain](stagecore/16_Fountain_en.md) |
@@ -67,15 +65,6 @@ A fixture is no longer a Blueprint but a fixture definition that can be imported
 - [`fixture/04_Motion_en.md`](fixture/04_Motion_en.md) — pan/tilt travel, the speed channel, continuous rotation, multi-head
 - [`fixture/05_AttributeNames_en.md`](fixture/05_AttributeNames_en.md) — reference for the 119 DMX attribute names
 - [`fixture/06_FixtureBuilder_en.md`](fixture/06_FixtureBuilder_en.md) — building by hand: a complete recipe per fixture type
-
-### Lighting Console (merged into the main plugin in 26H2.6)
-
-- [`console/00_Console_Overview_en.md`](console/00_Console_Overview_en.md) — entry point, interface, first run, boundaries
-- [`console/01_Programming_en.md`](console/01_Programming_en.md) — selection, programmer, groups, presets, slot appearance
-- [`console/02_Cues_and_Playback_en.md`](console/02_Cues_and_Playback_en.md) — cues, executors, output arbitration, timeline, timecode
-- [`console/03_CommandLine_en.md`](console/03_CommandLine_en.md) — the mode × target matrix
-- [`console/04_Effects_en.md`](console/04_Effects_en.md) — the Frame effect engine
-- [`console/05_ShowFile_and_Undo_en.md`](console/05_ShowFile_and_Undo_en.md) — show file format and undo
 
 ### Laser
 
@@ -177,6 +166,4 @@ Stage structure documents describe UE scene modelling and on-screen figures only
 ## Read Before Upgrading to 26H2.6
 
 - **No fixture class redirectors for old projects.** Blueprint fixtures are deprecated from 26H2.6 and are no longer documented here. Existing projects still using them should stay on the old plugin rather than upgrading in place.
-- If you previously installed SuperConsole as a separate plugin, remove it from the project's `Plugins` folder before upgrading.
-- **The show file format moves to 2.7; files saved by this release cannot be read by older versions.**
 - See [chapter 9 of the Product Documentation](SuperStageProductDoc_en.md) and the [changelog](changelog_en.md).

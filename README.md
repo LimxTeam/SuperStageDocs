@@ -28,7 +28,6 @@ SuperStage 是单一插件，当前包含以下模块，全部随主插件交付
 | SuperAuth | 运行时 | 账户与授权 |
 | SuperAssets | 运行时 | 舞台结构、程序化舞美与自研灯具 |
 | SuperTools | 编辑器 | 资产浏览器、配接、灯具编辑器、GDTF / MVR / grandMA 工具面板 |
-| SuperConsole | 编辑器 | 灯光控台 |
 
 ---
 
@@ -42,14 +41,28 @@ SuperStage 是单一插件，当前包含以下模块，全部随主插件交付
 | 灯库里没有我要的灯 | [GDTF 导入](fixture/02_GdtfImport_zh.md) |
 | 没有 GDTF，要从零建一支灯 | [灯具构建器](fixture/06_FixtureBuilder_zh.md) |
 | 接控台、调 DMX | [DMX 系统总览](stagecore/00_DMX_System_Overview_zh.md) |
-| 不接外部控台自己编程 | [控台总览](console/00_Console_Overview_zh.md) |
 | 做激光内容 | [激光总览](laser/00_Laser_Overview_zh.md) |
 | 接 NDI 视频信号 | [NDI 输入配置](editortools/04_NDIConfigPanel_zh.md) |
+| 用 DMX 控制自己的 Actor，或复用 NDI 画面 | [应用接入开发文档](developer/README.md) |
 | 放特效机、喷泉 | [舞台 VFX](stagecore/14_Stage_VFX_zh.md)、[舞台喷泉](stagecore/16_Fountain_zh.md) |
 
 ---
 
 ## 文档分类
+
+### 应用接入开发文档
+
+独立于普通操作手册，面向项目开发者及通过 UE5MCP 操作工程的 AI。依据现有源码说明如何通过 Super 自身事件控制自己的对象，以及如何通过媒体钩子复用 NDI 纹理；开放核心头文件不代表插件开源。
+
+- [开发文档入口](developer/README.md) — 接入范围、当前能力与阅读顺序
+- [接入约定](developer/01_Integration_Contract_zh.md) — 开放边界、源码依据、工程准备
+- [Super 事件](developer/02_Super_Events_zh.md) — 蓝图与 C++ 对应、时序和职责
+- [SuperDmxActorBase 完整参考](developer/03_SuperDmxActorBase_Reference_zh.md) — 全部方法、属性、宏和失败语义
+- [编写通道库](developer/04_SuperFixtureLibrary_zh.md) — 字段、原生 JSON、导入和地址验收
+- [蓝图接入](developer/05_Blueprint_Integration_zh.md) — 运动、旋转、材质、命令和多对象
+- [C++ 接入](developer/06_CPP_Integration_zh.md) — 使用 Native Super 事件的完整项目示例
+- [NDI 接入](developer/07_NDI_Integration_zh.md) — 媒体钩子、材质和项目蓝图桥接
+- [AI / UE5MCP 执行](developer/08_AI_Execution_zh.md) — 工具发现、操作、测试向量和交付记录
 
 ### 概览
 
@@ -67,15 +80,6 @@ SuperStage 是单一插件，当前包含以下模块，全部随主插件交付
 - [`fixture/04_Motion_zh.md`](fixture/04_Motion_zh.md) — Pan/Tilt 行程、速度通道、无极旋转、多头灯
 - [`fixture/05_AttributeNames_zh.md`](fixture/05_AttributeNames_zh.md) — 119 个 DMX 属性名参考
 - [`fixture/06_FixtureBuilder_zh.md`](fixture/06_FixtureBuilder_zh.md) — 手工建灯：各类灯具的完整配方
-
-### 灯光控台（26H2.6 并入主插件）
-
-- [`console/00_Console_Overview_zh.md`](console/00_Console_Overview_zh.md) — 入口、界面、上手流程、边界
-- [`console/01_Programming_zh.md`](console/01_Programming_zh.md) — 选灯、编程器、编组、预设、槽位外观
-- [`console/02_Cues_and_Playback_zh.md`](console/02_Cues_and_Playback_zh.md) — CUE、执行器、输出仲裁、时间线、时间码
-- [`console/03_CommandLine_zh.md`](console/03_CommandLine_zh.md) — 模式 × 目标矩阵
-- [`console/04_Effects_zh.md`](console/04_Effects_zh.md) — Frame 效果引擎
-- [`console/05_ShowFile_and_Undo_zh.md`](console/05_ShowFile_and_Undo_zh.md) — 演出文件格式与撤销
 
 ### 激光
 
@@ -177,6 +181,4 @@ SuperStage 是单一插件，当前包含以下模块，全部随主插件交付
 ## 升级到 26H2.6 之前请先读
 
 - **旧项目不做灯具类重定向**。26H2.6 起蓝图灯具已废弃，本目录不再提供其文档；仍在用旧版蓝图灯具的既有项目请继续使用旧版插件，不要就地升级。
-- 若此前单独安装过 SuperConsole 插件，升级前请将其从项目 `Plugins` 目录移除。
-- **演出文件格式升至 2.7，本版存出的文件旧版本读不了。**
 - 详见[产品文档第 9 章](SuperStageProductDoc_zh.md)与[更新日志](changelog_zh.md)。

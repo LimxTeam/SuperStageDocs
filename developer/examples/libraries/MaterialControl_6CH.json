@@ -1,0 +1,131 @@
+{
+  "FixtureName": "Project Material Control 6CH",
+  "Manufacturer": "Project",
+  "MA2FixtureLibraryPath": "",
+  "GDTFFixtureLibraryPath": "",
+  "PowerConsumption": 0,
+  "Weight": 0,
+  "BeamAngle": 0,
+  "BeamIntensity": 0,
+  "BodySize": [
+    0,
+    0,
+    0
+  ],
+  "Modules": [
+    {
+      "ModuleName": "Main",
+      "Patch": 1,
+      "AttributeDefs": [
+        {
+          "AttribName": "Red",
+          "Category": "Color",
+          "Coarse": 1,
+          "Fine": 0,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 255,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "Green",
+          "Category": "Color",
+          "Coarse": 2,
+          "Fine": 0,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 255,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "Blue",
+          "Category": "Color",
+          "Coarse": 3,
+          "Fine": 0,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 255,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "Effect",
+          "Category": "Control",
+          "Coarse": 4,
+          "Fine": 0,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 255,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "Speed",
+          "Category": "Control",
+          "Coarse": 5,
+          "Fine": 0,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 255,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "Width",
+          "Category": "Control",
+          "Coarse": 6,
+          "Fine": 0,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 255,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

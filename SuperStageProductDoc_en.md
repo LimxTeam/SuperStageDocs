@@ -18,7 +18,7 @@ The capabilities described in this document are based on the currently delivered
 
 This document does not contain operating tutorials, development API references, or on-site system configuration details. Available modules, authorization scope, service content, and commercial terms are governed by the SuperStage User Service and Software License Agreement, the official pricing page, your order, the authorization backend, or a mutually confirmed delivery list.
 
-> **Upgrade notice**: 26H2.6 substantially changes the fixture asset structure and raises the show file format to 2.7. Before upgrading an existing project, read the migration notes in Chapter 9, "Known Boundaries and Dependencies."
+> **Upgrade notice**: 26H2.6 substantially changes the fixture asset structure. Before upgrading an existing project, read the migration notes in Chapter 9, "Known Boundaries and Dependencies."
 
 ---
 
@@ -28,7 +28,6 @@ SuperStage is a professional Unreal Engine-based stage previsualization and ente
 
 - Stage lighting and optical representation;
 - DMX control data;
-- A lighting console built into the editor;
 - Media screens and projection;
 - NDI media input;
 - Stage-effect and fountain visualization;
@@ -137,13 +136,7 @@ The Patch Tool batch-patches selected fixtures: starting universe / address / Fi
 
 In the SuperDMX configuration panel, choose the protocol (Art-Net or sACN), the local network adapter, and the starting universe; changes take effect immediately and save automatically. DMX output from an external console or onPC drives the fixtures in the scene in real time; the DMX Activity Monitor shows per-universe channel-value snapshots to confirm signal arrival.
 
-### 4.7 Program and Play Back on the Built-in Console
-
-When no external console is connected, the built-in SuperConsole can program scene fixtures directly: select fixtures, edit attributes, store groups and presets, store cues, and play back with executors and the timeline. Console output is written into the internal buffer through the SuperDMX subsystem, so virtual fixtures and the DMX Activity Monitor stay in sync; with output enabled it is also sent to external devices over the current protocol.
-
-For the console's capability boundaries, see Section 5.4.
-
-### 4.8 MVR Import and Export
+### 4.7 MVR Import and Export
 
 Read and written to the MVR 1.6 specification.
 
@@ -152,7 +145,7 @@ Read and written to the MVR 1.6 specification.
 
 Boundary: export contains fixtures only — UE has no channel for writing static meshes as `.3ds` / `.glb`, so trusses and scenery do not appear in the exported package. External applications interpret MVR / GDTF differently; verify results in the target software before formal delivery.
 
-### 4.9 grandMA Patch Preparation
+### 4.8 grandMA Patch Preparation
 
 - **grandMA2**: connects to an MA2 onPC environment on the local machine or LAN, groups scene fixtures by channel library, copies fixture-library files, sends import and patch commands, and checks console responses; later scene changes can be previewed in a change list (showing "old → new" per item) before sending update commands for changed items only. The MA2 workflow does not delete fixtures already on the console.
 - **grandMA3**: sends patch commands and GDTF libraries to an MA3 onPC environment, including the DMX mode with the command (on the MA2 channel the mode travels inside the imported library file instead); fixture types and modes are mounted by index and read back for verification, and grouping is layered by model plus mode. The MA3 channel is one-way command delivery; the software cannot read console state back. Changes likewise pass through a change-list preview, and a subset of fixtures can be selected for synchronization.
@@ -170,27 +163,27 @@ Boundary: export contains fixtures only — UE has no channel for writing static
 
 Actual results of these workflows depend on the target MA environment version, network permissions, fixture-library files, and on-site configuration. This document does not describe them as unconditional "automatic synchronization."
 
-### 4.10 Add Media, Screens, and Video Inputs
+### 4.9 Add Media, Screens, and Video Inputs
 
-Screen and projection objects support three input sources: project static textures, Director camera feeds, and NDI video input (see Section 5.5). One media source can drive multiple screen carriers; the projection object casts the picture onto arbitrary scene geometry as light.
+Screen and projection objects support three input sources: project static textures, Director camera feeds, and NDI video input (see Section 5.4). One media source can drive multiple screen carriers; the projection object casts the picture onto arbitrary scene geometry as light.
 
-### 4.11 Add Effect Machines, Fountains, and Crowds
+### 4.10 Add Effect Machines, Fountains, and Crowds
 
 - Effect machines (fireworks, confetti, flame, pyro, smoke, bubbles, snow) are placed as stage objects and triggered by a single DMX channel mapped to intensity / level;
 - The fountain is a 14-channel DMX device; the water pool is a separate scenic object, and neither depends on the other;
 - The crowd object outlines an area with a spline and auto-populates it by target count or density from the built-in character library.
 
-### 4.12 Author Laser Content
+### 4.11 Author Laser Content
 
 Laser animation assets are created in the Content Browser and opened by double-click, with a canvas editor, SVG importer, baker, and Sequencer track alongside. The asset stores Bezier outlines and modulation parameters; the point stream is computed at playback. See Section 6.1.
 
-### 4.13 Record and Replay Dynamic Content
+### 4.12 Record and Replay Dynamic Content
 
 - **DMX recording**: via Take Recorder, records live DMX data of a universe range into Sequencer tracks (one track per universe, only changed channels are keyed, stepped curves preserve DMX's discrete semantics); playback sends data back to the DMX system frame by frame, and channels not covered by the track keep their current values (merge semantics);
 - **NDI recording**: records configured NDI inputs into a frame-buffer asset with Sequencer tracks; playback frames are distributed through the same channel as live input, so downstream screens do not distinguish live from replay;
 - **Laser recording**: point clouds from external laser software can be recorded with compression and replayed through Sequencer; laser animation assets bake to Sequencer per device.
 
-### 4.14 Delivery Preparation
+### 4.13 Delivery Preparation
 
 The previs project can be packaged as a standalone Windows executable through the standard UE process for demos and presentations.
 
@@ -275,36 +268,7 @@ Actual beam counts, shadow quality, and frame rates depend on fixture types, bea
 - **Patch tools**: see 4.4 / 4.5;
 - **Diagnostics**: the DMX Activity Monitor shows per-universe channel snapshots and signal activity, with per-universe cache clearing.
 
-### 5.4 Lighting Console (SuperConsole)
-
-SuperConsole is an editor-resident lighting console delivered with the main plugin, for programming and playing back scene fixtures without an external console.
-
-**Implemented capabilities**
-
-| Area | Description |
-| --- | --- |
-| Selection and programming | Fixture selection, attribute editor, encoders, programmer |
-| Object storage | Groups, presets, cues and cue lists |
-| Playback | Executors, timeline clips, timecode |
-| Output arbitration | Layered by cue; intensity channels use HTP (highest takes precedence), remaining attributes are decided by source priority and timestamp; executor faders affect intensity only; LED fixtures without a dedicated Dimmer use their additive channels as a virtual dimmer |
-| Command line | An MA-style "mode × target" matrix, where UI greying, key dispatch, and actual capability come from one source of truth |
-| Undo | Covers every operation except settings, with 11 domains marked separately; drags collapse into a single step, consecutive small edits merge within a time window, and playback does not enter the stack |
-| Timecode | 24 / 25 / 29.97 / 30 / 50 / 59.94 / 60 fps, with NTSC rates on exact rationals and standard drop-frame numbering; display format HH:MM:SS:FF |
-| Slot appearance | Group, preset, and sidebar view slots share one naming appearance: name, background/text/accent color, image layer, and doodle layer, each of the four with an independent toggle |
-| Show file | Version 2.7; reflected structs carry a block length prefix, so adding or removing fields affects only that struct |
-| Output | Written into the internal buffer through the SuperDMX subsystem; sent to the network over the current protocol when DMX output is enabled |
-
-**Capabilities with no backend, deliberately left greyed out** (no false entry points):
-
-- Command modes: **Edit, Assign, Stomp**;
-- Command targets: **Sequence, Executor** (the executor as a command-line target is not implemented; executor playback itself works);
-- Blind / Solo were removed in this release.
-
-The command-line combinations with a backend are: Store / Update / Delete / Copy / Move on groups / presets / cues, Select on groups / fixtures, and On / Off on the current selection. Copy / Move syntax is `Copy Group 1 At 5` and `Move Cue 2 At 6`.
-
-**Boundary**: SuperConsole is a previs and programming tool, not a certified show console. It provides no console hardware surface, no on-site redundancy or backup-console failover, and no guarantee of show-grade uninterrupted operation, and it does not replace on-site commissioning with a real console. The show file format is proprietary to this product and is not interchangeable with third-party console show files.
-
-### 5.5 Media, Screens, Projection, and NDI
+### 5.4 Media, Screens, Projection, and NDI
 
 | Input Source | Description |
 | --- | --- |
@@ -316,7 +280,7 @@ The command-line combinations with a backend are: Store / Update / Delete / Copy
 - **Projection**: light-function-based projection mapping onto arbitrary scene geometry, with brightness, throw distance, throw angle, edge softening, and keystone correction — suited to previewing spatial and occlusion relationships between projected content and stage structures;
 - **NDI recording**: NDI inputs can be recorded to a frame-buffer asset (configurable target frame rate, scaling, and maximum duration) and replayed through Sequencer; replay automatically mutes the live input of the same name. The NDI runtime ships with the plugin — no separate NDI tools installation is needed; supported pixel formats are listed in Appendix B. The authorization scope of NDI capability is subject to the official pricing page and your order.
 
-### 5.6 Stage Effects and Fountains
+### 5.5 Stage Effects and Fountains
 
 **Effect machines**: 7 categories in 16 actor variants — fireworks (4), confetti (5 levels), flame (1), pyro (1), smoke (3 levels), bubbles (1), snow (1).
 
@@ -345,7 +309,7 @@ The command-line combinations with a backend are: Store / Update / Delete / Copy
 
 **Safety boundary**: effect machines and fountains are visual simulation assets. They provide no firing control, safety-distance calculation, hazardous-material management, pump / electrical control, or regulatory-approval basis for real devices. Real pyrotechnics, open flame, effects, and water features must be executed by licensed professionals under local regulations.
 
-### 5.7 Crowd and Characters
+### 5.6 Crowd and Characters
 
 - **Built-in character library**: 13 preset characters (VAT vertex-animation meshes), each with two animation material variants (Anim_V1 / Anim_V2) and two material layers (base and emissive); character meshes include LODs. Two placeable objects correspond to them, Super Crowd V1 and Super Crowd V2, differing only in which animation material set is applied;
 - **Crowd placement**: outline any area with a spline and auto-populate by target count or density; placement keeps a minimum inter-person spacing (relaxable when the area is too small), snaps to the ground, and can reject steep slopes; one crowd object is limited to 5,000 instances (software limit) — actual smoothness depends on hardware, character count, and LOD configuration;
@@ -354,7 +318,7 @@ The command-line combinations with a backend are: Store / Update / Delete / Copy
 
 The crowd is a visualization asset and placement system for audience-area atmosphere and composition review. It is not a crowd-simulation platform: no behavior simulation, evacuation analysis, or pedestrian dynamics.
 
-### 5.8 Stage Structures and Mechanical Visualization
+### 5.7 Stage Structures and Mechanical Visualization
 
 **Structural objects (procedurally generated)**: 5 truss types (gantry / spline-curved / circular / horizontal grid / vertical tower), 2 scaffold types (straight / curved), procedural drapes (6 drape types × 4 pleat styles × 4 opening modes), and modular stage decks (with auto-generated stairs). Structural objects display part counts, self-weight, and load **reference estimates** (simplified models based on public engineering formulas) for order-of-magnitude reference and statistics during previs. **These figures are not structural-safety conclusions and cannot replace structural design, mechanical verification, or construction safety approval.**
 
@@ -382,9 +346,9 @@ The crowd is a visualization asset and placement system for audience-area atmosp
 
 **Machinery safety boundary**: these mechanical objects are for motion previs and visual expression only. SuperStage provides no real machinery control, certified safety interlocks, emergency-stop systems, limit-switch protection, load monitoring, motion-control certification, SIL / functional-safety compliance, rigging approval, or operator authorization. Real stage machinery must be executed by professional machinery control systems and licensed personnel under applicable codes.
 
-### 5.9 Sequencer Recording and Playback
+### 5.8 Sequencer Recording and Playback
 
-See 4.13. DMX, NDI, and laser tracks are formal Sequencer track types and can be arranged together with UE timeline content (cameras, animation, audio); combined with Movie Render Pipeline, rendered videos can be produced.
+See 4.12. DMX, NDI, and laser tracks are formal Sequencer track types and can be arranged together with UE timeline content (cameras, animation, audio); combined with Movie Render Pipeline, rendered videos can be produced.
 
 ---
 
@@ -452,7 +416,6 @@ The SuperStage main plugin currently contains the following modules, all deliver
 | SuperAuth | Runtime | Account and authorization |
 | SuperAssets | Runtime | Stage structures, procedural scenery, in-house fixtures |
 | SuperTools | Editor | Asset browser, patching, fixture editor, GDTF / MVR / grandMA tool panels |
-| SuperConsole | Editor | Lighting console |
 
 Among these, SuperShader and SuperAuth are internal foundation components and are not sold or described as separate commercial products.
 
@@ -477,7 +440,6 @@ With SuperStage you can produce and deliver:
 - GDTF / JSON fixture-library files (MA2 XML is converted from the GDTF on demand when exporting);
 - Fixture definition, channel library, and prism preset assets;
 - grandMA patch preparation data (online import or offline XML + macro files);
-- SuperConsole show files (proprietary format, version 2.7);
 - Laser animation assets and exported ILDA files;
 - Packaged standalone Windows demo builds.
 
@@ -519,7 +481,7 @@ This document sets no minimum hardware specification and invents no recommended 
 
 ### 8.5 Quality Assurance
 
-This release ships 231 automated test cases with the plugin source (covering the fixture pipeline, console, laser animation, fountains, MVR, asset browser, and other areas), all passing on the release build. Automated tests serve regression checking and constitute no promise about behavior in any particular project scenario.
+This release ships automated regression tests with the plugin source (covering the fixture pipeline, laser animation, fountains, MVR, asset browser, and other areas), all passing on the release build. Automated tests serve regression checking and constitute no promise about behavior in any particular project scenario.
 
 ---
 
@@ -528,8 +490,6 @@ This release ships 231 automated test cases with the plugin source (covering the
 ### 9.1 Upgrading From an Earlier Version (Important)
 
 - **No fixture class redirectors for old projects.** The fixture asset structure and naming changed substantially in this release. Existing projects using the old Blueprint fixtures should stay on the old plugin and **must not be upgraded in place**. The only redirectors kept are the Cutting → Shaper set, covering component classes, material nodes, enum values, and Blueprint functions that current assets store by name.
-- If the SuperConsole plugin was previously installed separately, remove it from the project `Plugins` directory before upgrading to avoid colliding with the module of the same name in the main plugin.
-- **The show file format is raised to 2.7, and files saved by this release cannot be read by older versions.** Back up first if a version rollback may be needed. Old show files read normally in this release, with slot names and colors converted automatically to the new appearance format.
 - Fixture definitions already imported can pick up this release's importer improvements through the right-click "Upgrade in place from source GDTF"; by default that operation only reports differences and modifies nothing until confirmed.
 
 ### 9.2 Functional Boundaries
@@ -537,13 +497,12 @@ This release ships 231 automated test cases with the plugin source (covering the
 - **MVR**: import covers many scene-description object types; export contains fixtures only — trusses and scenery are not written out (UE has no channel for writing static meshes as `.3ds` / `.glb`). MVR-xchange live synchronization is not supported. Applications interpret coordinates and fixture matching differently — verify in the target software.
 - **GDTF**: import covers channels and modes, geometry tree and mechanical axes, 3D models (`.3ds` / `.glb`), gobo / color / prism wheels, and thumbnails. Models are imported only when present in the package; parts declared with `PrimitiveType` alone and no model file get a placeholder body. Export is organized according to the GDTF 1.2 structure; verify compatibility in the target software. A few GDTF archives packed with high compression depend on system extraction tools (Windows only). The accuracy of library data is governed by the GDTF packages published by the manufacturers.
 - **Beam pipeline**: the shipped library is fully migrated to volumetric beams; **a fixture newly imported from GDTF still gets the material beam (Legacy) on its main emitter by default** and must be switched in the fixture editor. The material pipeline is retained for fallback only.
-- **Console**: the Edit / Assign / Stomp command modes and the Sequence / Executor command targets currently have no backend and remain greyed out; Blind / Solo were removed. The show file is a proprietary format and is not interchangeable with third-party console show files. SuperConsole is not a certified show console.
-- **grandMA**: the MA2 workflow depends on remote command permissions and a local / LAN onPC environment; the MA3 workflow is one-way command delivery, cannot read console state back, and includes delete commands (see the notice in 4.9); both are affected by console version, show-file state, and library environment.
+- **grandMA**: the MA2 workflow depends on remote command permissions and a local / LAN onPC environment; the MA3 workflow is one-way command delivery, cannot read console state back, and includes delete commands (see the notice in 4.8); both are affected by console version, show-file state, and library environment.
 - **DMX**: practical universe scale and refresh behavior depend on project, network, and hardware; sACN multicast depends on IGMP support in network equipment; firewalls must allow the relevant ports (see Appendix B).
 - **NDI**: depends on LAN discovery and network bandwidth; only the pixel formats listed in Appendix B are supported; NDI sources are produced by third-party software whose behavior is outside this product's control.
 - **Fountain**: the water surface requires a water pool object in the scene to render; the fountain device does not carry a water surface of its own.
 - **Rendering**: high volumetric-beam quality tiers and large scenes are GPU-sensitive; previs images are not equivalent to final on-site results.
-- **Structures, machinery, effects, fountains, and extension modules**: load estimates, mechanical motion, and effect / water simulation are previs references only and constitute no safety conclusion or control capability; SuperLaser provides laser visual previs and content authoring only, with no laser safety control or approval basis (see the boundaries in 5.6 / 5.8 / 6.1).
+- **Structures, machinery, effects, fountains, and extension modules**: load estimates, mechanical motion, and effect / water simulation are previs references only and constitute no safety conclusion or control capability; SuperLaser provides laser visual previs and content authoring only, with no laser safety control or approval basis (see the boundaries in 5.5 / 5.7 / 6.1).
 - **Crowd**: 5,000 instances per object maximum; no behavior simulation.
 - **Authorization and backend**: online sign-in and session validation depend on the availability of SuperStage cloud services; service-side behavior is governed by the license agreement and privacy policy.
 - **Platform**: Windows only; macOS / Linux editors and non-Windows packaging targets are not supported.
@@ -555,7 +514,7 @@ This release ships 231 automated test cases with the plugin source (covering the
 ### 10.1 Account and Authorization
 
 - **Sign-in**: the account system is passwordless — sign in with a one-time email code or a Google account; clicking sign-in inside the plugin opens the browser to complete authorization confirmation;
-- **Devices and sessions**: the same account may be subject to limits on bound devices and simultaneous active sessions; exact limits and device-replacement rules are determined by the applicable package, order, authorization backend, and license agreement. Signing in on another device may terminate an earlier active session;
+- **Devices and sessions**: a standard online account is not bound to a device and can be used on any computer. Each account supports one device working online at a time. Signing in on a new device automatically signs out the old plugin session; changing computers requires no unbinding or device release. Organization members use their own seat accounts. Separately agreed offline-build authorization is not part of the standard account switching process;
 - **Online validation**: after sign-in, the plugin keeps periodic session validation with the authorization service while the editor runs; during a temporary network interruption, a previously validated session may continue operating for a limited period — exact behavior depends on the current version and authorization-service policy;
 - **Offline authorization**: the separately agreed offline edition uses a "machine code → activation code" flow, with activation information stored on the local machine;
 - **Update check**: on startup the plugin queries the latest version number and prompts for updates;
@@ -563,7 +522,7 @@ This release ships 231 automated test cases with the plugin source (covering the
 
 ### 10.2 Data and Privacy
 
-- Stage scenes, DMX data, MVR / GDTF files, media content, show files, and project files are normally processed on your device or within your local network;
+- Stage scenes, DMX data, MVR / GDTF files, media content, and project files are normally processed on your device or within your local network;
 - Account sign-in, authorization validation, session management, and version checking require communication with SuperStage cloud services;
 - Data categories, processing purposes, retention, and user rights are governed by the current SuperStage Privacy Policy.
 
@@ -618,7 +577,6 @@ Do not include account credentials, license information, full banking details, o
 | GOBO | GOBO | Patterns projected via gobo plates / wheels |
 | Prism | Prism | An optical element splitting a beam into multiple beams |
 | Framing / Shaper | Framing | The four-blade framing-shutter system |
-| Cue | Cue | One recorded lighting state on the console |
 | Effect machine | Effect machine | A DMX-triggered stage-effect simulation object |
 | ILDA | ILDA | The International Laser Display Association's laser frame exchange format |
 
@@ -695,8 +653,6 @@ For system-integration and network-configuration personnel.
 | grandMA2 connection | Remote command channel (default port 30000); requires console / onPC sign-in permission |
 | grandMA3 connection | OSC command channel (default port 8000); one-way delivery |
 | SuperLaser input | Network point-cloud data from external laser-control software (UDP multicast), 60 device slots by default; supported software per official documentation |
-| Console timecode | 24 / 25 / 29.97 / 30 / 50 / 59.94 / 60 fps; NTSC rates on exact rationals with standard drop-frame numbering |
-| Console show file | Version 2.7, proprietary format; files saved as 2.7 cannot be read by older versions |
 | Interface languages | Simplified Chinese, English |
 
 ---

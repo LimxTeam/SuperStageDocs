@@ -27,15 +27,7 @@ With SuperStage enabled, a **SuperStage** button appears in the Unreal Editor's 
 | MVR | Opens the MVR import and export panel. | [08 MVR Import / Export](08_MVRImport_en.md) |
 | **GDTF Batch Import** | Imports a batch of GDTF packages and builds fixture definitions in bulk. **New in 26H2.6** | [GDTF Import](../fixture/02_GdtfImport_en.md) |
 
-## 4. SuperConsole (top-level menu)
-
-**New in 26H2.6**, sitting below `SuperDMXTool`. Opens the editor-resident lighting console.
-
-From 26H2.6 SuperConsole is an editor module of the main plugin. It is no longer a standalone plugin and is no longer under the engine `Window` menu.
-
-See [Console Overview](../console/00_Console_Overview_en.md).
-
-## 5. Documentation Submenu
+## 4. Documentation Submenu
 
 | Menu item | Function |
 | --- | --- |
@@ -47,7 +39,7 @@ See [Console Overview](../console/00_Console_Overview_en.md).
 | DevDocs | Opens the developer / API documentation page. Normal users do not need it. |
 | Changelog | Opens the changelog page. |
 
-## 6. Other Entries
+## 5. Other Entries
 
 | Menu item | Function |
 | --- | --- |
@@ -56,7 +48,7 @@ See [Console Overview](../console/00_Console_Overview_en.md).
 | ContactUs | Opens the contact page. |
 | UserAgreement | Opens the user agreement page. |
 
-## 7. Status Bar
+## 6. Status Bar
 
 SuperStage registers these buttons in the editor's bottom status bar:
 
@@ -67,7 +59,7 @@ SuperStage registers these buttons in the editor's bottom status bar:
 
 > The DMX configuration panel's entry is in the **status bar at the bottom**, not in the SuperStage dropdown menu.
 
-## 8. UE Tools Menu
+## 7. UE Tools Menu
 
 SuperStage registers these tools in the Unreal Editor's top **Tools** menu:
 
@@ -76,14 +68,13 @@ SuperStage registers these tools in the Unreal Editor's top **Tools** menu:
 | GOBO Atlas Builder | Extracts gobo textures from channel library attributes and builds a gobo atlas. |
 | Color Atlas Builder | Extracts colours from channel library attributes and builds a colour atlas texture. |
 
-## 9. Panel Help Buttons
+## 8. Panel Help Buttons
 
 **New in 26H2.6**: 14 tool panels have a help button in the top-right corner that opens the instructions for that panel. The help text is included in the localisation dictionary.
 
 Panels with help buttons: asset browser, patch tool, DMX configuration, NDI configuration, fixture editor, channel library editor, prism preset editor, GDTF batch import, MVR, DMXToMa, GrandMALink, gobo atlas builder, colour atlas builder, VAT character generator.
 
-## 10. Tips
+## 9. Tips
 
 - If the toolbar does not appear, confirm the SuperStage plugin is enabled and restart the editor.
 - If a menu item does nothing, check the Output Log for module loading or authorisation errors.
-- If the SuperConsole plugin was previously installed separately, remove it from the project `Plugins` directory before upgrading to 26H2.6 to avoid colliding with the module of the same name in the main plugin.

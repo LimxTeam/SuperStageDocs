@@ -1,0 +1,131 @@
+{
+  "FixtureName": "Project Motion 6 Axis 12CH",
+  "Manufacturer": "Project",
+  "MA2FixtureLibraryPath": "",
+  "GDTFFixtureLibraryPath": "",
+  "PowerConsumption": 0,
+  "Weight": 0,
+  "BeamAngle": 0,
+  "BeamIntensity": 0,
+  "BodySize": [
+    0,
+    0,
+    0
+  ],
+  "Modules": [
+    {
+      "ModuleName": "Main",
+      "Patch": 1,
+      "AttributeDefs": [
+        {
+          "AttribName": "XPos",
+          "Category": "Position",
+          "Coarse": 1,
+          "Fine": 2,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 65535,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "YPos",
+          "Category": "Position",
+          "Coarse": 3,
+          "Fine": 4,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 65535,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "ZPos",
+          "Category": "Position",
+          "Coarse": 5,
+          "Fine": 6,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 65535,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "XRot",
+          "Category": "Position",
+          "Coarse": 7,
+          "Fine": 8,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 65535,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "YRot",
+          "Category": "Position",
+          "Coarse": 9,
+          "Fine": 10,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 65535,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "AttribName": "ZRot",
+          "Category": "Position",
+          "Coarse": 11,
+          "Fine": 12,
+          "Ultra": 0,
+          "SubAttributes": [
+            {
+              "Name": "Value",
+              "DmxMin": 0,
+              "DmxMax": 65535,
+              "PhysicalRange": [
+                0,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

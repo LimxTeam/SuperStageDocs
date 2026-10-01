@@ -4,20 +4,17 @@ This document records user-visible changes for the current documentation set. It
 
 ## 26H2.6
 
-This release has four main threads:
+This release has three main threads:
 
 - **Fixtures moved from Blueprints to data-driven definitions.** A fixture is no longer a Blueprint asset but a fixture definition that can be imported, edited, and upgraded. The GDTF import pipeline, the in-house light source system, and the fixture library content were rebuilt around it.
 - **Beams moved to the volumetric pipeline.** The shipped library was migrated wholesale from material beams to volumetric beams. The beam column and the floor pool share one shadow atlas and are genuinely occluded.
-- **The console moved from clickable to usable.** Output arbitration, undo, the command matrix, and slot appearance were all filled in.
 - **Two new content systems:** stage fountains and laser animation assets. Lasers were extended this release from "can bake" to a complete authoring tool: canvas editing, six effect categories, keyframes, and ILDA read/write.
 
-**231 automated tests** across the plugin, all passing.
+Automated regression tests pass on the release build.
 
 ### Plugin Structure Update
 
-- SuperConsole has been merged from a standalone plugin back into the main SuperStage plugin, and is now an editor module of the main plugin. Enabling SuperStage is enough; the SuperConsole plugin no longer needs to be installed or enabled separately.
-- The console entry point moved to the SuperStage toolbar as a top-level menu below `SuperDMXTool`, and is no longer under the engine `Window` menu.
-- The main SuperStage plugin currently contains: SuperCore, SuperDMX, SuperNdi, SuperMadrix, SuperLaser, SuperShader, SuperAuth, SuperAssets, SuperTools, SuperConsole.
+- The main SuperStage plugin currently contains: SuperCore, SuperDMX, SuperNdi, SuperMadrix, SuperLaser, SuperShader, SuperAuth, SuperAssets, SuperTools.
 
 ### Fixture System Rebuild: Data-Driven Fixture Definitions
 
@@ -146,52 +143,6 @@ In the previous release the volumetric beam was still a test component. In this 
 - Prism presets, channel libraries, and fixture definitions no longer share the product logo and each have their own icon.
 - Fixed several panels that could not be translated due to a missing localization namespace.
 
-### Console
-
-The focus of the console this release is turning "the button can be pressed" into "pressing the button produces the correct result".
-
-**Output Arbitration**
-
-- The result of several playbacks pressing the same fixture was previously wrong. It is now layered by cue: the same cue lands on the same layer whether driven by the cue panel, an executor, or a timeline clip, and different cues occupy different layers.
-- **Intensity channels use HTP** (highest takes precedence); remaining attributes are decided by source priority and timestamp. Previously, when two playbacks pressed the same Dimmer, the lower-priority one disappeared entirely, so a base wash covered by a darker effect became darker instead.
-- Executor faders were previously multiplied into every attribute, so pushing to 50% turned the fixture elsewhere and switched it to a different gobo. They now affect intensity only.
-- Releasing one executor no longer clears another executor's output on the same fixture.
-- LED fixtures without a dedicated Dimmer use their additive channels as a virtual dimmer.
-- **Output quantization no longer wraps**: a float overflow as small as two parts in ten thousand on the normalized value previously produced 256, whose low byte was written as 0. Full output went black instantly while every upstream layer held the correct value, leaving no way to trace it on site.
-
-**Undo**
-
-- Covers every operation except settings, with 11 domains marked separately and nested operations merged by depth.
-- Drags collapse into a single step; consecutive small edits merge within a 0.5 second window, so one undo does not step back by a single increment.
-- Edits that do not change element count, such as renaming and parameter tweaks, were previously judged as "no change" and never entered the stack. Fixed.
-- **Playback no longer pollutes the undo stack**. Previously the timeline pushed a record every time a clip entered or left, so running a three-minute show filled the stack with dozens of operations the operator never performed.
-- **The undo stack is empty after opening a show**. Previously the stack retained a record stating that the previous state was the previous show, so pressing undo immediately after opening pushed the previous show's cue list in.
-
-**Command Line**
-
-- An MA-style "mode × target" matrix, where UI greying, key dispatch, and actual capability come from one source of truth, so there are no longer keys that can be pressed with no backend behind them.
-- **Copy / Move are wired to their backends**, with syntax `Copy Group 1 At 5` / `Move Cue 2 At 6`, for group, preset, and cue objects.
-- Edit / Assign / Stomp and the Sequence / Executor targets still have no backend and remain greyed out.
-- Removed Blind / Solo.
-
-**Timeline Playback**
-
-- Overlapping clips on the same track previously cleared each other's activation records, so the later cue was never released and fixtures stayed on stage.
-- Deleting a running clip during playback previously left that cue equally impossible to release.
-- **Timecode frame rate** is now a property of the timeline itself, with display and export reading the same source. Previously the panel displayed frame numbers at 30, export was hard-coded to 60, and the interface defaulted to 30, all three disagreeing. The display format also changed from MM:SS:FF to the standard HH:MM:SS:FF, so it no longer overflows past one hour. Supports 24 / 25 / 29.97 / 30 / 50 / 59.94 / 60, with NTSC rates on exact rationals and standard drop-frame numbering.
-
-**Slot Appearance**
-
-- Group, preset, and sidebar view slots now share one naming appearance: name, background/text/accent color, image layer, and doodle layer, each of the four with an independent toggle.
-- Doodles are stored per stroke using normalized coordinates, so the same doodle lands identically on a small tile and a large preview.
-- Images are stored by reference rather than embedded, so one image used by several slots does not take up show file size repeatedly.
-
-**Other**
-
-- Bottom toolbar UI reproduced.
-- Six defects fixed in the effect system.
-- **Show file format raised to 2.7**. Reflected structs carry a block length prefix, so adding or removing fields now affects only that struct instead of throwing the whole file out of alignment. Six fields that were never saved are restored: timeline name, beat subdivision, audio track volume, the clip-to-snapshot association, and audio fade in/out. These fields were always editable in the UI but did not persist, which only became apparent on the next open when they had returned to defaults. **Note: files saved as 2.7 cannot be read by older versions.**
-
 ### Fountains
 
 Added the **SuperFountain** stage fountain system, controllable over DMX and sharing the same optics as the lighting.
@@ -273,18 +224,16 @@ The effect categories were reworked to follow the conventions of professional la
 
 ### Quality Assurance
 
-- **231 automated test cases**, all passing, across 26 test groups:
+- Automated regression tests pass, covering:
 
   | Area | Groups |
   | --- | --- |
   | Laser animation | LaserAnim (42) |
   | Fountains | Fountain (36) |
   | Fixture pipeline | Fixture (17), FixtureTools (17), FixtureActor (10), FixtureLibrary (2), Prism (7) |
-  | Console | Frame (13), Undo (11), Integration (7), CommandMatrix (6), UI (6), ShowFile (5), Timecode (4), Playback (4), Naming (4), DMX (4), CopyMove (4), Console (4), Command (4), Readout (3), UndoHygiene (2), Highlight (2), Dial (2) |
   | Other | Mvr (11), AssetBrowser (4) |
 
 - The GDTF import smoke test was upgraded into a full-library auditor supporting mode-only parsing, exception aggregation, and collision statistics.
-- Added a console cold-process audit command line: full-domain show file round-trip, full-domain undo round-trip, and version consistency checks in a clean process.
 - Added the separate ILDA validator command line.
 
 ### Rendering
@@ -294,10 +243,8 @@ The effect categories were reworked to follow the conventions of professional la
 
 ### Migration Notes
 
-- If the SuperConsole plugin was previously installed separately, remove it from the project `Plugins` directory before upgrading to avoid colliding with the module of the same name in the main plugin. The console's record of the last opened show file moved to `SuperStage/Config/SuperConsolePro.ini`.
 - **No fixture class redirectors for old projects**. The fixture asset structure and naming changed substantially this release. Existing projects using the old Blueprint fixtures should stay on the old plugin and not upgrade in place. The only redirectors kept are the Cutting → Shaper set, covering component classes, material nodes, enum values, and Blueprint functions that current assets store by name.
 - Fixture definitions already imported can pick up this release's importer improvements through the right-click "Upgrade in place from source GDTF". By default that operation only reports differences and modifies nothing until confirmed.
-- **The show file format is raised to 2.7, and files saved by this release cannot be read by older versions**. Back up first if a version rollback may be needed. Old show files read normally in this release, with slot names and colors converted automatically to the new appearance format.
 - The fixture library is fully migrated to the volumetric beam pipeline. Material Beam and Material Shaper remain in the dropdown marked Legacy, for fallback use only, and are not recommended for new content.
 - The fountain water surface requires a pool Actor in the scene to render; the fountain device does not carry a water surface of its own.
 
@@ -306,7 +253,6 @@ The effect categories were reworked to follow the conventions of professional la
 ### Plugin Structure Update
 
 - SuperMadrix and SuperLaser have been merged from standalone plugins back into the main SuperStage plugin, and are now runtime modules of the main plugin. Enabling SuperStage is enough; those two plugins no longer need to be installed or enabled separately.
-- The SuperCAD module has been removed from the main plugin. Construction-drawing features are no longer shipped with SuperStage. The 26H2.2 note about "SuperCAD merged back into the main plugin" no longer applies to the current version.
 - The main SuperStage plugin currently contains: SuperCore, SuperDMX, SuperNdi, SuperMadrix, SuperLaser, SuperShader, SuperAuth, SuperAssets, SuperTools.
 
 ### New Rendering Features
@@ -371,14 +317,12 @@ Other changes:
 ### Licensing
 
 - When a session becomes invalid (signed out by support, expired, revoked, or otherwise invalid), the reason is now shown instead of silently clearing the entitlement cache.
-- SuperCAD and SuperMCP were removed from the entitlement module set. The modules that currently require a license are SuperStage, SuperLaser, SuperNdi, and SuperCustom.
 
 ### Documentation and License Files
 
 - Added the software license agreements `LICENSE_zh.txt` / `LICENSE_en.txt` and `THIRD_PARTY_NOTICES.txt`.
 - Added legal documents `docs/legal/terms_zh.md`, `terms_en.md`, `privacy_zh.md`, and `privacy_en.md`.
 - Added partnership policy documents for SuperStageTeam, authorized resellers, and educational institutions.
-- Removed all SuperCAD, construction-drawing, and drawing-deliverable statements from the user documentation set: the product documents, module lists, toolbar manual, fixture library manual, legal documents, and partnership policies were updated to match the current module composition. `SuperCAD_UserManual_zh.md` and `SuperCAD_UserManual_en.md` were deleted.
 - Removed the `docs/tutorial` getting-started documents, along with their entries in the documentation index.
 
 
@@ -386,10 +330,7 @@ Other changes:
 
 ### Plugin Structure Update
 
-- SuperCAD has been merged from a standalone plugin back into the main SuperStage plugin, and is now the built-in editor module `SuperCAD`. Enabling SuperStage is enough; the separate SuperCAD plugin no longer needs to be installed or enabled.
-- The main SuperStage plugin currently contains: SuperCore, SuperDMX, SuperNdi, SuperShader, SuperAuth, SuperAssets, SuperTools, SuperCAD.
-- The SuperCAD user manuals moved to `Plugins/SuperStage/docs/SuperCAD_UserManual_en.md` and `SuperCAD_UserManual_zh.md`.
-- The SuperStage toolbar restores the `Modules > SuperCAD` window entry and the `Docs > ModuleManuals > SuperCAD` manual entry.
+- The main SuperStage plugin currently contains: SuperCore, SuperDMX, SuperNdi, SuperShader, SuperAuth, SuperAssets, SuperTools.
 
 ## 26H2.1
 
@@ -409,7 +350,6 @@ The following features are standalone plugins and must be enabled separately:
 
 | Standalone plugin | Description |
 | --- | --- |
-| SuperCAD | Construction drawing window, annotation, statistics, and DXF/PDF/PNG export. |
 
 ### Main SuperStage User Features
 
@@ -424,7 +364,7 @@ The following features are standalone plugins and must be enabled separately:
 
 ### Documentation Policy Changes
 
-- SuperCAD is no longer described as a built-in SuperStage module; SuperNdi is currently built into SuperStage.
+- SuperNdi is currently built into SuperStage.
 - User documentation no longer states fixed latency, fixed frame rate, fixed hardware scale, or fixed performance improvements that cannot be directly verified from source.
 - Stage structure actors are documented as UE scene-building and displayed-statistics tools only. They do not promise real-world structural safety or regulatory compliance.
 - Removed the `devdocs` directory: its C++ / API reference material is for development and is not part of the product user documentation.
