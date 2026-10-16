@@ -1,6 +1,20 @@
 # SuperStage Changelog
 
 This document records user-visible changes for the current documentation set. It only keeps information that can be confirmed from the current plugin structure, source tree, or user-facing tool entries. Unverified performance claims, internal development notes, and removed-module marketing text have been removed.
+## 26H2.8
+
+### Fixture Library & grandMA
+
+- **Improved GDTF-to-MA2 Conversion Accuracy**: Fixed missing attributes, sub-attributes, slots, color wheels, and gobo wheels. Improved the conversion of default values, physical parameters, and DMX ranges, and resolved conflicts involving multiple modules.
+- **Fixed Fixture Library Path Issues**: Fixture library paths are now resolved based on the plugin's actual installation directory, ensuring compatibility when switching computers, changing drive letters, or renaming installation folders.
+- **Added "Download Fixture Libraries" Menu**: Provides quick access to the local fixture library folder, GDTF Share, and MA Fixture Share for downloading fixture profiles.
+
+### Localization & Documentation
+
+- Completed **3,591 Simplified Chinese translations**, eliminating all remaining empty translation entries in this release.
+- Updated the documentation menu with new Chinese and English documentation and examples for DMX, Blueprint, C++, and NDI integration. Also updated the product documentation and Team policy information.
+
+--
 
 ## 26H2.6
 
